@@ -1,3 +1,5 @@
+// Edited from: http://docs.opencv.org/3.0-last-rst/doc/tutorials/features2d/feature_detection/feature_detection.html#feature-detection
+
 #include <stdio.h>
 #include <iostream>
 #include "opencv2/core.hpp"
