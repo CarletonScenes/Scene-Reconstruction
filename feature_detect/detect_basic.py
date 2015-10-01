@@ -9,5 +9,5 @@ print kp[0], dir(kp[0])
 print kp[0].octave, kp[0].pt, kp[0].angle, kp[0].size, kp[0].response
 img2 = cv2.drawKeypoints(img,kp,None,(255,0,0),4)
 
-# plt.imshow(img2)
-# plt.show()
+plt.imshow(img2)
+plt.show()
