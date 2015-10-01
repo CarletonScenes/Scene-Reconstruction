@@ -6,6 +6,7 @@ This is gonna rock.
 
 On Mac OSX:
 ```bash
+brew tap homebrew/science
 brew install opencv3 --c++11 --with-cuda --with-contrib
 brew ln opencv3 --overwrite --force
 ```
