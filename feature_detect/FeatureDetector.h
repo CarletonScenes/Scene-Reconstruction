@@ -1,5 +1,6 @@
 #pragma once
-#import "Image.h"
+#include "OpenCV.h"
+#include "Image.h"
 
 namespace SceneComps {
 

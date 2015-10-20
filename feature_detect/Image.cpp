@@ -1,5 +1,8 @@
-#import "Image.h";
+#include "Image.h"
 #include "OpenCV.h"
+#include <stdio.h>
+#include <unistd.h>
+#include <iostream>
 
 using namespace cv;
 
