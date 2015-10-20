@@ -6,4 +6,4 @@ class FeatureDetector {
 
 public:
     virtual void Detect(Image image, std::vector<KeyPoint>) = 0;
-}
+};
