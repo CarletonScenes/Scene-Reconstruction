@@ -1,30 +1,21 @@
-using namespace std;
+#import <Image.h>;
+#include "OpenCV.h"
+
 using namespace cv;
 
-class Image{
-    
-    public:
-        void setFlags( std::vector<int>);
-        std::vector<int> getExif();
-        Line(string fileLocation); 
-    private:
-        std::vector<int> flags;
-        string fileLocation;
-        Mat matrix;
- 
-        // OpenCV doesn't support exif. we'll figure that out
-         std::vector<int> exif;
-};
+namespace SceneComps {
 
-Image::Image(string file){
-    fileLocation = file;
+Image::Image(std::string path) {
+    fileLocation = path;
     matrix = imread( fileLocation, CV_LOAD_IMAGE_COLOR);
 }
 
-std::vector<int> Image::getExif(void){
+std::vector<int> Image::getExif(void){ 
     return exif;
 }
 
-void Image::setFlags(std::vector<int> flags){
+void Image::setFlags(std::vector<int> flags) {
     flags = flags;
+}
+
 }
