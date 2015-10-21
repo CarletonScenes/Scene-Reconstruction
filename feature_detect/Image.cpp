@@ -13,12 +13,12 @@ Image::Image(std::string path) {
     matrix = imread( fileLocation, CV_LOAD_IMAGE_COLOR);
 }
 
-std::vector<int> Image::getExif(void){ 
-    return exif;
+int Image::height() {
+    return matrix.size().height;
 }
 
-void Image::setFlags(std::vector<int> flags) {
-    flags = flags;
+int Image::width() {
+    return matrix.size().width;
 }
 
 }

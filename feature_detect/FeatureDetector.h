@@ -6,8 +6,9 @@ namespace SceneComps {
 
 class FeatureDetector {
 
-public:
-    virtual std::vector<KeyPoint> detect(Image image) = 0;
+	public:
+	    virtual std::vector<KeyPoint> detect(Image image) = 0;
+	    
 };
 
 }
