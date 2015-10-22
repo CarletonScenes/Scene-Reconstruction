@@ -33,8 +33,10 @@ int main( int argc, char** argv ) {
 	namedWindow( "SIFT", 0 );
 	imshow("SIFT", detectedImage(Rect(0, 0, image.width(), image.height() )));
 
-	std::cout << "Press any key to exit.\n";
-	getchar();
+	std::cout << "^C to exit.\n";
+	for(;;){
+        waitKey(0);
+    }
 
 	return 0;
 }

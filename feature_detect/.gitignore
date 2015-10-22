@@ -5,4 +5,8 @@ Makefile
 cmake_install.cmake
 install_manifest.txt
 DisplayImage
-FeatureDetect
+*.a
+
+#Executables
+FDTest
+FMTest
