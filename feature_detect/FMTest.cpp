@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include "FeatureDetectorSIFT.h"
+#include "KeyPointDescriptor.h"
 #include "Image.h"
 
 
@@ -24,8 +25,12 @@ int main( int argc, char** argv ) {
     
     // Detect keypoints
     FeatureDetectorSIFT siftDetector = FeatureDetectorSIFT();
-    std::vector<KeyPoint> sift_keypoints1 = siftDetector.detect(image1);
-    std::vector<KeyPoint> sift_keypoints2 = siftDetector.detect(image2);
+    std::vector<KeypointDescriptor> keypoints1 = siftDetector.detect(image1);
+    std::vector<KeypointDescriptor> keypoints2 = siftDetector.detect(image2);
+
+    // Convert descriptors back to cv keypoints :(
+    std::vector<KeyPoint> sift_keypoints1(keypoints1.begin(), keypoints1.end());
+    std::vector<KeyPoint> sift_keypoints2(keypoints2.begin(), keypoints2.end());
 
     //STUFF FROM THE OPEN CV EXAMPLE BELOW
     // https://github.com/npinto/opencv/blob/master/samples/cpp/matcher_simple.cpp
@@ -46,11 +51,10 @@ int main( int argc, char** argv ) {
     drawMatches(image1.matrix, sift_keypoints1, image2.matrix, sift_keypoints2, matches, img_matches);
     imshow("matches", img_matches);
 
-	std::cout << "Press any key to exit.\n";
-	  for(;;){
-    waitKey(0);
-
-  }
+	std::cout << "^C to exit.\n";
+	for(;;){
+        waitKey(0);
+    }
 
 	return 0;
 }
