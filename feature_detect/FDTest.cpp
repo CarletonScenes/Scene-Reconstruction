@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include "FeatureDetectorSIFT.h"
 #include "Image.h"
+#include "KeypointDescriptor.h"
 
 using namespace SceneComps;
 
@@ -19,11 +20,14 @@ int main( int argc, char** argv ) {
     
     // Detect keypoints
     FeatureDetectorSIFT siftDetector = FeatureDetectorSIFT();
-    std::vector<KeyPoint> sift_keypoints = siftDetector.detect(image);
+    std::vector<KeypointDescriptor> sift_keypoints = siftDetector.detect(image);
+
+    // Convert descriptors back to cv keypoints because that's what drawKeypoints takes :(
+    std::vector<KeyPoint> keypoints(sift_keypoints.begin(), sift_keypoints.end());
 
     // Draw keypoints
     Mat detectedImage;
-    drawKeypoints(image.matrix, sift_keypoints, detectedImage, Scalar::all(-1), DrawMatchesFlags::DEFAULT);
+    drawKeypoints(image.matrix, keypoints, detectedImage, Scalar::all(-1), DrawMatchesFlags::DEFAULT);
 
     // Show result
 	namedWindow( "SIFT", 0 );
