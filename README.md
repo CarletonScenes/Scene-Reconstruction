@@ -23,5 +23,6 @@ In C++:
 cd feature_detect
 cmake .
 make
-./FeatureDetect medium.jpg
+./FDTest test.jpg
+./FMTest test1.jpg test2.jpg
 ```
