@@ -5,7 +5,7 @@
 #include "OpenCV.h"
 
 
-namespace SceneComps{
+namespace SceneComps {
     class KeypointDescriptor: public cv::KeyPoint {
         public:
             KeypointDescriptor() : cv::KeyPoint () {};
