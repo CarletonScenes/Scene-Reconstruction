@@ -52,10 +52,6 @@ void onMouse(int event, int x, int y, int flags, void* userdata) {
 
         vector<DMatch> line;
 
-        // cout << filteredMatches[0];
-
-        cout << filteredMatches.size();
-
         // If in distance threshold, find the matching. Otherwise, draw an empty matching
         if (minDistance < 20) {
             for (vector<DMatch>::iterator it = filteredMatches.begin(); it != filteredMatches.end(); ++it) {
