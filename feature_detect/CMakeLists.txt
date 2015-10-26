@@ -1,7 +1,15 @@
 cmake_minimum_required(VERSION 2.8)
-project( FMTest )
+project( SceneComps )
 find_package( OpenCV 3 REQUIRED )
 include_directories( ${OpenCV_INCLUDE_DIRS} )
-file(GLOB SRCFILES *.cpp)
-add_executable( FMTest ${SRCFILES})
+file( GLOB LIB_SOURCES *.cpp )
+file( GLOB LIB_HEADERS *.h )
+add_library( SC ${LIB_SOURCES} ${LIB_HEADERS} )
+
+add_executable( FMTest FMTest.cpp)
+target_link_libraries( FMTest SC )
 target_link_libraries( FMTest ${OpenCV_LIBS} )
+
+add_executable( FDTest FDTest.cpp)
+target_link_libraries( FDTest SC )
+target_link_libraries( FDTest ${OpenCV_LIBS} )

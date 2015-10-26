@@ -80,8 +80,8 @@ int main( int argc, char** argv ) {
     
     // Detect keypoints
     FeatureDetectorSIFT siftDetector = FeatureDetectorSIFT();
-    vector<KeyPoint> keypoints1 = siftDetector.detect(image1);
-    vector<KeyPoint> keypoints2 = siftDetector.detect(image2);
+    vector<KeypointDescriptor> keypoints1 = siftDetector.detect(image1);
+    vector<KeypointDescriptor> keypoints2 = siftDetector.detect(image2);
 
     sift_keypoints1 = vector<KeyPoint>(keypoints1.begin(), keypoints1.end());
     sift_keypoints2 = vector<KeyPoint>(keypoints2.begin(), keypoints2.end());

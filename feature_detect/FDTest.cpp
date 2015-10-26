@@ -3,44 +3,40 @@
 #include <unistd.h>
 #include "FeatureDetectorSIFT.h"
 #include "Image.h"
+#include "KeypointDescriptor.h"
 
-
-using namespace cv;
-using namespace cv::xfeatures2d;
 using namespace SceneComps;
 
-//int main( int argc, char** argv ) {
-//
-//	if (argc != 2) { 
-//		std::cout << "Must provide filepath argument.\n";
-//		return -1; 
-//	}
-//
-//	// Create image
-//	std::string filepath1 = argv[1];
-//	Image image1 = Image(filepath1);
-//    std::string filepath2 = argv[2];
-//	Image image2 = Image(filepath2);
-//    
-//    // Detect keypoints
-//    FeatureDetectorSIFT siftDetector = FeatureDetectorSIFT();
-//    std::vector<KeyPoint> sift_keypoints1 = siftDetector.detect(image1);
-//    std::vector<KeyPoint> sift_keypoints2 = siftDetector.detect(image2);
-// 
-//    // Draw keypoints
-//    Mat detectedImage1;
-//    Mat detectedImage2;
-//    drawKeypoints(image1.matrix, sift_keypoints1, detectedImage1, Scalar::all(-1), DrawMatchesFlags::DEFAULT);
-//    
-//    // Show result
-//	namedWindow( "SIFT", 0 );
-//	imshow("SIFT", detectedImage1(Rect(0, 0, image1.width(), image1.height() )));
-//
-//	std::cout << "Press any key to exit.\n";
-//	  for(;;){
-//    waitKey(0);
-//
-//  }
-//
-//	return 0;
-//}
+int main( int argc, char** argv ) {
+
+	if (argc != 2) { 
+		std::cout << "Must provide filepath argument.\n";
+		return -1; 
+	}
+
+	// Create image
+	std::string filepath = argv[1];
+	Image image = Image(filepath);
+    
+    // Detect keypoints
+    FeatureDetectorSIFT siftDetector = FeatureDetectorSIFT();
+    std::vector<KeypointDescriptor> sift_keypoints = siftDetector.detect(image);
+
+    // Convert descriptors back to cv keypoints because that's what drawKeypoints takes :(
+    std::vector<KeyPoint> keypoints(sift_keypoints.begin(), sift_keypoints.end());
+
+    // Draw keypoints
+    Mat detectedImage;
+    drawKeypoints(image.matrix, keypoints, detectedImage, Scalar::all(-1), DrawMatchesFlags::DEFAULT);
+
+    // Show result
+	namedWindow( "SIFT", 0 );
+	imshow("SIFT", detectedImage(Rect(0, 0, image.width(), image.height() )));
+
+	std::cout << "^C to exit.\n";
+	for(;;){
+        waitKey(0);
+    }
+
+	return 0;
+}
