@@ -125,14 +125,6 @@ int main( int argc, char** argv ) {
         }
     }
     
-    
-    // drawing the results
-    // namedWindow("matches", 1);
-    
-    // drawMatches(image1.matrix, sift_keypoints1, image2.matrix, sift_keypoints2, matches, img_matches);
-    // drawMatches(image1.matrix, sift_keypoints1, image2.matrix, sift_keypoints2, filteredMatches, filtered_matches_matrix);
-    // imshow("matches", img_matches);
-    
     namedWindow("filtered_matches", 1);
     setMouseCallback("filtered_matches", onMouse, NULL);
     drawMatches(image1.matrix, sift_keypoints1, image2.matrix, sift_keypoints2, emptyMatches, filtered_matches_matrix, matchColor, pointColor);
