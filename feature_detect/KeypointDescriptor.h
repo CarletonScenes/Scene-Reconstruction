@@ -4,7 +4,6 @@
 #include "Image.h"
 #include "OpenCV.h"
 
-
 namespace SceneComps {
    class KeypointDescriptor: public cv::KeyPoint {
        public:

@@ -5,6 +5,8 @@
 #include "FeatureDetectorSIFT.h"
 #include "KeyPointDescriptor.h"
 #include "Image.h"
+#include "opencv2/calib3d.hpp"
+#include "opencv2/xfeatures2d/nonfree.hpp"
 
 
 using namespace cv;
@@ -13,8 +15,11 @@ using namespace SceneComps;
 using namespace std;
 
 vector<DMatch> matches;
+
+vector<DMatch> filteredMatches;
 vector<DMatch> emptyMatches;
-Mat img_matches;
+
+Mat filtered_matches_matrix;
 
 vector<KeyPoint> sift_keypoints1;
 vector<KeyPoint> sift_keypoints2;
@@ -33,10 +38,11 @@ void onMouse(int event, int x, int y, int flags, void* userdata) {
 
         // Find closest keypoint
         int index = 0;
-        for (std::vector<KeyPoint>::iterator it = sift_keypoints1.begin(); it != sift_keypoints1.end(); ++it) {
+        for (vector<KeyPoint>::iterator it = sift_keypoints1.begin(); it != sift_keypoints1.end(); ++it) {
             int kpx = it->pt.x;
             int kpy = it->pt.y;
             float distance = sqrt(pow(x-kpx, 2) + pow(y-kpy, 2));
+            // cout << "iterating\n";
             if (distance < minDistance) {
                 minDistance = distance;
                 closest = index;
@@ -48,29 +54,29 @@ void onMouse(int event, int x, int y, int flags, void* userdata) {
 
         // If in distance threshold, find the matching. Otherwise, draw an empty matching
         if (minDistance < 20) {
-            for (std::vector<DMatch>::iterator it = matches.begin(); it != matches.end(); ++it) {
+            for (vector<DMatch>::iterator it = filteredMatches.begin(); it != filteredMatches.end(); ++it) {
                 if (it->queryIdx == closest) {
                     line.push_back(*it);
                 }
             }
         }
-        drawMatches(image1.matrix, sift_keypoints1, image2.matrix, sift_keypoints2, line, img_matches, matchColor, pointColor);
-        imshow("matches", img_matches);
+        drawMatches(image1.matrix, sift_keypoints1, image2.matrix, sift_keypoints2, line, filtered_matches_matrix, matchColor, pointColor);
+        imshow("filtered_matches", filtered_matches_matrix);
     }
 }
 
 int main( int argc, char** argv ) {
-
+    
 	if (argc != 3) { 
 		cout << "Must provide filepath argument.\n";
 		return -1; 
 	}
 
 	// Create image
-	string filepath1 = argv[1];
-	image1 = Image(filepath1);
+    string filepath1 = argv[1];
+    image1 = Image(filepath1);
     string filepath2 = argv[2];
-	image2 = Image(filepath2);
+    image2 = Image(filepath2);
     
     // Detect keypoints
     FeatureDetectorSIFT siftDetector = FeatureDetectorSIFT();
@@ -85,7 +91,6 @@ int main( int argc, char** argv ) {
     // https://github.com/npinto/opencv/blob/master/samples/cpp/matcher_simple.cpp
     cv::Ptr<Feature2D> f2d = xfeatures2d::SIFT::create();
     
-    //SiftDescriptorExtractor extractor;
     Mat descriptors1, descriptors2; 
     f2d->compute(image1.matrix, sift_keypoints1, descriptors1);
     f2d->compute(image2.matrix, sift_keypoints2, descriptors2);
@@ -93,15 +98,39 @@ int main( int argc, char** argv ) {
     BFMatcher matcher;
     matcher.match(descriptors1, descriptors2, matches);
     
-    // drawing the results
-    namedWindow("matches", 1);
-    setMouseCallback("matches", onMouse, NULL);
+    vector<Point2f> ptList1;
+    vector<Point2f> ptList2;
+    
+    vector<int> queryIdxs;
+    vector<int> trainIdxs;
+    
+    for (vector<DMatch>::size_type i = 0; i != matches.size(); i++){
+        queryIdxs.push_back(matches[i].queryIdx);
+        trainIdxs.push_back(matches[i].trainIdx);
+    }
+    
+    KeyPoint::convert(sift_keypoints1, ptList1, queryIdxs);
+    KeyPoint::convert(sift_keypoints2, ptList2, trainIdxs);
+    
+    vector<uchar> funOut;
+    
+    //press 8 for RANSAC
+    Mat F = findFundamentalMat(ptList1, ptList2, 8, 3, .99, funOut);
+    
+    vector<int> funOutInt(funOut.begin(), funOut.end());
+    
+    for (vector<int>::size_type i = 0; i != funOut.size(); i++){
+        if (funOutInt[i]==1){
+            filteredMatches.push_back(matches[i]);
+        }
+    }
+    
+    namedWindow("filtered_matches", 1);
+    setMouseCallback("filtered_matches", onMouse, NULL);
+    drawMatches(image1.matrix, sift_keypoints1, image2.matrix, sift_keypoints2, emptyMatches, filtered_matches_matrix, matchColor, pointColor);
+    imshow("filtered_matches", filtered_matches_matrix);
 
-    drawMatches(image1.matrix, sift_keypoints1, image2.matrix, sift_keypoints2, emptyMatches, img_matches, matchColor, pointColor);
-    imshow("matches", img_matches);
-
-	cout << "^C to exit.\n";
-
+    cout << "^C to exit.\n";
     waitKey(0);
 
 	return 0;
