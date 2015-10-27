@@ -83,6 +83,7 @@ int main( int argc, char** argv ) {
     vector<KeypointDescriptor> keypoints1 = siftDetector.detect(image1);
     vector<KeypointDescriptor> keypoints2 = siftDetector.detect(image2);
 
+    // Convert descriptors back to cv keypoints :(
     sift_keypoints1 = vector<KeyPoint>(keypoints1.begin(), keypoints1.end());
     sift_keypoints2 = vector<KeyPoint>(keypoints2.begin(), keypoints2.end());
 
@@ -119,7 +120,6 @@ int main( int argc, char** argv ) {
     vector<int> funOutInt(funOut.begin(), funOut.end());
     
     for (vector<int>::size_type i = 0; i != funOut.size(); i++){
-        cout << funOutInt[i];
         if (funOutInt[i]==1){
             filteredMatches.push_back(matches[i]);
         }
