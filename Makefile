@@ -11,11 +11,6 @@
 
 ANN_TARGET = linux-g++-shared
 
-OS = $(shell uname -o)
-ifeq ($(OS), Cygwin)
-ANN_TARGET = win32-g++-shared
-endif
-
 default:
 # Make libraries
 	cd lib/5point; $(MAKE)

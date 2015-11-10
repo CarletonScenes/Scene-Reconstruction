@@ -16,13 +16,7 @@
 CC = gcc
 SHELL = /bin/sh
 CFLAGS = -O
-
-OS = $(shell uname -o)
-
 AOUT = ./a.out
-ifeq ($(OS), Cygwin)
-AOUT = ./a.exe
-endif
 
 # compile, then strip unnecessary symbols
 .c.o:

@@ -58,8 +58,8 @@
 extern int optind;
 
 static void ReadFisheyeParameters(char *filename, 
-				  double &fCx, double &fCy, 
-				  double &fRad, double &fAngle, 
+                                  double &fCx, double &fCy, 
+                                  double &fRad, double &fAngle, 
                                   double &fFocal)
 {
     fCx = 0.0;
@@ -69,52 +69,52 @@ static void ReadFisheyeParameters(char *filename,
     FILE *f = fopen(filename, "r");
 
     if (f == NULL) {
-	printf("Error opening fisheye parameters file %s for reading\n", 
-	       filename);
-	exit(1);
+        printf("Error opening fisheye parameters file %s for reading\n", 
+               filename);
+        exit(1);
     }
 
     char buf[256];
     while (fgets(buf, 256, f) != NULL) {
-	/* Split the command into tokens */
+        /* Split the command into tokens */
         std::string str(buf);
     
-	std::vector<std::string> toks;
-	
+        std::vector<std::string> toks;
+        
         Tokenize(str, toks, " ");
 
-	if (strcmp(toks[0].c_str(), "FisheyeCenter:") == 0) {
-	    if (toks.size() != 3) {
-		printf("FisheyeCenter needs two arguments!\n");
-		exit(1);
-	    } else {
-		fCx = atof(toks[1].c_str());
-		fCy = atof(toks[2].c_str());
-	    }
-	} else if (strcmp(toks[0].c_str(), "FisheyeRadius:") == 0) {
-	    if (toks.size() != 2) {
-		printf("FisheyeRadius needs one argument!\n");
-		exit(1);
-	    } else {
-		fRad = atof(toks[1].c_str());
-	    }
-	} else if (strcmp(toks[0].c_str(), "FisheyeAngle:") == 0) {
-	    if (toks.size() != 2) {
-		printf("FisheyeAngle needs one argument!\n");
-		exit(1);
-	    } else {
-		fAngle = atof(toks[1].c_str());
-	    }	    
-	} else if (strcmp(toks[0].c_str(), "FisheyeFocal:") == 0) {
-	    if (toks.size() != 2) {
-		printf("FisheyeFocal needs one argument!\n");
-		exit(1);
-	    } else {
-		fFocal = atof(toks[1].c_str());
-	    }
-	} else {
-	    printf("Unrecognized fisheye field %s\n", toks[0].c_str());
-	}
+        if (strcmp(toks[0].c_str(), "FisheyeCenter:") == 0) {
+            if (toks.size() != 3) {
+                printf("FisheyeCenter needs two arguments!\n");
+                exit(1);
+            } else {
+                fCx = atof(toks[1].c_str());
+                fCy = atof(toks[2].c_str());
+            }
+        } else if (strcmp(toks[0].c_str(), "FisheyeRadius:") == 0) {
+            if (toks.size() != 2) {
+                printf("FisheyeRadius needs one argument!\n");
+                exit(1);
+            } else {
+                fRad = atof(toks[1].c_str());
+            }
+        } else if (strcmp(toks[0].c_str(), "FisheyeAngle:") == 0) {
+            if (toks.size() != 2) {
+                printf("FisheyeAngle needs one argument!\n");
+                exit(1);
+            } else {
+                fAngle = atof(toks[1].c_str());
+            }       
+        } else if (strcmp(toks[0].c_str(), "FisheyeFocal:") == 0) {
+            if (toks.size() != 2) {
+                printf("FisheyeFocal needs one argument!\n");
+                exit(1);
+            } else {
+                fFocal = atof(toks[1].c_str());
+            }
+        } else {
+            printf("Unrecognized fisheye field %s\n", toks[0].c_str());
+        }
     }
 
     fclose(f);
@@ -123,8 +123,8 @@ static void ReadFisheyeParameters(char *filename,
 void PrintUsage() 
 {
     printf("Usage:  bundler <input.txt> [options]\n"
-	   "  Options:\n"
-	   "\n"
+           "  Options:\n"
+           "\n"
            "  [Action options]\n"
            "     --run_bundle\n"
            "        Run structure from motion (usually what you want to do)\n"
@@ -137,14 +137,14 @@ void PrintUsage()
            "        file are written to list.compressed.txt and "
                     "bundle.compressed.out\n"
            "\n"
-	   "  [Bundle adjustment options]\n"
+           "  [Bundle adjustment options]\n"
            "    [Focal length options]\n"
-	   "      --init_focal_length <f>\n"
-	   "         Set initial focal length to <f>\n"
-	   "      --variable_focal_length\n"
-	   "         Allow focal lengths to vary for each image\n"
-	   "      --fixed_focal_length\n"
-	   "         Fix the focal length for all cameras\n"
+           "      --init_focal_length <f>\n"
+           "         Set initial focal length to <f>\n"
+           "      --variable_focal_length\n"
+           "         Allow focal lengths to vary for each image\n"
+           "      --fixed_focal_length\n"
+           "         Fix the focal length for all cameras\n"
            "         (set to init_focal_length)\n"
            "      --use_focal_estimate\n"
            "         Initialize using focal length estimates specified\n"
@@ -160,11 +160,11 @@ void PrintUsage()
            "         Default is 0.0001.\n"
            "\n"
            "    [Other bundle adjustment options]\n"
-	   "      --fisheye <paramfile>\n"
-	   "         Read fisheye parameters from given file\n"
-	   "      --init_pair1 <img1>\n"
-	   "      --init_pair2 <img1>\n"
-	   "         Indices of the images with which to seed\n"
+           "      --fisheye <paramfile>\n"
+           "         Read fisheye parameters from given file\n"
+           "      --init_pair1 <img1>\n"
+           "      --init_pair2 <img1>\n"
+           "         Indices of the images with which to seed\n"
            "         bundle adjustment\n"
            "      --estimate_distortion\n"
            "         Estimate radial distortion parameters (2 coefficients)\n"
@@ -178,51 +178,51 @@ void PrintUsage()
            "      --max_proj_error_threshold <max>\n"
            "         The minimum and maximum values of the adaptive outlier\n"
            "         threshold.  Defaults are 8 and 16.\n"
-	   "      --bundle <file>\n"
-	   "         Read previous bundle adjustment results from <file>\n"
+           "      --bundle <file>\n"
+           "         Read previous bundle adjustment results from <file>\n"
            "      --ignore_file <file>\n"
            "         Don't try to register any image whose index appears in "
                    "<file>\n"
            "      --slow_bundle\n"
            "         Run the slow version of bundle adjustment (adds one\n"
            "         image at a time)\n"
-	   "\n"
-	   "  [Output options]\n"
-	   "    --output <file>\n"
-	   "       Save bundle adjustment output to <file>\n"
-	   "    --output_all <base>\n"
-	   "       Save intermediate bundle adjustment results\n"
-	   "    --output_dir\n"
-	   "       Specifies the directory in which to save output files\n"
+           "\n"
+           "  [Output options]\n"
+           "    --output <file>\n"
+           "       Save bundle adjustment output to <file>\n"
+           "    --output_all <base>\n"
+           "       Save intermediate bundle adjustment results\n"
+           "    --output_dir\n"
+           "       Specifies the directory in which to save output files\n"
            "\n"
            "  [Other options]\n"
            "    --options_file <file>\n"
            "       Read options from <file>.\n"
-	   "    --match_dir <dir>\n"
-	   "       Specifies the directory where the match-*-*.txt\n"
-	   "       files are stored.\n"
-	   "    --help\n"
-	   "       Print this message\n\n");
+           "    --match_dir <dir>\n"
+           "       Specifies the directory where the match-*-*.txt\n"
+           "       files are stored.\n"
+           "    --help\n"
+           "       Print this message\n\n");
 }
 
 void BundlerApp::ProcessOptions(int argc, char **argv) 
 {
     /* Read options */
     while (1) {
-	static struct option long_options[] = {
-	    {"fisheye",      1, 0, 'f'},
+        static struct option long_options[] = {
+            {"fisheye",      1, 0, 'f'},
             {"intrinsics",   1, 0, 357}, //
 
-	    {"init_pair1",   1, 0, 'p'},
-	    {"init_pair2",   1, 0, 'q'},
-	    {"output",       1, 0, 'o'},
-	    {"output_all",   1, 0, 'a'},
-	    {"init_focal_length",  1, 0, 'i'},
-	    {"variable_focal_length", 0, 0, 'v'},
-	    {"fixed_focal_length", 0, 0, 'x'},
-	    {"run_bundle",   0, 0, 'r'},
-	    {"rerun_bundle", 0, 0, 'j'},
-	    {"slow_bundle",  0, 0, 'D'},
+            {"init_pair1",   1, 0, 'p'},
+            {"init_pair2",   1, 0, 'q'},
+            {"output",       1, 0, 'o'},
+            {"output_all",   1, 0, 'a'},
+            {"init_focal_length",  1, 0, 'i'},
+            {"variable_focal_length", 0, 0, 'v'},
+            {"fixed_focal_length", 0, 0, 'x'},
+            {"run_bundle",   0, 0, 'r'},
+            {"rerun_bundle", 0, 0, 'j'},
+            {"slow_bundle",  0, 0, 'D'},
 
 #ifdef __USE_CERES__
             {"use_ceres",    0, 0, 371},
@@ -231,7 +231,7 @@ void BundlerApp::ProcessOptions(int argc, char **argv)
             {"skip_full_bundle", 0, 0, 321},//
             {"skip_add_points", 0, 0, 322},//
 
-	    {"compress_list", 0, 0, '4'},
+            {"compress_list", 0, 0, '4'},
             {"scale_focal", 1, 0, 305},//
             {"scale_focal_file", 1, 0, 307},//
 
@@ -265,45 +265,45 @@ void BundlerApp::ProcessOptions(int argc, char **argv)
             {"covariance_fix1", 1, 0, 341},//
             {"covariance_fix2", 1, 0, 342},//
 
-	    {"ignore_file",  1, 0, 'L'},
-	    {"use_focal_estimate", 0, 0, 'U'},
+            {"ignore_file",  1, 0, 'L'},
+            {"use_focal_estimate", 0, 0, 'U'},
             {"trust_focal_estimate", 0, 0, '_'},
             {"estimate_ignored", 0, 0, 344},//
             {"reposition_scene", 0, 0, 'R'},//
             {"keypoint_border_width", 1, 0, 355},//
             {"keypoint_border_bottom", 1, 0, 365},//
 
-	    {"min_track_views", 1, 0, 'V'},//
-	    {"max_track_views", 1, 0, 320},//
+            {"min_track_views", 1, 0, 'V'},//
+            {"max_track_views", 1, 0, 320},//
             {"min_max_matches", 1, 0, 362},//
             {"min_feature_matches", 1, 0, 369},//
             {"num_matches_add_camera", 1, 0, 370},
 
-	    {"ray_angle_threshold", 1, 0, 'N'},
-	    {"estimate_distortion", 0, 0, 347},
+            {"ray_angle_threshold", 1, 0, 'N'},
+            {"estimate_distortion", 0, 0, 347},
             {"distortion_weight", 1, 0, 348},//
-	    {"construct_max_connectivity", 0, 0, '*'},//
+            {"construct_max_connectivity", 0, 0, '*'},//
 
-	    {"homography_threshold", 1, 0, 'H'},//
-	    {"homography_rounds",    1, 0, 345},//
-	    {"fmatrix_threshold",    1, 0, 'F'},//
-	    {"fmatrix_rounds",       1, 0, 'S'},//
+            {"homography_threshold", 1, 0, 'H'},//
+            {"homography_rounds",    1, 0, 345},//
+            {"fmatrix_threshold",    1, 0, 'F'},//
+            {"fmatrix_rounds",       1, 0, 'S'},//
             {"skip_fmatrix",         0, 0, 306},//
             {"skip_homographies",         0, 0, 319},//
-	    {"projection_estimation_threshold", 1, 0, 'P'},
+            {"projection_estimation_threshold", 1, 0, 'P'},
             {"min_proj_error_threshold", 1, 0, 317},
             {"max_proj_error_threshold", 1, 0, 318},
             {"use_angular_score", 0, 0, 349},//
             
-	    {"up_image",             1, 0, 'E'},
-	    {"estimate_up_vector_szeliski", 0, 0, 'Z'},
-	    {"min_camera_distance_ratio", 1, 0, 'C'},//
-	    // {"baseline_threshold",   1, 0, 'B'},
+            {"up_image",             1, 0, 'E'},
+            {"estimate_up_vector_szeliski", 0, 0, 'Z'},
+            {"min_camera_distance_ratio", 1, 0, 'C'},//
+            // {"baseline_threshold",   1, 0, 'B'},
             {"optimize_for_fisheye",  0, 0, 'B'},//
 
             {"assemble",     0, 0, 308},//
-	    {"bundle",       1, 0, 'b'},
-	    {"match_dir",    1, 0, 'm'},
+            {"bundle",       1, 0, 'b'},
+            {"match_dir",    1, 0, 'm'},
             {"match_index_dir", 1, 0, 366},
             {"match_table",  1, 0, 364},
             {"image_dir",    1, 0, 300},//
@@ -312,109 +312,109 @@ void BundlerApp::ProcessOptions(int argc, char **argv)
             {"analyze_matches", 0, 0, 'M'},//
             {"ann_max_pts_visit", 1, 0, 302},//
 
-	    {"output_dir",   1, 0, 'u'},
-	    {"use_constraints", 0, 0, '=' },
-	    {"constrain_focal", 0, 0, '$'},
-	    {"constrain_focal_weight", 1, 0, 'J'},
-	    {"only_bundle_init_focal", 0, 0, 'y'},//
+            {"output_dir",   1, 0, 'u'},
+            {"use_constraints", 0, 0, '=' },
+            {"constrain_focal", 0, 0, '$'},
+            {"constrain_focal_weight", 1, 0, 'J'},
+            {"only_bundle_init_focal", 0, 0, 'y'},//
             {"no_factor_essential", 0, 0, 339},//
 
-	    {"point_constraint_file", 1, 0, 'Y'},//
-	    {"point_constraint_weight", 1, 0, 'w'},//
+            {"point_constraint_file", 1, 0, 'Y'},//
+            {"point_constraint_weight", 1, 0, 'w'},//
 
-	    {"fix_necker",   0, 0, 'n'},//
-	    {"sift_binary",  1, 0, 's'},//
-	    {"options_file", 1, 0, 'z'},
-	    {"add_images",   1, 0, '@'},//
+            {"fix_necker",   0, 0, 'n'},//
+            {"sift_binary",  1, 0, 's'},//
+            {"options_file", 1, 0, 'z'},
+            {"add_images",   1, 0, '@'},//
 
-	    {"scale",        1, 0, '9'},
+            {"scale",        1, 0, '9'},
             {"morph_steps",  1, 0, '0'},
             {"image_rescale", 1, 0, '+'},
 
-	    {"help",         0, 0, 'h'},
+            {"help",         0, 0, 'h'},
 
-	    {0, 0, 0, 0}
-	};
+            {0, 0, 0, 0}
+        };
 
-	int option_index;
-	int c = getopt_long(argc, argv, "f:do:a:i:x",
-			    long_options, &option_index);
+        int option_index;
+        int c = getopt_long(argc, argv, "f:do:a:i:x",
+                            long_options, &option_index);
 
-	if (c == -1)
-	    break;
-	
-	switch (c) {
-	    case 'h':
-		/* Print usage */
-		PrintUsage();
-		exit(0);
-		break;
+        if (c == -1)
+            break;
+        
+        switch (c) {
+            case 'h':
+                /* Print usage */
+                PrintUsage();
+                exit(0);
+                break;
 
-	    case 'f':
-		m_fisheye = true;
-		printf("Using fisheye lens, param file: %s\n", optarg);
-		m_fisheye_params = strdup(optarg);
-		break;
+            case 'f':
+                m_fisheye = true;
+                printf("Using fisheye lens, param file: %s\n", optarg);
+                m_fisheye_params = strdup(optarg);
+                break;
 
             case 357:
                 m_use_intrinsics = true;
                 m_intrinsics_file = strdup(optarg);
                 break;
 
-	    case 'p':
-		m_initial_pair[0] = atoi(optarg);
-		break;
-	    case 'q':
-		m_initial_pair[1] = atoi(optarg);
-		break;
+            case 'p':
+                m_initial_pair[0] = atoi(optarg);
+                break;
+            case 'q':
+                m_initial_pair[1] = atoi(optarg);
+                break;
 
             case 347:
                 m_estimate_distortion = true;
-		break;
+                break;
 
             case 348:
                 m_distortion_weight = atof(optarg);
-		break;
+                break;
 
             case 349:
                 m_use_angular_score = true;
                 break;
 
-	    case '*':
-		m_construct_max_connectivity = true;
-		break;
+            case '*':
+                m_construct_max_connectivity = true;
+                break;
 
-	    case 'o':
-		m_bundle_output_file = strdup(optarg);
-		break;
+            case 'o':
+                m_bundle_output_file = strdup(optarg);
+                break;
 
-	    case 'a':
-		m_bundle_output_base = strdup(optarg);
-		break;
+            case 'a':
+                m_bundle_output_base = strdup(optarg);
+                break;
 
-	    case 'i':
-		m_init_focal_length = atof(optarg);
-		break;
+            case 'i':
+                m_init_focal_length = atof(optarg);
+                break;
 
-	    case 'v':
-		m_fixed_focal_length = false;
-		break;
+            case 'v':
+                m_fixed_focal_length = false;
+                break;
 
-	    case 'x':
-		m_fixed_focal_length = true;
-		break;
+            case 'x':
+                m_fixed_focal_length = true;
+                break;
 
-	    case 'r':
-		m_run_bundle = true;
-		break;
+            case 'r':
+                m_run_bundle = true;
+                break;
 
-	    case 'j':
-		m_rerun_bundle = true;
-		break;
+            case 'j':
+                m_rerun_bundle = true;
+                break;
 
-	    case 'D':
-		m_fast_bundle = false;
-		break;
+            case 'D':
+                m_fast_bundle = false;
+                break;
 
 #ifdef __USE_CERES__
             case 371:
@@ -422,17 +422,17 @@ void BundlerApp::ProcessOptions(int argc, char **argv)
                 break;
 #endif /* __USE_CERES__ */
 
-	    case 321:
-		m_skip_full_bundle = true;
-		break;
+            case 321:
+                m_skip_full_bundle = true;
+                break;
 
-	    case 322:
-		m_skip_add_points = true;
-		break;
+            case 322:
+                m_skip_add_points = true;
+                break;
 
-	    case '4':
-		m_compress_list = true;
-		break;
+            case '4':
+                m_compress_list = true;
+                break;
 
             case 'R':
                 m_reposition_scene = true;
@@ -495,37 +495,37 @@ void BundlerApp::ProcessOptions(int argc, char **argv)
                 m_enrich_points = true;
                 break;
 
-	    case 'L':
-		m_ignore_file = strdup(optarg);
-		break;
+            case 'L':
+                m_ignore_file = strdup(optarg);
+                break;
 
-	    case '@':
-		m_add_image_file = strdup(optarg);
-		break;
+            case '@':
+                m_add_image_file = strdup(optarg);
+                break;
 
-	    case 'U':
-		m_use_focal_estimate = true;
-		break;
+            case 'U':
+                m_use_focal_estimate = true;
+                break;
 
             case '_':
                 m_trust_focal_estimate = true;
                 break;
 
-	    case 'H':
-		m_homography_threshold = atof(optarg);
-		break;
-		
-	    case 345:
-		m_homography_rounds = atoi(optarg);
-		break;
+            case 'H':
+                m_homography_threshold = atof(optarg);
+                break;
+                
+            case 345:
+                m_homography_rounds = atoi(optarg);
+                break;
 
-	    case 'F':
-		m_fmatrix_threshold = atof(optarg);
-		break;
-		
-	    case 'S':
-		m_fmatrix_rounds = atoi(optarg);
-		break;
+            case 'F':
+                m_fmatrix_threshold = atof(optarg);
+                break;
+                
+            case 'S':
+                m_fmatrix_rounds = atoi(optarg);
+                break;
 
             case 306:
                 m_skip_fmatrix = true;
@@ -535,44 +535,44 @@ void BundlerApp::ProcessOptions(int argc, char **argv)
                 m_skip_homographies = true;
                 break;
 
-	    case 'P':
-		m_projection_estimation_threshold = atof(optarg);
-		break;
+            case 'P':
+                m_projection_estimation_threshold = atof(optarg);
+                break;
 
-	    case 317:
-		m_min_proj_error_threshold = atof(optarg);
-		break;
+            case 317:
+                m_min_proj_error_threshold = atof(optarg);
+                break;
 
-	    case 318:
-		m_max_proj_error_threshold = atof(optarg);
-		break;
+            case 318:
+                m_max_proj_error_threshold = atof(optarg);
+                break;
 
-	    case 'C':
-		m_min_camera_distance_ratio = atof(optarg);
-		break;
+            case 'C':
+                m_min_camera_distance_ratio = atof(optarg);
+                break;
 
-	    case 'B':
-		// m_baseline_threshold = atof(optarg);
+            case 'B':
+                // m_baseline_threshold = atof(optarg);
                 m_optimize_for_fisheye = true;
-		break;
+                break;
 
-	    case 'E':
-		m_up_image = atoi(optarg);
-		break;
+            case 'E':
+                m_up_image = atoi(optarg);
+                break;
 
 #if 0
-	    case 'T':
-		m_start_camera = atoi(optarg);
-		break;
+            case 'T':
+                m_start_camera = atoi(optarg);
+                break;
 #endif
 
-	    case 'V':
-		m_min_track_views = atoi(optarg);
-		break;
+            case 'V':
+                m_min_track_views = atoi(optarg);
+                break;
 
-	    case 320:
-		m_max_track_views = atoi(optarg);
-		break;
+            case 320:
+                m_max_track_views = atoi(optarg);
+                break;
 
             case 362:
                 m_min_max_matches = atoi(optarg);
@@ -586,22 +586,22 @@ void BundlerApp::ProcessOptions(int argc, char **argv)
                 m_num_matches_add_camera = atoi(optarg);
                 break;
 
-	    case 'N':
-		m_ray_angle_threshold = atof(optarg);
-		break;
+            case 'N':
+                m_ray_angle_threshold = atof(optarg);
+                break;
 
             case 308: /* assemble */
                 m_assemble = true;
                 break;
 
-	    case 'b':
-		m_bundle_provided = true;
-		m_bundle_file = strdup(optarg);
-		break;
+            case 'b':
+                m_bundle_provided = true;
+                m_bundle_file = strdup(optarg);
+                break;
 
-	    case 'm':
-		m_match_directory = strdup(optarg);
-		break;
+            case 'm':
+                m_match_directory = strdup(optarg);
+                break;
             case 366:
                 m_match_index_dir = strdup(optarg);
                 break;
@@ -632,107 +632,107 @@ void BundlerApp::ProcessOptions(int argc, char **argv)
                 printf("  ann_max_pts_visit: %d\n", m_ann_max_pts_visit);
                 break;
 
-	    case 'u':
-		m_output_directory = strdup(optarg);
-		break;
-	    case '=':
-		m_use_constraints = true;
-		break;
-	    case '$':
-		m_constrain_focal = true;
-		break;
-	    case 'J':
-		m_constrain_focal_weight = atof(optarg);
-		break;
-	    case 'y':
-		m_only_bundle_init_focal = true;
-		break;
+            case 'u':
+                m_output_directory = strdup(optarg);
+                break;
+            case '=':
+                m_use_constraints = true;
+                break;
+            case '$':
+                m_constrain_focal = true;
+                break;
+            case 'J':
+                m_constrain_focal_weight = atof(optarg);
+                break;
+            case 'y':
+                m_only_bundle_init_focal = true;
+                break;
 
-	    case 'Y':
-		m_point_constraint_file = strdup(optarg);
-		break;
+            case 'Y':
+                m_point_constraint_file = strdup(optarg);
+                break;
 
-	    case 'w':
-		m_point_constraint_weight = atof(optarg);
-		break;
+            case 'w':
+                m_point_constraint_weight = atof(optarg);
+                break;
 
-	    case 'n':
-		m_fix_necker = true;
-		break;
-	    case 's':
-		m_sift_binary = strdup(optarg);
-		break;
+            case 'n':
+                m_fix_necker = true;
+                break;
+            case 's':
+                m_sift_binary = strdup(optarg);
+                break;
 
-	    case 'Z':
-		m_estimate_up_vector_szeliski = true;
-		break;
+            case 'Z':
+                m_estimate_up_vector_szeliski = true;
+                break;
 
-	    case '9':
-		m_scale = atof(optarg);
-		break;
+            case '9':
+                m_scale = atof(optarg);
+                break;
 
-	    case 'W':
-		m_metric = true;
-		break;
+            case 'W':
+                m_metric = true;
+                break;
 
-	    case 'z': {
-		int optind_curr = optind;
-		optind = 1;
+            case 'z': {
+                int optind_curr = optind;
+                optind = 1;
 
-		/* Load options from file */
-		std::vector<std::string> tokens;
-		char *filename = optarg;
-		FILE *f = fopen(optarg, "r");
-		if (f == NULL) {
-		    printf("Error reading options file %s\n", filename);
-		    exit(1);
-		}
+                /* Load options from file */
+                std::vector<std::string> tokens;
+                char *filename = optarg;
+                FILE *f = fopen(optarg, "r");
+                if (f == NULL) {
+                    printf("Error reading options file %s\n", filename);
+                    exit(1);
+                }
 
-		char *opt_str = new char[4096];
-		fread(opt_str, 1, 4096, f);
-		fclose(f);
+                char *opt_str = new char[4096];
+                fread(opt_str, 1, 4096, f);
+                fclose(f);
 
                 std::string str(opt_str);
-		// wxStringTokenizer t(str, wxT(" \n"));
+                // wxStringTokenizer t(str, wxT(" \n"));
                 Tokenize(str, tokens, " \n");
 
 #if 0
-		while (t.HasMoreTokens()) {
-		    wxString tok = t.GetNextToken();
-		    tokens.push_back(tok);
-		}
+                while (t.HasMoreTokens()) {
+                    wxString tok = t.GetNextToken();
+                    tokens.push_back(tok);
+                }
 #endif
 
-		int argc_new = (int) tokens.size() + 1;
-		char **argv_new = new char * [argc_new];
-		
-		argv_new[0] = strdup("test");
-		for (int i = 1; i < argc_new; i++) {
-		    argv_new[i] = strdup(tokens[i-1].c_str());
-		}
+                int argc_new = (int) tokens.size() + 1;
+                char **argv_new = new char * [argc_new];
+                
+                argv_new[0] = strdup("test");
+                for (int i = 1; i < argc_new; i++) {
+                    argv_new[i] = strdup(tokens[i-1].c_str());
+                }
 
-		ProcessOptions(argc_new, argv_new);
-		
-		for (int i = 0; i < argc_new; i++) {
-		    free(argv_new[i]);
-		}
-		
-		delete [] argv_new;
-		delete [] opt_str;
+                ProcessOptions(argc_new, argv_new);
+                
+                for (int i = 0; i < argc_new; i++) {
+                    free(argv_new[i]);
+                }
+                
+                delete [] argv_new;
+                delete [] opt_str;
 
-		optind = optind_curr;
+                optind = optind_curr;
 
 #ifdef WIN32
         return;
 #else
-		break;
+                break;
 #endif
-	    }
+            }
 
-	    default:
-		printf("Unrecognized option %d\n", c);
-		break;
-	}
+            default:
+                printf("Unrecognized option %d\n", c);
+                break;
+        }
     }
 }
 
@@ -752,12 +752,12 @@ bool BundlerApp::OnInit()
     bool load_file = false;
 
     if (argc >= 2) {
-	printf("Loading images from file '%s'\n", argv[1]);
-	imageList = argv[1];
-	load_file = true;
+        printf("Loading images from file '%s'\n", argv[1]);
+        imageList = argv[1];
+        load_file = true;
     } else {
-	PrintUsage();
-	exit(0);
+        PrintUsage();
+        exit(0);
     }
 
     printf("[BundlerApp::OnInit] Processing options...\n");
@@ -780,24 +780,24 @@ bool BundlerApp::OnInit()
     printf("[BundlerApp::OnInit] Loading images...\n");
     fflush(stdout);
     if (load_file) {
-	FILE *f = fopen(imageList, "r");
+        FILE *f = fopen(imageList, "r");
 
-	if (f == NULL) {
-	    printf("[BundlerApp::OnInit] Error opening file %s for reading\n",
-		   imageList);
-	    exit(1);
-	}
+        if (f == NULL) {
+            printf("[BundlerApp::OnInit] Error opening file %s for reading\n",
+                   imageList);
+            exit(1);
+        }
 
         LoadImageNamesFromFile(f);
 
-	int num_images = GetNumImages();
+        int num_images = GetNumImages();
 
-	if (m_fisheye) {
-	    double fCx = 0.0, fCy = 0.0, fRad = 0.0, fAngle = 0.0, fFocal = 0.0;
-	    ReadFisheyeParameters(m_fisheye_params, 
+        if (m_fisheye) {
+            double fCx = 0.0, fCy = 0.0, fRad = 0.0, fAngle = 0.0, fFocal = 0.0;
+            ReadFisheyeParameters(m_fisheye_params, 
                                   fCx, fCy, fRad, fAngle, fFocal);
-	    
-	    for (int i = 0; i < num_images; i++) {
+            
+            for (int i = 0; i < num_images; i++) {
                 if (m_image_data[i].m_fisheye) {
                     m_image_data[i].m_fCx = fCx;
                     m_image_data[i].m_fCy = fCy;
@@ -805,10 +805,10 @@ bool BundlerApp::OnInit()
                     m_image_data[i].m_fAngle = fAngle;
                     m_image_data[i].m_fFocal = fFocal;
                 }                
-	    }
-	}
+            }
+        }
 
-	fclose(f);
+        fclose(f);
     }
 
 #if 0
@@ -823,14 +823,14 @@ bool BundlerApp::OnInit()
         /* Compute homographies between images */
         ComputeTransforms(false);
 
-	ComputeEpipolarGeometry();
+        ComputeEpipolarGeometry();
 
-	MakeMatchListsSymmetric();
-	ComputeMatchPoints();
+        MakeMatchListsSymmetric();
+        ComputeMatchPoints();
 
-	DumpCorrespondenceImages();
+        DumpCorrespondenceImages();
 
-	BundleAdjust(output_file, output_base);
+        BundleAdjust(output_file, output_base);
     }
 #else
 
@@ -1018,10 +1018,6 @@ bool BundlerApp::OnInit()
                 fclose(f);
             }
         }
-
-#ifndef __DEMO__
-
-#endif /* __DEMO__ */
     }
 
     if (m_run_bundle) {
@@ -1034,7 +1030,7 @@ bool BundlerApp::OnInit()
         if (m_bundle_version < 0.3)
             FixReflectionBug();
 
-	exit(0);
+        exit(0);
 #endif
     }
 

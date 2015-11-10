@@ -9,15 +9,7 @@ $BIN_PATH = `dirname $0`;
 
 chomp($BIN_PATH);
 
-$OS = `uname -o`;
-chomp($OS);
-
-if ($OS eq "Cygwin") {
-    $JHEAD_EXE = "$BIN_PATH/jhead.exe";
-} else {
-    $JHEAD_EXE = "$BIN_PATH/jhead";
-}
-
+$JHEAD_EXE = "$BIN_PATH/jhead";
 unless (-e $JHEAD_EXE) {
   printf("[extract_focal] Error: jhead not found.  Please install jhead to %s\n", $BIN_PATH);
   exit(1);

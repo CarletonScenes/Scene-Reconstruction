@@ -12,14 +12,7 @@ then
   exit;
 fi
 
-OS=`uname -o`
-
-if [ $OS == "Cygwin" ]
-then
-    SIFT=$BIN_PATH/siftWin32.exe
-else
-    SIFT=$BIN_PATH/sift
-fi
+SIFT=$BIN_PATH/sift
 
 if ! [ -e $SIFT ] ; then
     echo "[ToSiftList] Error: SIFT not found.  Please install SIFT to $BIN_PATH" > /dev/stderr
@@ -28,4 +21,4 @@ fi
 
 IMAGE_LIST=$1
 
-awk "{pgm = \$1; key = \$1; sub(\"jpg\$\", \"pgm\", pgm); sub(\"jpg\$\", \"key\", key); print \"/usr/bin/mogrify -format pgm \" \$1 \"; $SIFT < \" pgm \" > \" key \"; gzip -f \" key \"; rm \" pgm}" $IMAGE_LIST 
+awk "{pgm = \$1; key = \$1; sub(\"jpg\$\", \"pgm\", pgm); sub(\"jpg\$\", \"key\", key); print \"/usr/local/bin/mogrify -format pgm \" \$1 \"; $SIFT < \" pgm \" > \" key \"; gzip -f \" key \"; rm \" pgm}" $IMAGE_LIST 

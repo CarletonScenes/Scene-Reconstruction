@@ -7,29 +7,24 @@ CXX=g++
 OPTFLAGS=-O3 -Wall -Wno-unused-result
 # OPTFLAGS=-g2
 OTHERFLAGS=-std=gnu++0x
-
-OS=$(shell uname -o)
-
-ifeq ($(OS), Cygwin)
-BUNDLER=bundler.exe
-KEYMATCHFULL=KeyMatchFull.exe
-BUNDLE2PMVS=Bundle2PMVS.exe
-BUNDLE2VIS=Bundle2Vis.exe
-RADIALUNDISTORT=RadialUndistort.exe
-else
 BUNDLER=bundler
 KEYMATCHFULL=KeyMatchFull
 BUNDLE2PLY=Bundle2Ply
 BUNDLE2PMVS=Bundle2PMVS
 BUNDLE2VIS=Bundle2Vis
 RADIALUNDISTORT=RadialUndistort
-endif
 
-INCLUDE_PATH=-I../lib/imagelib -I../lib/sfm-driver -I../lib/matrix	\
-	-I../lib/5point -I../lib/sba-1.5 -I../lib/ann_1.1_char/include  \
-	-I../include
+# INCLUDE_PATH=-I../lib/imagelib -I../lib/sfm-driver -I../lib/matrix	\
+# 	-I../lib/5point -I../lib/sba-1.5 -I../lib/ann_1.1_char/include  \
+# 	-I../include
 
-LIB_PATH=-L../lib -L../lib/ann_1.1_char/lib
+# LIB_PATH=-L../lib -L../lib/ann_1.1_char/lib
+
+INCLUDE_PATH=-I../lib/imagelib -I../lib/sfm-driver -I../lib/matrix  \
+    -I../lib/5point -I../lib/sba-1.5 -I../lib/ann_1.1_char/include  \
+    -I../include -I/usr/local/include/
+
+LIB_PATH=-L../lib -L../lib/ann_1.1_char/lib -L/usr/local/lib
 
 BUNDLER_DEFINES=-D__NO_UI__ -D__BUNDLER__ -D__BUNDLER_DISTR__
 
@@ -41,7 +36,7 @@ BUNDLER_OBJS=BaseApp.o BundlerApp.o keys.o Register.o Epipolar.o	\
 	RelativePose.o Distortion.o TwoFrameModel.o LoadJPEG.o
 
 BUNDLER_BASE_LIBS=-limage -lsfmdrv -lsba.v1.5 -lmatrix -lz -llapack -lblas \
-	-lcblas -lminpack -lm -l5point -ljpeg -lANN_char -lgfortran
+	-lcblas -lminpack -lm -l5point -ljpeg -lANN_char 
 CERES_LIBS=-lceres -lcholmod -lccolamd -lcolamd -lamd -lcamd -lcxsparse \
 	-lsuitesparseconfig -lgomp -lglog -lpthread
 
@@ -79,12 +74,12 @@ $(KEYMATCHFULL): KeyMatchFull.o keys2a.o
 
 $(BUNDLE2PLY): Bundle2Ply.o
 	$(CXX) -o $@ $(CPPFLAGS) $(LIB_PATH) Bundle2Ply.o \
-		-lmatrix -llapack -lblas -lcblas -lgfortran -lminpack
+		-lmatrix -llapack -lblas -lcblas  -lminpack
 	cp $@ ../bin
 
 $(BUNDLE2PMVS): Bundle2PMVS.o LoadJPEG.o
 	$(CXX) -o $@ $(CPPFLAGS) $(LIB_PATH) Bundle2PMVS.o LoadJPEG.o \
-		-limage -lmatrix -llapack -lblas -lcblas -lgfortran \
+		-limage -lmatrix -llapack -lblas -lcblas  \
 		-lminpack -ljpeg
 	cp $@ ../bin
 
@@ -94,7 +89,7 @@ $(BUNDLE2VIS): Bundle2Vis.o
 
 $(RADIALUNDISTORT): RadialUndistort.o LoadJPEG.o
 	$(CXX) -o $@ $(CPPFLAGS) $(LIB_PATH) $^ \
-		-limage -lmatrix -llapack -lblas -lcblas -lgfortran \
+		-limage -lmatrix -llapack -lblas -lcblas  \
 		-lminpack -ljpeg
 	cp $@ ../bin
 

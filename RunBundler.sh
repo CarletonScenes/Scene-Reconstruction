@@ -35,16 +35,8 @@ fi
 
 EXTRACT_FOCAL=$BASE_PATH/bin/extract_focal.pl
 
-OS=`uname -o`
-
-if [ $OS == "Cygwin" ]
-then
-    MATCHKEYS=$BASE_PATH/bin/KeyMatchFull.exe
-    BUNDLER=$BASE_PATH/bin/Bundler.exe
-else
-    MATCHKEYS=$BASE_PATH/bin/KeyMatchFull
-    BUNDLER=$BASE_PATH/bin/bundler
-fi
+MATCHKEYS=$BASE_PATH/bin/KeyMatchFull
+BUNDLER=$BASE_PATH/bin/bundler
 
 TO_SIFT=$BASE_PATH/bin/ToSift.sh
 TO_SIFT_LIST=$BASE_PATH/bin/ToSiftList.sh
@@ -97,6 +89,12 @@ $TO_SIFT_LIST $IMAGE_LIST > sift.txt || exit 1
 
 # Execute the SIFT commands
 sh sift.txt
+
+### Convert VLFeat's keys to Lowe's
+for file in *.key; do
+  cat "$file" | wc -l | awk '{ print $1 " 128" }' > "${file%.key}.sift"
+  cat "$file" | awk 'BEGIN { split("4 24 44 64 84 104 124 132", offsets); } { i1 = 0; tmp = $1; $1 = $2; $2 = tmp; for (i=1; i<9; i++) { i2 = offsets[i]; out = ""; for (j=i1+1; j<=i2; j++) { if (j != i1+1) { out = out " " }; out = out $j }; i1 = i2; print out } }' >> "${file%.key}.sift"
+done
 
 # Match images (can take a while)
 echo "[- Matching keypoints (this can take a while) -]"
