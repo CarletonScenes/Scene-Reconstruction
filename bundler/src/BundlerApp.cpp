@@ -15,11 +15,7 @@
 
 /* BundlerApp.cpp */
 
-#ifndef WIN32
 #include <getopt.h>
-#else
-#include "getopt.h"
-#endif
 
 #include <assert.h>
 #include <float.h>
@@ -27,9 +23,6 @@
 #include <string.h>
 #include <time.h>
 
-#ifdef WIN32
-#include <conio.h>
-#endif
 
 #include "BundlerApp.h"
 
@@ -560,11 +553,9 @@ void BundlerApp::ProcessOptions(int argc, char **argv)
                 m_up_image = atoi(optarg);
                 break;
 
-#if 0
-            case 'T':
-                m_start_camera = atoi(optarg);
-                break;
-#endif
+            // case 'T':
+            //     m_start_camera = atoi(optarg);
+            //     break;
 
             case 'V':
                 m_min_track_views = atoi(optarg);
@@ -696,12 +687,10 @@ void BundlerApp::ProcessOptions(int argc, char **argv)
                 // wxStringTokenizer t(str, wxT(" \n"));
                 Tokenize(str, tokens, " \n");
 
-#if 0
-                while (t.HasMoreTokens()) {
-                    wxString tok = t.GetNextToken();
-                    tokens.push_back(tok);
-                }
-#endif
+                // while (t.HasMoreTokens()) {
+                //     wxString tok = t.GetNextToken();
+                //     tokens.push_back(tok);
+                // }
 
                 int argc_new = (int) tokens.size() + 1;
                 char **argv_new = new char * [argc_new];
@@ -722,11 +711,7 @@ void BundlerApp::ProcessOptions(int argc, char **argv)
 
                 optind = optind_curr;
 
-#ifdef WIN32
-        return;
-#else
                 break;
-#endif
             }
 
             default:
@@ -735,13 +720,6 @@ void BundlerApp::ProcessOptions(int argc, char **argv)
         }
     }
 }
-
-
-#ifdef WIN32
-static void sifter_die() {
-    getch();
-}
-#endif
 
 bool BundlerApp::OnInit()
 {
@@ -811,30 +789,27 @@ bool BundlerApp::OnInit()
         fclose(f);
     }
 
-#if 0
-    if (input_model == MODEL_PANORAMA) {
-        printf("[BundlerApp::OnInit] Computing homographies\n");
-        ComputeTransforms(true);
-        MakeMatchListsSymmetric();
-        DumpCorrespondenceImages();
-    } else if (input_model == MODEL_OBJECT_MOVIE) {
-        printf("[BundlerApp::OnInit] Computing epipolar geometry\n");
+    // if (input_model == MODEL_PANORAMA) {
+    //     printf("[BundlerApp::OnInit] Computing homographies\n");
+    //     ComputeTransforms(true);
+    //     MakeMatchListsSymmetric();
+    //     DumpCorrespondenceImages();
+    // } else if (input_model == MODEL_OBJECT_MOVIE) {
+    //     printf("[BundlerApp::OnInit] Computing epipolar geometry\n");
 
-        /* Compute homographies between images */
-        ComputeTransforms(false);
+    //     /* Compute homographies between images */
+    //     ComputeTransforms(false);
 
-        ComputeEpipolarGeometry();
+    //     ComputeEpipolarGeometry();
 
-        MakeMatchListsSymmetric();
-        ComputeMatchPoints();
+    //     MakeMatchListsSymmetric();
+    //     ComputeMatchPoints();
 
-        DumpCorrespondenceImages();
+    //     DumpCorrespondenceImages();
 
-        BundleAdjust(output_file, output_base);
-    }
-#else
+    //     BundleAdjust(output_file, output_base);
+    // }
 
-#ifndef __DEMO__
     if (m_rerun_bundle) {
         // ReadCameraConstraints();
         assert(m_bundle_provided);
@@ -859,17 +834,10 @@ bool BundlerApp::OnInit()
         printf("[BundlerApp::OnInit] Reading ignore file...\n");
         ReadIgnoreFile();
     }
-#endif
     if (m_ignore_file != NULL) {
         printf("[BundlerApp::OnInit] Reading ignore file...\n");
         ReadIgnoreFile();
     }
-
-#if 0
-#ifndef __DEMO__
-
-#endif /* __DEMO__ */
-#endif
 
     /* Do bundle adjustment (or read from file if provided) */
     if (m_bundle_provided) {
@@ -880,10 +848,6 @@ bool BundlerApp::OnInit()
             printf("[BundlerApp::OnInit] Reflecting scene...\n");
             FixReflectionBug();
         }
-
-#ifndef __DEMO__
-
-#endif /* __DEMO__ */
 
         if (m_compress_list) {
             // ParseCommand("UndistortAll", NULL);
@@ -927,15 +891,6 @@ bool BundlerApp::OnInit()
             CreateTracksFromPoints();
             WriteTracks(m_track_file);
         }
-
-#ifndef __DEMO__
-
-#endif /* __DEMO__ */
-
-        
-#ifndef __DEMO__
-
-#endif /* __DEMO__ */
 
         if (m_zero_distortion_params) {
             ZeroDistortionParams();
@@ -985,11 +940,9 @@ bool BundlerApp::OnInit()
             double center[3], R[9], scale;
             RepositionScene(center, R, scale);
 
-#ifndef __DEMO__
             if (m_rerun_bundle) {
                 ReRunSFM();
             }
-#endif
         }
 
         if (m_add_image_file != NULL) {
@@ -1001,7 +954,6 @@ bool BundlerApp::OnInit()
                        "reading\n",
                        m_add_image_file);
             } else {
-#ifndef __DEMO__
                 BundleImagesFromFile(f);
 
                 /* Write the output */
@@ -1011,9 +963,6 @@ bool BundlerApp::OnInit()
                     FixReflectionBug();
 
                 // RunSFMWithNewImages(4);
-#else
-                InitializeImagesFromFile(f);
-#endif
 
                 fclose(f);
             }
@@ -1021,7 +970,6 @@ bool BundlerApp::OnInit()
     }
 
     if (m_run_bundle) {
-#ifndef __DEMO__
         if (!m_fast_bundle)
             BundleAdjust();
         else
@@ -1031,10 +979,7 @@ bool BundlerApp::OnInit()
             FixReflectionBug();
 
         exit(0);
-#endif
     }
-
-#endif
 
     return true;
 }
