@@ -2119,6 +2119,7 @@ void BundlerApp::BundleAdjust()
     int curr_num_cameras, curr_num_pts;
     int pt_count;
 
+    // Find good initial cameras if we weren't given them.
     if (num_init_cams == 0) {
         BundlePickInitialPair(i_best, j_best, true);
 
@@ -2248,17 +2249,17 @@ void BundlerApp::BundleAdjust()
             printf("  focal lengths: %0.3f, %0.3f\n", 
                 cameras[0].f, cameras[1].f);
 
-#if 0
-            if (error0 < error1) {
-                /* Swap back */
-                printf("Restoring pre-Necker configuration\n");
 
-                memcpy(points, points_old, sizeof(v3_t) * curr_num_pts);
-                memcpy(cameras, cameras_old, sizeof(camera_params_t) * 2);
-            }
+            // Flip back if it didn't work (adam 11/13/2015)
+            // if (error0 < error1) {
+            //     /* Swap back */
+            //     printf("Restoring pre-Necker configuration\n");
 
-            delete [] points_old;
-#endif
+            //     memcpy(points, points_old, sizeof(v3_t) * curr_num_pts);
+            //     memcpy(cameras, cameras_old, sizeof(camera_params_t) * 2);
+            // }
+
+            // delete [] points_old;
         }
 
         DumpPointsToPly(m_output_directory, "points001.ply", 
@@ -2269,45 +2270,15 @@ void BundlerApp::BundleAdjust()
             sprintf(buf, "%s%03d.out", m_bundle_output_base, 1);
             DumpOutputFile(m_output_directory, buf, num_images, 2, curr_num_pts,
                 added_order, cameras, points, colors, pt_views);
-
-#if 0
-            if (m_estimate_distortion) {
-                sprintf(buf, "%s%03d.rd.out", m_bundle_output_base, 1);
-                DumpOutputFile(m_output_directory, buf, 
-                    num_images, 2, curr_num_pts,
-                    added_order, cameras, points, colors, pt_views, 
-                    true);
-            }
-#endif
         }
 
         curr_num_cameras = 2;
     } else {
-#if 0
-        if (m_initial_pair[0] == -1 || m_initial_pair[1] == -1) {
-            printf("[BundleAdjust] Error: initial good pair "
-                "not provided!\n");
-            printf("[BundleAdjust] Please specify a pair of "
-                "cameras with medium baseline using\n"
-                "  --init_pair1 <img1> and --init_pair2 <img2>\n");
-            exit(1);
-        }
-
-        good_pair_1 = added_order_inv[m_initial_pair[0]];
-        good_pair_2 = added_order_inv[m_initial_pair[1]];
-
-        if (good_pair_1 == -1 || good_pair_2 == -1) {
-            printf("[BundleAdjust] Error: initial pair haven't "
-                "been adjusted!\n");
-            printf("[BundleAdjust] Please specify another pair!\n");
-            exit(0);
-        }
-#endif
-
         curr_num_cameras = num_init_cams;
         pt_count = curr_num_pts = (int) m_point_data.size();
     }
 
+    // Iteratively add more cameras
     for (int round = curr_num_cameras; 
         round < num_images; 
         round++, curr_num_cameras++) {
