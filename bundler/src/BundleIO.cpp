@@ -34,7 +34,12 @@
 #include "qsort.h"
 #include "util.h"
 
+#include <iostream>
+#include "OpenCV.h"
 
+using namespace std;
+using namespace cv;
+using namespace cv::xfeatures2d;
 
 #define MIN_MATCHES 10
 
@@ -294,35 +299,48 @@ void BaseApp::LoadImagesFromDirectory(char* directory)
     char buf[256];
     int idx = 0;
 
-    while (fgets(buf, 256, f)) {
+    dirp = opendir(directory);
+    while ((dp = readdir(dirp)) != NULL)
+    {
+        char* filename = dp->d_name;
         ImageData data;
-        data.InitFromString(buf, m_image_directory, m_fisheye);
 
-            /* Try to find a keypoint file */
-            if (strcmp(m_key_directory, ".") != 0) {
-                char key_buf[256];
-                data.GetBaseName(key_buf);
+        data.InitFromString(filename, m_image_directory, m_fisheye); // find out what this does
+        // add in keypoints, possibly to m_key_name
 
-                char key_path[512];
-                sprintf(key_path, "%s/%s.key", m_key_directory, key_buf);
-                data.m_key_name = strdup(key_path);
-            } else {
-                /* FIXME: I think this causes a memory leak */
-                char key_buf[256];
-                strcpy(key_buf, data.m_name);
-                int len = strlen(key_buf);
-                key_buf[len - 3] = 'k';
-                key_buf[len - 2] = 'e';
-                key_buf[len - 1] = 'y';
-
-                data.m_key_name = strdup(key_buf);
-            }
-
-        m_image_data.push_back(data);
-
-        idx++;
-
+        
     }
+    closedir(dirp);
+
+    // while (fgets(buf, 256, f)) {
+    //     ImageData data;
+    //     data.InitFromString(buf, m_image_directory, m_fisheye);
+
+    //         /* Try to find a keypoint file */
+    //         if (strcmp(m_key_directory, ".") != 0) {
+    //             char key_buf[256];
+    //             data.GetBaseName(key_buf);
+
+    //             char key_path[512];
+    //             sprintf(key_path, "%s/%s.key", m_key_directory, key_buf);
+    //             data.m_key_name = strdup(key_path);
+    //         } else {
+    //             /* FIXME: I think this causes a memory leak */
+    //             char key_buf[256];
+    //             strcpy(key_buf, data.m_name);
+    //             int len = strlen(key_buf);
+    //             key_buf[len - 3] = 'k';
+    //             key_buf[len - 2] = 'e';
+    //             key_buf[len - 1] = 'y';
+
+    //             data.m_key_name = strdup(key_buf);
+    //         }
+
+    //     m_image_data.push_back(data);
+
+    //     idx++;
+
+    // }
 
     /* Create the match table */
     m_matches = MatchTable(GetNumImages());
