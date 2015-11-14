@@ -721,267 +721,264 @@ void BundlerApp::ProcessOptions(int argc, char **argv)
     }
 }
 
-bool BundlerApp::OnInit()
+bool BundlerApp::CompsInit()
 {
-    printf("[OnInit] Running program %s\n", argv[0]);
-
-    char *imageList;
-    
-    bool load_file = false;
-
-    if (argc >= 2) {
-        printf("Loading images from file '%s'\n", argv[1]);
-        imageList = argv[1];
-        load_file = true;
-    } else {
-        PrintUsage();
-        exit(0);
-    }
-
-    printf("[BundlerApp::OnInit] Processing options...\n");
-    ProcessOptions(argc - 1, argv + 1);
-
-    if (m_use_intrinsics && m_estimate_distortion) {
-        printf("Error: --intrinsics and --estimate_distortion "
-               "are incompatible\n");
-        exit(1);
-    }
-
-    if (m_fixed_focal_length && m_estimate_distortion) {
-        printf("Error: --fixed_focal_length and --estimate_distortion "
-               "are currently incompatible\n");
-        exit(1);
-    }
-
-    printf("[BundlerApp::OnInit] Loading frame...\n");
-
-    printf("[BundlerApp::OnInit] Loading images...\n");
-    fflush(stdout);
-    if (load_file) {
-        FILE *f = fopen(imageList, "r");
-
-        if (f == NULL) {
-            printf("[BundlerApp::OnInit] Error opening file %s for reading\n",
-                   imageList);
-            exit(1);
-        }
-
-        LoadImageNamesFromFile(f);
-
-        int num_images = GetNumImages();
-
-        if (m_fisheye) {
-            double fCx = 0.0, fCy = 0.0, fRad = 0.0, fAngle = 0.0, fFocal = 0.0;
-            ReadFisheyeParameters(m_fisheye_params, 
-                                  fCx, fCy, fRad, fAngle, fFocal);
-            
-            for (int i = 0; i < num_images; i++) {
-                if (m_image_data[i].m_fisheye) {
-                    m_image_data[i].m_fCx = fCx;
-                    m_image_data[i].m_fCy = fCy;
-                    m_image_data[i].m_fRad = fRad;
-                    m_image_data[i].m_fAngle = fAngle;
-                    m_image_data[i].m_fFocal = fFocal;
-                }                
-            }
-        }
-
-        fclose(f);
-    }
-
-    // if (input_model == MODEL_PANORAMA) {
-    //     printf("[BundlerApp::OnInit] Computing homographies\n");
-    //     ComputeTransforms(true);
-    //     MakeMatchListsSymmetric();
-    //     DumpCorrespondenceImages();
-    // } else if (input_model == MODEL_OBJECT_MOVIE) {
-    //     printf("[BundlerApp::OnInit] Computing epipolar geometry\n");
-
-    //     /* Compute homographies between images */
-    //     ComputeTransforms(false);
-
-    //     ComputeEpipolarGeometry();
-
-    //     MakeMatchListsSymmetric();
-    //     ComputeMatchPoints();
-
-    //     DumpCorrespondenceImages();
-
-    //     BundleAdjust(output_file, output_base);
-    // }
-
-    if (m_rerun_bundle) {
-        // ReadCameraConstraints();
-        assert(m_bundle_provided);
-
-        printf("[BundlerApp::OnInit] Reading bundle file...\n");
-        ReadBundleFile(m_bundle_file);
-
-        if (m_bundle_version < 0.3) {
-            printf("[BundlerApp::OnInit] Reflecting scene...\n");
-            FixReflectionBug();
-        }
-
-        ReRunSFM();
-        exit(0);
-    }
-
-    if (m_use_constraints) {
-        ReadCameraConstraints();
-    }
-
-    if (m_ignore_file != NULL) {
-        printf("[BundlerApp::OnInit] Reading ignore file...\n");
-        ReadIgnoreFile();
-    }
-    if (m_ignore_file != NULL) {
-        printf("[BundlerApp::OnInit] Reading ignore file...\n");
-        ReadIgnoreFile();
-    }
-
-    /* Do bundle adjustment (or read from file if provided) */
-    if (m_bundle_provided) {
-        printf("[BundlerApp::OnInit] Reading bundle file...\n");
-        ReadBundleFile(m_bundle_file);
-
-        if (m_bundle_version < 0.3) {
-            printf("[BundlerApp::OnInit] Reflecting scene...\n");
-            FixReflectionBug();
-        }
-
-        if (m_compress_list) {
-            // ParseCommand("UndistortAll", NULL);
-            OutputCompressed();
-            return 0;
-        }
-
-        if (m_reposition_scene) {
-            double center[3], R[9], scale;
-            RepositionScene(center, R, scale);
-            OutputCompressed("reposition");
-            return 0;
-        }
-
-        if (m_prune_bad_points) {
-            SetupImagePoints(3);
-            RemoveBadImages(24);
-            PruneBadPoints();
-            OutputCompressed("pruned");
-            return 0;
-        }
-
-        if (m_scale_focal != 1.0) {
-            ScaleFocalLengths(m_scale_focal);
-            return 0;
-        }
-
-        if (m_scale_focal_file != NULL) {
-            ScaleFocalLengths(m_scale_focal_file);
-            return 0;
-        }
-
-        if (m_rotate_cameras_file != NULL) {
-            RotateCameras(m_rotate_cameras_file);
-        }
-
-
-
-        if (m_track_file != NULL) {
-            // ReadGeometricConstraints("constraints.txt");
-            CreateTracksFromPoints();
-            WriteTracks(m_track_file);
-        }
-
-        if (m_zero_distortion_params) {
-            ZeroDistortionParams();
-            OutputCompressed("nord");
-            return 0;
-        }
-
-
-        
-        if (m_output_relposes) {
-            double center[3], R[9], scale;
-            RepositionScene(center, R, scale);
-            RepositionScene(center, R, scale);
-            // OutputRelativePoses2D(m_output_relposes_file);
-            OutputRelativePoses3D(m_output_relposes_file);
-            return 0;
-        }
-
-        if (m_compute_covariance) {
-            ComputeCameraCovariance();
-            return 0;
-        }
-        
 #define MIN_POINT_VIEWS 3 // 0 // 2
-        if (!m_run_bundle) {
-            SetMatchesFromPoints(MIN_POINT_VIEWS);
+      printf("[CompsInit] Running program %s\n", argv[0]);
 
-            printf("[BundlerApp::OnInit] "
-                   "Setting up image points and lines...\n");
-            SetupImagePoints(/*2*/ MIN_POINT_VIEWS);
-            RemoveBadImages(6);
+      // START LOAD IMAGES && PROCESS OPTIONS (set defaults)
 
-            if (m_point_constraint_file != NULL) {
-                printf("[BundlerApp::OnInit] Reading point constraints...\n");
-                m_use_point_constraints = true;
-                ReadPointConstraints();
-            }
+      // char *imageList;
+      
+      // bool load_file = false;
 
-            printf("[BundlerApp::OnInit] Scaling world...\n");
+      // if (argc >= 2) {
+      //     printf("Loading images from file '%s'\n", argv[1]);
+      //     imageList = argv[1];
+      //     load_file = true;
+      // } else {
+      //     PrintUsage();
+      //     exit(0);
+      // }
 
-            printf("[BundlerApp::OnInit] Computing camera orientations...\n");
-            ComputeImageRotations();
+      // printf("[BundlerApp::CompsInit] Processing options...\n");
+      // ProcessOptions(argc - 1, argv + 1);
 
-            // printf("[BundlerApp::OnInit] Computing ground plane...\n");
-            // FindGroundPlane();
+      // if (m_use_intrinsics && m_estimate_distortion) {
+      //     printf("Error: --intrinsics and --estimate_distortion "
+      //            "are incompatible\n");
+      //     exit(1);
+      // }
 
-            double center[3], R[9], scale;
-            RepositionScene(center, R, scale);
+      // if (m_fixed_focal_length && m_estimate_distortion) {
+      //     printf("Error: --fixed_focal_length and --estimate_distortion "
+      //            "are currently incompatible\n");
+      //     exit(1);
+      // }
 
-            if (m_rerun_bundle) {
-                ReRunSFM();
-            }
-        }
+      // printf("[BundlerApp::CompsInit] Loading frame...\n");
 
-        if (m_add_image_file != NULL) {
-            printf("[BundlerApp::OnInit] Adding additional images...\n");
-            FILE *f = fopen(m_add_image_file, "r");
+      // printf("[BundlerApp::CompsInit] Loading images...\n");
+      // fflush(stdout);
+      // if (load_file) {
+      //     FILE *f = fopen(imageList, "r");
 
-            if (f == NULL) {
-                printf("[BundlerApp::OnInit] Error opening file %s for "
-                       "reading\n",
-                       m_add_image_file);
-            } else {
-                BundleImagesFromFile(f);
+      //     if (f == NULL) {
+      //         printf("[BundlerApp::CompsInit] Error opening file %s for reading\n",
+      //                imageList);
+      //         exit(1);
+      //     }
 
-                /* Write the output */
-                OutputCompressed("added");
+      //     LoadImageNamesFromFile(f);
 
-                if (m_bundle_version < 0.3)
-                    FixReflectionBug();
+      //     int num_images = GetNumImages();
 
-                // RunSFMWithNewImages(4);
+      //     if (m_fisheye) {
+      //         double fCx = 0.0, fCy = 0.0, fRad = 0.0, fAngle = 0.0, fFocal = 0.0;
+      //         ReadFisheyeParameters(m_fisheye_params, 
+      //                               fCx, fCy, fRad, fAngle, fFocal);
+              
+      //         for (int i = 0; i < num_images; i++) {
+      //             if (m_image_data[i].m_fisheye) {
+      //                 m_image_data[i].m_fCx = fCx;
+      //                 m_image_data[i].m_fCy = fCy;
+      //                 m_image_data[i].m_fRad = fRad;
+      //                 m_image_data[i].m_fAngle = fAngle;
+      //                 m_image_data[i].m_fFocal = fFocal;
+      //             }                
+      //         }
+      //     }
 
-                fclose(f);
-            }
-        }
-    }
+      //     fclose(f);
+      // }
 
-    if (m_run_bundle) {
-        if (!m_fast_bundle)
-            BundleAdjust();
-        else
-            BundleAdjustFast();
-        
-        if (m_bundle_version < 0.3)
-            FixReflectionBug();
+      // LOAD IMAGES AND SET: all imagedata, possible fisheye data
 
-        exit(0);
-    }
+      // END LOAD IMAGES
 
-    return true;
+
+
+
+
+
+
+      /* Unnecessary Code (adam 11/13/2015)
+      if (m_rerun_bundle) {
+          // ReadCameraConstraints();
+          assert(m_bundle_provided);
+
+          printf("[BundlerApp::CompsInit] Reading bundle file...\n");
+          ReadBundleFile(m_bundle_file);
+
+          if (m_bundle_version < 0.3) {
+              printf("[BundlerApp::CompsInit] Reflecting scene...\n");
+              FixReflectionBug();
+          }
+
+          ReRunSFM();
+          exit(0);
+      }
+
+      if (m_use_constraints) {
+          ReadCameraConstraints();
+      }
+
+      if (m_ignore_file != NULL) {
+          printf("[BundlerApp::CompsInit] Reading ignore file...\n");
+          ReadIgnoreFile();
+      }
+
+      
+
+      // Do bundle adjustment (or read from file if provided)
+      if (m_bundle_provided) {
+          printf("[BundlerApp::CompsInit] Reading bundle file...\n");
+          ReadBundleFile(m_bundle_file);
+
+          if (m_bundle_version < 0.3) {
+              printf("[BundlerApp::CompsInit] Reflecting scene...\n");
+              FixReflectionBug();
+          }
+
+          if (m_compress_list) {
+              // ParseCommand("UndistortAll", NULL);
+              OutputCompressed();
+              return 0;
+          }
+
+          if (m_reposition_scene) {
+              double center[3], R[9], scale;
+              RepositionScene(center, R, scale);
+              OutputCompressed("reposition");
+              return 0;
+          }
+
+          if (m_prune_bad_points) {
+              SetupImagePoints(3);
+              RemoveBadImages(24);
+              PruneBadPoints();
+              OutputCompressed("pruned");
+              return 0;
+          }
+
+          if (m_scale_focal != 1.0) {
+              ScaleFocalLengths(m_scale_focal);
+              return 0;
+          }
+
+          if (m_scale_focal_file != NULL) {
+              ScaleFocalLengths(m_scale_focal_file);
+              return 0;
+          }
+
+          if (m_rotate_cameras_file != NULL) {
+              RotateCameras(m_rotate_cameras_file);
+          }
+
+
+
+          if (m_track_file != NULL) {
+              // ReadGeometricConstraints("constraints.txt");
+              CreateTracksFromPoints();
+              WriteTracks(m_track_file);
+          }
+
+          if (m_zero_distortion_params) {
+              ZeroDistortionParams();
+              OutputCompressed("nord");
+              return 0;
+          }
+
+
+          
+          if (m_output_relposes) {
+              double center[3], R[9], scale;
+              RepositionScene(center, R, scale);
+              RepositionScene(center, R, scale);
+              // OutputRelativePoses2D(m_output_relposes_file);
+              OutputRelativePoses3D(m_output_relposes_file);
+              return 0;
+          }
+
+          if (m_compute_covariance) {
+              ComputeCameraCovariance();
+              return 0;
+          }
+          
+  
+          if (!m_run_bundle) {
+              SetMatchesFromPoints(MIN_POINT_VIEWS);
+
+              printf("[BundlerApp::CompsInit] "
+                     "Setting up image points and lines...\n");
+              SetupImagePoints(MIN_POINT_VIEWS); // 2
+              RemoveBadImages(6);
+
+              if (m_point_constraint_file != NULL) {
+                  printf("[BundlerApp::CompsInit] Reading point constraints...\n");
+                  m_use_point_constraints = true;
+                  ReadPointConstraints();
+              }
+
+              printf("[BundlerApp::CompsInit] Scaling world...\n");
+
+              printf("[BundlerApp::CompsInit] Computing camera orientations...\n");
+              ComputeImageRotations();
+
+              // printf("[BundlerApp::CompsInit] Computing ground plane...\n");
+              // FindGroundPlane();
+
+              double center[3], R[9], scale;
+              RepositionScene(center, R, scale);
+
+              if (m_rerun_bundle) {
+                  ReRunSFM();
+              }
+          }
+
+          if (m_add_image_file != NULL) {
+              printf("[BundlerApp::CompsInit] Adding additional images...\n");
+              FILE *f = fopen(m_add_image_file, "r");
+
+              if (f == NULL) {
+                  printf("[BundlerApp::CompsInit] Error opening file %s for "
+                         "reading\n",
+                         m_add_image_file);
+              } else {
+                  BundleImagesFromFile(f);
+
+                  // Write the output
+                  OutputCompressed("added");
+
+                  if (m_bundle_version < 0.3)
+                      FixReflectionBug();
+
+                  // RunSFMWithNewImages(4);
+
+                  fclose(f);
+              }
+          }
+      }
+
+      */
+
+
+
+      
+
+      if (m_run_bundle) {
+          if (!m_fast_bundle)
+              BundleAdjust();
+          else
+              BundleAdjustFast();
+          
+          if (m_bundle_version < 0.3)
+              FixReflectionBug();
+
+          exit(0);
+      }
+
+      return true;
 }
 
 static BundlerApp *bundler_app = NULL;
@@ -994,5 +991,5 @@ int main(int argc, char **argv)
     bundler_app->argc = argc;
     bundler_app->argv = argv;
 
-    bundler_app->OnInit();
+    bundler_app->CompsInit();
 }

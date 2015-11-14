@@ -104,7 +104,7 @@ public:
         m_features_coalesced = false;
 
         m_assemble = false;
-        m_run_bundle = false;
+        m_run_bundle = true; // set default to true
         m_rerun_bundle = false;
         m_fast_bundle = true;
 #ifdef __USE_CERES__
@@ -156,8 +156,8 @@ public:
         // bool load_file = false;
     }
 
-    virtual bool OnInit();
-
+    virtual bool CompsInit();
+    
     /* Process command line options */
     virtual void ProcessOptions(int argc, char **argv);
 
