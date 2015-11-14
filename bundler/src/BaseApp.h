@@ -340,7 +340,7 @@ class BaseApp
 public:
     virtual ~BaseApp() { }
 
-    virtual bool OnInit() = 0;
+    virtual bool CompsInit() = 0;
 
     /* Process command line options */
     virtual void ProcessOptions(int argc, char **argv) = 0;
