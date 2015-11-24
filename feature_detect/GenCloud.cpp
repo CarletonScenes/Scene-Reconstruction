@@ -1,6 +1,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <unistd.h>
+#include <dirent.h>
 #include <cmath>
 #include "FeatureDetectorSIFT.h"
 #include "KeyPointDescriptor.h"
@@ -69,12 +70,33 @@ int main( int argc, char** argv ) {
   vector<string> files;
   GetFilesInDirectory(files, argv[1]);
 
+  int originalIndex = 0;
   int imgAindex = 0;
   int imgBindex = 0;
 
-  // Find first two images based on snavely method
+  set<int> indexesIncluded;
+  map<int, vector<Mat,Mat>> knownRts;
 
+  // Find first two images based on snavely method - set originalIndex, imgAindex, imgBindex
 
+  indexesIncluded.insert(imgAindex);
+  indexesIncluded.insert(imgAindex);
+
+  while (indexesIncluded.size() != files.size()) {
+      // find features in each image, find matches
+
+      // findEssentialMatrix
+
+      // recoverPose between A and B
+
+      // convert R|t for B using original R|t value for A if we have it. (check knownRts map)
+
+      // add new R|ts to the map for both images
+
+      // triangulatePoints and add to cloud
+
+      // find next B to use based on best match between remaining images (Snavely's method) and an included image.
+  }
 
 
 
