@@ -4,7 +4,7 @@
 
 CC=gcc
 CXX=g++
-OPTFLAGS=-O3 -Wall -Wno-unused-result
+OPTFLAGS=-O3 -Wall -Wno-unused-result 
 # OPTFLAGS=-g2
 OTHERFLAGS=-std=gnu++0x
 BUNDLER=bundler
@@ -22,9 +22,10 @@ RADIALUNDISTORT=RadialUndistort
 
 INCLUDE_PATH=-I../lib/imagelib -I../lib/sfm-driver -I../lib/matrix  \
     -I../lib/5point -I../lib/sba-1.5 -I../lib/ann_1.1_char/include  \
-    -I../include -I/usr/local/include/
+    -I../include -I/usr/local/include/ -I/usr/local/include/opencv -I/usr/local/include/opencv2 
 
-LIB_PATH=-L../lib -L../lib/ann_1.1_char/lib -L/usr/local/lib
+
+LIB_PATH=-L../lib -L../lib/ann_1.1_char/lib -L/usr/local/lib 
 
 BUNDLER_DEFINES=-D__NO_UI__ -D__BUNDLER__ -D__BUNDLER_DISTR__
 
@@ -36,7 +37,7 @@ BUNDLER_OBJS=BaseApp.o BundlerApp.o keys.o Register.o Epipolar.o	\
 	RelativePose.o Distortion.o TwoFrameModel.o LoadJPEG.o
 
 BUNDLER_BASE_LIBS=-limage -lsfmdrv -lsba.v1.5 -lmatrix -lz -llapack -lblas \
-	-lcblas -lminpack -lm -l5point -ljpeg -lANN_char 
+	-lcblas -lminpack -lm -l5point -ljpeg -lANN_char -lopencv_core -lopencv_imgproc -lopencv_highgui
 CERES_LIBS=-lceres -lcholmod -lccolamd -lcolamd -lamd -lcamd -lcxsparse \
 	-lsuitesparseconfig -lgomp -lglog -lpthread
 
