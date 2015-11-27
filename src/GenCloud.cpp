@@ -9,7 +9,7 @@
 #include "opencv2/calib3d.hpp"
 #include "opencv2/xfeatures2d/nonfree.hpp"
 
-#include "easyexif/exif.h"
+#include "exif.h"
 
 using namespace cv;
 using namespace cv::xfeatures2d;
