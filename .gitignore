@@ -2,6 +2,8 @@
 *.png
 *.gif
 *~
+*.o
+*.a
 CMakeCache.txt
 CMakeFiles
 CMakeScripts
