@@ -1,5 +1,5 @@
 #name the executable and all resources it depends on directly
-add_executable( GenCloud GenCloud.cpp )
+add_executable( GenCloud GenCloud.cpp Image.cpp )
 #link to needed libraries
 target_link_libraries(GenCloud exif)
 #tell CMake where to look for the .h files

@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
-
+project( SceneComps )
 find_package( OpenCV 3 REQUIRED )
-# add_library( SC ${LIB_SOURCES} ${LIB_HEADERS} )
-
-project(Tutorial)
 
 # Ensure C++11 flag set in compiler.
 include(CheckCXXCompilerFlag)
