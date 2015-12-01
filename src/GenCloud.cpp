@@ -3,6 +3,8 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <cmath>
+#include <map>
+#include <set>
 #include "FeatureDetectorSIFT.h"
 #include "KeyPointDescriptor.h"
 #include "Image.h"
@@ -74,8 +76,8 @@ int main( int argc, char** argv ) {
   int imgAindex = 0;
   int imgBindex = 0;
 
-  set<int> indexesIncluded;
-  map<int, vector<Mat,Mat>> knownRts;
+  std::set<int> indexesIncluded;
+  std::map<int, vector<Mat,Mat>> knownRts;
 
   // Find first two images based on snavely method - set originalIndex, imgAindex, imgBindex
 
