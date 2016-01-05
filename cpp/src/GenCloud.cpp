@@ -82,7 +82,7 @@ int main( int argc, char** argv ) {
   // Find first two images based on snavely method - set originalIndex, imgAindex, imgBindex
 
   indexesIncluded.insert(imgAindex);
-  indexesIncluded.insert(imgAindex);
+  indexesIncluded.insert(imgBindex);
 
   while (indexesIncluded.size() != files.size()) {
       // find features in each image, find matches
