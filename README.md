@@ -29,5 +29,7 @@ make
 
 ## TODO:
 - Update this todo with proper build instructions
+- Save intermediate results (images with features) in separate directory
 - Demo that generates points from two images
 - Generate stereolithography (or equivalent) file from point outputs that we can open with meshlab
+- Write end-to-end script that runs our program, saves the output, and opens it in meshlab
