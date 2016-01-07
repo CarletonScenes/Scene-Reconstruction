@@ -26,3 +26,8 @@ make
 ./FDTest test.jpg
 ./FMTest test1.jpg test2.jpg
 ```
+
+## TODO:
+- Update this todo with proper build instructions
+- Demo that generates points from two images
+- Generate stereolithography (or equivalent) file from point outputs that we can open with meshlab
