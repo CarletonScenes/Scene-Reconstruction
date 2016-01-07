@@ -15,3 +15,11 @@ target_link_libraries( FMTest ${OpenCV_LIBS} )
 add_executable( FDTest FDTest.cpp)
 target_link_libraries( FDTest SC )
 target_link_libraries( FDTest ${OpenCV_LIBS} )
+
+
+
+# include_directories( easyexif )
+# add_library(exif easyexif/exif.h easyexif/exif.cpp )
+# add_executable( GenCloud GenCloud.cpp )
+# target_link_libraries( GenCloud SC )
+# target_link_libraries( GenCloud ${OpenCV_LIBS} )
