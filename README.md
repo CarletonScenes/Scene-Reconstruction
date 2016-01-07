@@ -33,3 +33,9 @@ make
 - Demo that generates points from two images
 - Generate stereolithography (or equivalent) file from point outputs that we can open with meshlab
 - Write end-to-end script that runs our program, saves the output, and opens it in meshlab
+
+## SOME MAGIC
+    
+    . ./bin/activate.fish
+    cp /usr/local/lib/python2.7/site-packages/cv* env/lib/python2.7/site-packages
+    
