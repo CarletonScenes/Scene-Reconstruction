@@ -15,6 +15,6 @@ else()
 endif()
 
 #add all subdirectories in this project
-add_subdirectory(lib)
-add_subdirectory(src)
+add_subdirectory(cpp/lib)
+add_subdirectory(cpp/src)
 
