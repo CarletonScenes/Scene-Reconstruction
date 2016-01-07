@@ -9,7 +9,7 @@ class Image {
     
     public:
         Image(std::string fileLocation); 
-
+        Image() {};
         int height();
         int width();
 

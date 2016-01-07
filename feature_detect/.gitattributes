@@ -1,3 +1,0 @@
-large.jpg filter=lfs diff=lfs merge=lfs -text
-medium.jpg filter=lfs diff=lfs merge=lfs -text
-stars.jpg filter=lfs diff=lfs merge=lfs -text
