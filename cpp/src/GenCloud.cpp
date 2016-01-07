@@ -5,6 +5,7 @@
 #include <cmath>
 #include <map>
 #include <set>
+
 #include "FeatureDetectorSIFT.h"
 #include "KeyPointDescriptor.h"
 #include "Image.h"

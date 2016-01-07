@@ -1,6 +1,0 @@
-add_library(exif exif.cpp)
-include_directories( ${OpenCV_INCLUDE_DIRS} )
-file( GLOB LIB_SOURCES *.cpp )
-file( GLOB LIB_HEADERS *.h )
-add_library( SC ${LIB_SOURCES} ${LIB_HEADERS} )
-target_link_libraries( SC ${OpenCV_LIBS} )

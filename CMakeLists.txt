@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project( SceneComps )
+project( SceneComps CXX )
 find_package( OpenCV 3 REQUIRED )
 
 # Ensure C++11 flag set in compiler.
@@ -15,6 +15,6 @@ else()
 endif()
 
 #add all subdirectories in this project
-add_subdirectory(cpp/lib)
+include_directories( ${PROJECT_SOURCE_DIR}/cpp/lib )
 add_subdirectory(cpp/src)
 
