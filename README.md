@@ -43,6 +43,8 @@ make
     source ./env/bin/activate
     pip install -r requirements.txt
 
+    brew install opencv3 --c++11 --with-cuda --with-contrib
+    brew ln opencv3 --overwrite --force
     cp /usr/local/lib/python2.7/site-packages/cv* env/lib/python2.7/site-packages
     
 
