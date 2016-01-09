@@ -37,5 +37,11 @@ make
 ## SOME MAGIC
     
     . ./bin/activate.fish
+
+    cd python
+    sudo pip install virtualenv
+    source ./env/bin/activate
+    pip install -r env/requirements.txt
+
     cp /usr/local/lib/python2.7/site-packages/cv* env/lib/python2.7/site-packages
     
