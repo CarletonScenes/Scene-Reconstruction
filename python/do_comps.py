@@ -67,7 +67,7 @@ proj2mat = numpy.append(r,t,1)
 
 
 
-# print cv2.triangulatePoints(proj1mat,proj2mat,pts1,pts2)
+# print cv2.triangulatePoints(proj1mat,proj2mat,pts1.transpose(),pts2.transpose())
 
 
 #### DRAWING EPIPOLAR LINES STUFF ####
