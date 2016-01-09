@@ -65,45 +65,56 @@ _, r, t, newMask = cv2.recoverPose(E, pts1, pts2)
 proj1mat = numpy.append(numpy.identity(3), numpy.zeros((3,1)),1)
 proj2mat = numpy.append(r,t,1)
 
-print cv2.triangulatePoints(proj1mat,proj2mat,pts1.transpose(),pts2.transpose())
 
 
-
-def drawlines(img1,img2,lines,pts1,pts2):
-    ''' img1 - image on which we draw the epilines for the points in img2
-        lines - corresponding epilines '''
-    print img1.shape
-    r,c, _ = img1.shape
-    # img1 = cv2.cvtColor(img1,cv2.COLOR_GRAY2BGR)
-    # img2 = cv2.cvtColor(img2,cv2.COLOR_GRAY2BGR)
-    for r,pt1,pt2 in zip(lines,pts1,pts2):
-        color = tuple(numpy.random.randint(0,255,3).tolist())
-        x0,y0 = map(int, [0, -r[2]/r[1] ])
-        x1,y1 = map(int, [c, -(r[2]+r[0]*c)/r[1] ])
-        img1 = cv2.line(img1, (x0,y0), (x1,y1), color,1)
-        img1 = cv2.circle(img1,tuple(pt1),5,color,-1)
-        img2 = cv2.circle(img2,tuple(pt2),5,color,-1)
-    return img1,img2
+# print cv2.triangulatePoints(proj1mat,proj2mat,pts1,pts2)
 
 
-lines1 = cv2.computeCorrespondEpilines(pts2.reshape(-1,1,2), 2,F)
-lines1 = lines1.reshape(-1,3)
-img5,img6 = drawlines(img1.img,img2.img,lines1,pts1,pts2)
+#### DRAWING EPIPOLAR LINES STUFF ####
+# def drawlines(img1,img2,lines,pts1,pts2):
+#     ''' img1 - image on which we draw the epilines for the points in img2
+#         lines - corresponding epilines '''
+#     print img1.shape
+#     r,c, _ = img1.shape
+#     # img1 = cv2.cvtColor(img1,cv2.COLOR_GRAY2BGR)
+#     # img2 = cv2.cvtColor(img2,cv2.COLOR_GRAY2BGR)
+#     for r,pt1,pt2 in zip(lines,pts1,pts2):
+#         color = tuple(numpy.random.randint(0,255,3).tolist())
+#         x0,y0 = map(int, [0, -r[2]/r[1] ])
+#         x1,y1 = map(int, [c, -(r[2]+r[0]*c)/r[1] ])
+#         img1 = cv2.line(img1, (x0,y0), (x1,y1), color,1)
+#         img1 = cv2.circle(img1,tuple(pt1),5,color,-1)
+#         img2 = cv2.circle(img2,tuple(pt2),5,color,-1)
+#     return img1,img2
 
-# Find epilines corresponding to points in left image (first image) and
-# drawing its lines on right image
-lines2 = cv2.computeCorrespondEpilines(pts1.reshape(-1,1,2), 1,F)
-lines2 = lines2.reshape(-1,3)
-img3,img4 = drawlines(img2.img,img1.img,lines2,pts2,pts1)
 
-plt.subplot(121),plt.imshow(img5)
-plt.subplot(122),plt.imshow(img3)
-plt.show()
+# lines1 = cv2.computeCorrespondEpilines(pts2.reshape(-1,1,2), 2,F)
+# lines1 = lines1.reshape(-1,3)
+# img5,img6 = drawlines(img1.img,img2.img,lines1,pts1,pts2)
 
-print pts2
-print pts2
+# # Find epilines corresponding to points in left image (first image) and
+# # drawing its lines on right image
+# lines2 = cv2.computeCorrespondEpilines(pts1.reshape(-1,1,2), 1,F)
+# lines2 = lines2.reshape(-1,3)
+# img3,img4 = drawlines(img2.img,img1.img,lines2,pts2,pts1)
+
+# plt.subplot(121),plt.imshow(img5)
+# plt.subplot(122),plt.imshow(img3)
+# plt.show()
+
+# print pts2
+# print pts2
     
-exit()
+# exit()
+
+#### /DRAWING EPIPOLAR LINES STUFF ####
+
+
+
+
+
+
+
 
 # store all the good matches as per Lowe's ratio test.
 # good = []
