@@ -39,7 +39,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="/Users/AdamCanady/Development/Carleton/scenes/env"
+VIRTUAL_ENV="$(pwd)/env"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"

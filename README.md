@@ -37,6 +37,7 @@ make
 ## SOME MAGIC
 
     cd python
+    sudo easy_install pip
     sudo pip install virtualenv
     source ./env/bin/activate
     pip install -r env/requirements.txt
