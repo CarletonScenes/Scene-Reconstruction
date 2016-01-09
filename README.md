@@ -35,8 +35,6 @@ make
 - Write end-to-end script that runs our program, saves the output, and opens it in meshlab
 
 ## SOME MAGIC
-    
-    . ./bin/activate.fish
 
     cd python
     sudo pip install virtualenv
@@ -45,3 +43,7 @@ make
 
     cp /usr/local/lib/python2.7/site-packages/cv* env/lib/python2.7/site-packages
     
+
+## If you're using fish, you have to activate the env differently
+    
+    . ./bin/activate.fish
