@@ -39,8 +39,9 @@ make
     cd python
     sudo easy_install pip
     sudo pip install virtualenv
+    virtualenv env
     source ./env/bin/activate
-    pip install -r env/requirements.txt
+    pip install -r requirements.txt
 
     cp /usr/local/lib/python2.7/site-packages/cv* env/lib/python2.7/site-packages
     
