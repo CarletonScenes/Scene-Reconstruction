@@ -16,8 +16,6 @@ for f in os.listdir("/Users/AdamCanady/comps/python/photos"):
         break
 
 import pprint
-# print images
-pprint.pprint(images)
 
 
 
@@ -37,11 +35,11 @@ search_params = dict(checks = 50)
 
 bf = cv2.BFMatcher(cv2.NORM_L1, crossCheck=True)
 
-print img1.descs, img2.descs
+# print img1.descs, img2.descs
 
 matches = bf.match(img1.descs, img2.descs)
 print "Matches:"
-pprint.pprint(matches)
+# pprint.pprint(matches)
 print len(matches)
 print type(matches)
 for i in matches:
@@ -65,6 +63,10 @@ _, r, t, newMask = cv2.recoverPose(E, pts1, pts2)
 proj1mat = numpy.append(numpy.identity(3), numpy.zeros((3,1)),1)
 proj2mat = numpy.append(r,t,1)
 
+def ourTriangulatePoints(proj1mat, proj2mat, kps1, kps2):
+    assert len(kps1) == len(kps2)
+    for i in len(kps1):
+        
 
 
 # print cv2.triangulatePoints(proj1mat,proj2mat,pts1.transpose(),pts2.transpose())
