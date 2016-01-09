@@ -1,4 +1,4 @@
-#!/Users/AdamCanady/Development/Carleton/scenes/python/env/bin/python
+#!env/bin/python
 
 # -*- coding: utf-8 -*-
 import re
