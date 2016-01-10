@@ -111,8 +111,13 @@ def homogeneousCoordinatesToRegular(arr):
 
 def ptsToFile(pts, filename):
     from plyfile import PlyData, PlyElement
-    el = PlyElement.describe(some_array, 'pts')
-    PlyData([el]).write('pts_binary.ply')
+    elements = []
+    for col_num in range(pts.shape[1]):
+        col = pts[:,col_num]
+        el = PlyElement.describe(col, 'col{}'.format(col_num))
+        elements.append(el)
+
+    PlyData(elements).write(filename)
 
 m = ourTriangulatePoints(proj1mat, proj2mat, pts1, pts2)
 n = homogeneousCoordinatesToRegular(m)
