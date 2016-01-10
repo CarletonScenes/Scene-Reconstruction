@@ -65,10 +65,39 @@ _, r, t, newMask = cv2.recoverPose(E, pts1, pts2)
 proj1mat = numpy.append(numpy.identity(3), numpy.zeros((3,1)),1)
 proj2mat = numpy.append(r,t,1)
 
+# reimplement: https://github.com/Itseez/opencv/blob/ddf82d0b154873510802ef75c53e628cd7b2cb13/modules/calib3d/src/triangulate.cpp#L54
 def ourTriangulatePoints(proj1mat, proj2mat, kps1, kps2):
     assert len(kps1) == len(kps2)
-    for i in len(kps1):
-        pass
+
+    matrA = numpy.zeros((4,4))
+    matrU = numpy.zeros((4,4))
+    matrW = numpy.zeros((4,1))
+    matrV = numpy.zeros((4,4))
+
+    outputPoints = numpy.zeros((4,len(kps1)))
+
+    kps = [kps1.transpose(),kps2.transpose()]
+    projMatrs = [proj1mat, proj2mat]
+
+    for i in range(len(kps1)):
+        for j in range(2):
+            x = kps[j][0][i]
+            y = kps[j][1][i]
+            for k in range(4):
+                matrA[j*2 + 0][k] = x * projMatrs[j][2][k] - projMatrs[j][0][k]
+                matrA[j*2 + 1][k] = x * projMatrs[j][2][k] - projMatrs[j][2][k]
+
+
+        cv2.SVDecomp(matrA, matrW, matrU, matrV)
+
+        outputPoints[0][i] = matrV[3][0]
+        outputPoints[1][i] = matrV[3][1]
+        outputPoints[2][i] = matrV[3][2]
+        outputPoints[3][i] = matrV[3][3]
+
+    return outputPoints
+
+print ourTriangulatePoints(proj1mat, proj2mat, pts1, pts2)
 
 
 # print cv2.triangulatePoints(proj1mat,proj2mat,pts1.transpose(),pts2.transpose())
