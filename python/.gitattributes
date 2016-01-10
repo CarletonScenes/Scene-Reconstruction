@@ -1,0 +1,2 @@
+photos/absmall.jpg filter=lfs diff=lfs merge=lfs -text
+photos/aasmall.jpg filter=lfs diff=lfs merge=lfs -text

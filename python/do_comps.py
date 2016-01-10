@@ -7,8 +7,10 @@ from image import Image
 
 images = []
 count = 0
-for f in os.listdir("/Users/AdamCanady/comps/python/photos"):
-    img = Image("/Users/AdamCanady/comps/python/photos/{}".format(f))
+
+current_dir = os.path.dirname(os.path.realpath(__file__))
+for f in os.listdir(os.path.join(current_dir,"photos")):
+    img = Image(os.path.join(current_dir, "photos/{}".format(f)))
     img.detect_features()
     images.append(img)
     count += 1
