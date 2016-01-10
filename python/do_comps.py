@@ -97,7 +97,37 @@ def ourTriangulatePoints(proj1mat, proj2mat, kps1, kps2):
 
     return outputPoints
 
-print ourTriangulatePoints(proj1mat, proj2mat, pts1, pts2)
+def homogeneousCoordinatesToRegular(arr):
+    outputArr = numpy.zeros((3,arr.shape[1]))
+
+    for i in range(arr.shape[1]):
+        # TODO: Throw out point if div by zero?
+        outputArr[0][i] = arr[0][i] / arr[3][i]
+        outputArr[1][i] = arr[1][i] / arr[3][i]
+        outputArr[2][i] = arr[2][i] / arr[3][i]
+
+    return outputArr
+
+
+def ptsToFile(pts, filename):
+    with open(filename, 'w') as f:
+        def writeline(f,line):
+            return f.write("{}\n".format(line))
+
+        writeline(f,"ply")
+        writeline(f,"format ascii 1.0")
+        writeline(f, "element vertex {}".format(pts.shape[1]))
+        writeline(f, "property float x")
+        writeline(f, "property float y")
+        writeline(f, "property float z")
+        writeline(f,"end_header")
+
+        for col_num in range(pts.shape[1]):
+            col = pts[:,col_num]
+            writeline(f, "{} {} {}".format(col[0], col[1], col[2]))
+
+m = ourTriangulatePoints(proj1mat, proj2mat, pts1, pts2)
+n = homogeneousCoordinatesToRegular(m)
 
 
 # print cv2.triangulatePoints(proj1mat,proj2mat,pts1.transpose(),pts2.transpose())
