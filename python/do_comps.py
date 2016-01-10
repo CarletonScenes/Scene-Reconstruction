@@ -66,7 +66,7 @@ proj2mat = numpy.append(r,t,1)
 def ourTriangulatePoints(proj1mat, proj2mat, kps1, kps2):
     assert len(kps1) == len(kps2)
     for i in len(kps1):
-        
+        pass
 
 
 # print cv2.triangulatePoints(proj1mat,proj2mat,pts1.transpose(),pts2.transpose())
