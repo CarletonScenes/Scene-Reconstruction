@@ -1,7 +1,7 @@
 import os
 import cv2
 import numpy
-from matplotlib import pyplot as plt
+# from matplotlib import pyplot as plt
 
 from image import Image
 
