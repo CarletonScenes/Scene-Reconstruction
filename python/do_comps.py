@@ -19,8 +19,6 @@ for f in os.listdir(os.path.join(current_dir,"photos")):
 
 import pprint
 
-
-
 img1 = images[0]
 img2 = images[1]
 
@@ -160,7 +158,7 @@ n = homogeneousCoordinatesToRegular(m)
 
 # print pts2
 # print pts2
-    
+
 # exit()
 
 #### /DRAWING EPIPOLAR LINES STUFF ####
@@ -196,7 +194,7 @@ n = homogeneousCoordinatesToRegular(m)
 #     matchesMask = None
 
 # print "Matches Mask"
-# pprint.pprint(matchesMask) 
+# pprint.pprint(matchesMask)
 # draw_params = dict(matchColor = (0,255,0), # draw matches in green color
 #                    singlePointColor = None,
 #                    matchesMask = matchesMask, # draw only inliers
