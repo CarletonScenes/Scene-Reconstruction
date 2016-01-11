@@ -1,0 +1,2 @@
+python/photos/acsmall.jpg filter=lfs diff=lfs merge=lfs -text
+python/photos/adsmall.jpg filter=lfs diff=lfs merge=lfs -text
