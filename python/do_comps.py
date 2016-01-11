@@ -14,13 +14,13 @@ for f in os.listdir(os.path.join(current_dir,"photos")):
     img.detect_features()
     images.append(img)
     count += 1
-    if count > 1:
+    if count > 3:
         break
 
 import pprint
 
-img1 = images[0]
-img2 = images[1]
+img1 = images[2]
+img2 = images[3]
 
 
 # img1 = cv2.imread("testimg.jpg")
@@ -29,9 +29,9 @@ img2 = images[1]
 # (kps, descs) = sift.detectAndCompute(gray, None)
 
 
-FLANN_INDEX_KDTREE = 0
-index_params = dict(algorithm = FLANN_INDEX_KDTREE, trees = 5)
-search_params = dict(checks = 50)
+# FLANN_INDEX_KDTREE = 0
+# index_params = dict(algorithm = FLANN_INDEX_KDTREE, trees = 5)
+# search_params = dict(checks = 50)
 
 bf = cv2.BFMatcher(cv2.NORM_L1, crossCheck=True)
 
@@ -42,8 +42,8 @@ print "Matches:"
 # pprint.pprint(matches)
 print len(matches)
 print type(matches)
-for i in matches:
-    print i
+# for i in matches:
+#     print i
 
 pts1 = []
 pts2 = []
@@ -83,15 +83,14 @@ def ourTriangulatePoints(proj1mat, proj2mat, kps1, kps2):
             y = kps[j][1][i]
             for k in range(4):
                 matrA[j*2 + 0][k] = x * projMatrs[j][2][k] - projMatrs[j][0][k]
-                matrA[j*2 + 1][k] = x * projMatrs[j][2][k] - projMatrs[j][2][k]
-
+                matrA[j*2 + 1][k] = y * projMatrs[j][2][k] - projMatrs[j][1][k]
 
         cv2.SVDecomp(matrA, matrW, matrU, matrV)
 
-        outputPoints[0][i] = matrV[3][0]
-        outputPoints[1][i] = matrV[3][1]
-        outputPoints[2][i] = matrV[3][2]
-        outputPoints[3][i] = matrV[3][3]
+        outputPoints[0][i] = matrV[3][0] # X
+        outputPoints[1][i] = matrV[3][1] # Y
+        outputPoints[2][i] = matrV[3][2] # Z
+        outputPoints[3][i] = matrV[3][3] # W
 
     return outputPoints
 
@@ -108,17 +107,25 @@ def homogeneousCoordinatesToRegular(arr):
 
 
 def ptsToFile(pts, filename):
-    from plyfile import PlyData, PlyElement
-    elements = []
-    for col_num in range(pts.shape[1]):
-        col = pts[:,col_num]
-        el = PlyElement.describe(col, 'col{}'.format(col_num))
-        elements.append(el)
+    with open(filename, 'w') as f:
+        def writeline(f,line):
+            return f.write("{}\n".format(line))
 
-    PlyData(elements).write(filename)
+        writeline(f,"ply")
+        writeline(f,"format ascii 1.0")
+        writeline(f, "element vertex {}".format(pts.shape[1]))
+        writeline(f, "property float x")
+        writeline(f, "property float y")
+        writeline(f, "property float z")
+        writeline(f,"end_header")
+
+        for col_num in range(pts.shape[1]):
+            col = pts[:,col_num]
+            writeline(f, "{} {} {}".format(col[0], col[1], col[2]))
 
 m = ourTriangulatePoints(proj1mat, proj2mat, pts1, pts2)
 n = homogeneousCoordinatesToRegular(m)
+ptsToFile(n, 'pts_fixed.ply')
 
 
 # print cv2.triangulatePoints(proj1mat,proj2mat,pts1.transpose(),pts2.transpose())
