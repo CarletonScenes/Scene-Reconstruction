@@ -74,13 +74,13 @@ def ourTriangulatePoints(proj1mat, proj2mat, kps1, kps2):
 
     outputPoints = numpy.zeros((4,len(kps1)))
 
-    kps = [kps1.transpose(),kps2.transpose()]
+    kps = [kps1,kps2]
     projMatrs = [proj1mat, proj2mat]
 
     for i in range(len(kps1)):
         for j in range(2):
-            x = kps[j][0][i]
-            y = kps[j][1][i]
+            x = kps[j][i][0]
+            y = kps[j][i][1]
             for k in range(4):
                 matrA[j*2 + 0][k] = x * projMatrs[j][2][k] - projMatrs[j][0][k]
                 matrA[j*2 + 1][k] = y * projMatrs[j][2][k] - projMatrs[j][1][k]
