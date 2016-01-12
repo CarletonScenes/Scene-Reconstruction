@@ -72,7 +72,7 @@ def ourTriangulatePoints(proj1mat, proj2mat, kps1, kps2):
     matrW = numpy.zeros((4,1))
     matrV = numpy.zeros((4,4))
 
-    outputPoints = numpy.zeros((4,len(kps1)))
+    outputPoints = numpy.zeros((len(kps1),4))
 
     kps = [kps1,kps2]
     projMatrs = [proj1mat, proj2mat]
@@ -87,24 +87,24 @@ def ourTriangulatePoints(proj1mat, proj2mat, kps1, kps2):
 
         cv2.SVDecomp(matrA, matrW, matrU, matrV)
 
-        outputPoints[0][i] = matrV[3][0] # X
-        outputPoints[1][i] = matrV[3][1] # Y
-        outputPoints[2][i] = matrV[3][2] # Z
-        outputPoints[3][i] = matrV[3][3] # W
+        outputPoints[i][0] = matrV[3][0] # X
+        outputPoints[i][1] = matrV[3][1] # Y
+        outputPoints[i][2] = matrV[3][2] # Z
+        outputPoints[i][3] = matrV[3][3] # W
 
     return outputPoints
 
 def homogeneousCoordinatesToRegular(arr):
-    outputArr = numpy.zeros((3,arr.shape[1]))
+    num_keypoints = arr.shape[0]
+    outputArr = numpy.zeros((num_keypoints,3))
 
-    for i in range(arr.shape[1]):
+    for i in range(num_keypoints):
         # TODO: Throw out point if div by zero?
-        outputArr[0][i] = arr[0][i] / arr[3][i]
-        outputArr[1][i] = arr[1][i] / arr[3][i]
-        outputArr[2][i] = arr[2][i] / arr[3][i]
+        outputArr[i][0] = arr[i][0] / arr[i][3]
+        outputArr[i][1] = arr[i][1] / arr[i][3]
+        outputArr[i][2] = arr[i][2] / arr[i][3]
 
     return outputArr
-
 
 def ptsToFile(pts, filename):
     with open(filename, 'w') as f:
@@ -119,9 +119,9 @@ def ptsToFile(pts, filename):
         writeline(f, "property float z")
         writeline(f,"end_header")
 
-        for col_num in range(pts.shape[1]):
-            col = pts[:,col_num]
-            writeline(f, "{} {} {}".format(col[0], col[1], col[2]))
+        for row_num in range(pts.shape[0]):
+            row = pts[row_num]
+            writeline(f, "{} {} {}".format(row[0], row[1], row[2]))
 
 m = ourTriangulatePoints(proj1mat, proj2mat, pts1, pts2)
 n = homogeneousCoordinatesToRegular(m)
