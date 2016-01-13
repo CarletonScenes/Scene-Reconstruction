@@ -1,6 +1,6 @@
 import os
 import cv2
-import numpy
+import numpy as np
 # from matplotlib import pyplot as plt
 
 from image import Image
@@ -52,27 +52,27 @@ for match in matches:
     pts2.append(img2.kps[match.trainIdx].pt)
     pts1.append(img1.kps[match.queryIdx].pt)
 
-pts1 = numpy.int32(pts1)
-pts2 = numpy.int32(pts2)
+pts1 = np.int32(pts1)
+pts2 = np.int32(pts2)
 
-# F, mask = cv2.findFundamentalMat(pts1,pts2,cv2.FM_LMEDS)
+# E, mask = cv2.findFundamentalMat(pts1,pts2,cv2.FM_LMEDS)
 E, mask = cv2.findEssentialMat(pts1, pts2)
 
 _, r, t, newMask = cv2.recoverPose(E, pts1, pts2, mask=mask)
 
-proj1mat = numpy.append(numpy.identity(3), numpy.zeros((3,1)),1)
-proj2mat = numpy.append(r,t,1)
+proj1mat = np.append(np.identity(3), np.zeros((3,1)),1)
+proj2mat = np.append(r,t,1)
 
 # reimplement: https://github.com/Itseez/opencv/blob/ddf82d0b154873510802ef75c53e628cd7b2cb13/modules/calib3d/src/triangulate.cpp#L54
 def ourTriangulatePoints(proj1mat, proj2mat, kps1, kps2):
     assert len(kps1) == len(kps2)
 
-    matrA = numpy.zeros((4,4))
-    matrU = numpy.zeros((4,4))
-    matrW = numpy.zeros((4,1))
-    matrV = numpy.zeros((4,4))
+    matrA = np.zeros((4,4))
+    matrU = np.zeros((4,4))
+    matrW = np.zeros((4,1))
+    matrV = np.zeros((4,4))
 
-    outputPoints = numpy.zeros((len(kps1),4))
+    outputPoints = np.zeros((len(kps1),4))
 
     kps = [kps1,kps2]
     projMatrs = [proj1mat, proj2mat]
@@ -85,24 +85,30 @@ def ourTriangulatePoints(proj1mat, proj2mat, kps1, kps2):
                 matrA[j*2 + 0][k] = x * projMatrs[j][2][k] - projMatrs[j][0][k]
                 matrA[j*2 + 1][k] = y * projMatrs[j][2][k] - projMatrs[j][1][k]
 
-        cv2.SVDecomp(matrA, matrW, matrU, matrV)
+        # cv2.SVDecomp(matrA, matrW, matrU, matrV)
+        U, s, matrV = np.linalg.svd(matrA, full_matrices=True)
 
-        outputPoints[i][0] = matrV.transpose()[3][0] # X
-        outputPoints[i][1] = matrV.transpose()[3][1] # Y
-        outputPoints[i][2] = matrV.transpose()[3][2] # Z
-        outputPoints[i][3] = matrV.transpose()[3][3] # W
+        # print matrV
+        # print matrV[3]
+
+        outputPoints[i][0] = matrV[3][0] # X
+        outputPoints[i][1] = matrV[3][1] # Y
+        outputPoints[i][2] = matrV[3][2] # Z
+        outputPoints[i][3] = matrV[3][3] # W
 
     return outputPoints
 
 def homogeneousCoordinatesToRegular(arr):
     num_keypoints = arr.shape[0]
-    outputArr = numpy.zeros((num_keypoints,3))
+    outputArr = np.zeros((num_keypoints,3))
 
     for i in range(num_keypoints):
         # TODO: Throw out point if div by zero?
         outputArr[i][0] = arr[i][0] / arr[i][3]
         outputArr[i][1] = arr[i][1] / arr[i][3]
         outputArr[i][2] = arr[i][2] / arr[i][3]
+
+        # print outputArr[i]
 
     return outputArr
 
@@ -126,7 +132,14 @@ def ptsToFile(pts, filename):
 m = ourTriangulatePoints(proj1mat, proj2mat, pts1, pts2)
 n = homogeneousCoordinatesToRegular(m)
 print n.shape
-ptsToFile(m, 'pts_fixed.ply')
+ptsToFile(n, 'pts_fixed.ply')
+
+cmd = "open -a meshlab.app pts_fixed.ply".split(" ")
+
+import subprocess
+p = subprocess.Popen(cmd)
+# p.kill()
+
 
 
 # print cv2.triangulatePoints(proj1mat,proj2mat,pts1.transpose(),pts2.transpose())
@@ -141,7 +154,7 @@ ptsToFile(m, 'pts_fixed.ply')
 #     # img1 = cv2.cvtColor(img1,cv2.COLOR_GRAY2BGR)
 #     # img2 = cv2.cvtColor(img2,cv2.COLOR_GRAY2BGR)
 #     for r,pt1,pt2 in zip(lines,pts1,pts2):
-#         color = tuple(numpy.random.randint(0,255,3).tolist())
+#         color = tuple(np.random.randint(0,255,3).tolist())
 #         x0,y0 = map(int, [0, -r[2]/r[1] ])
 #         x1,y1 = map(int, [c, -(r[2]+r[0]*c)/r[1] ])
 #         img1 = cv2.line(img1, (x0,y0), (x1,y1), color,1)
@@ -185,17 +198,17 @@ ptsToFile(m, 'pts_fixed.ply')
 #         good.append(m)
 
 # if len(good)>MIN_MATCH_COUNT:
-#     src_pts = numpy.float32([ kp1[m.queryIdx].pt for m in good ]).reshape(-1,1,2)
-#     dst_pts = numpy.float32([ kp2[m.trainIdx].pt for m in good ]).reshape(-1,1,2)
+#     src_pts = np.float32([ kp1[m.queryIdx].pt for m in good ]).reshape(-1,1,2)
+#     dst_pts = np.float32([ kp2[m.trainIdx].pt for m in good ]).reshape(-1,1,2)
 
 #     M, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC,5.0)
 #     matchesMask = mask.ravel().tolist()
 
 #     h,w = img1.shape
-#     pts = numpy.float32([ [0,0],[0,h-1],[w-1,h-1],[w-1,0] ]).reshape(-1,1,2)
+#     pts = np.float32([ [0,0],[0,h-1],[w-1,h-1],[w-1,0] ]).reshape(-1,1,2)
 #     dst = cv2.perspectiveTransform(pts,M)
 
-#     img2img = cv2.polylines(img2.img,[numpy.int32(dst)],True,255,3, cv2.LINE_AA)
+#     img2img = cv2.polylines(img2.img,[np.int32(dst)],True,255,3, cv2.LINE_AA)
 
 # else:
 #     print "Not enough matches are found - %d/%d" % (len(good),MIN_MATCH_COUNT)
