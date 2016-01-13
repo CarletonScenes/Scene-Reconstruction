@@ -58,7 +58,7 @@ pts2 = numpy.int32(pts2)
 # F, mask = cv2.findFundamentalMat(pts1,pts2,cv2.FM_LMEDS)
 E, mask = cv2.findEssentialMat(pts1, pts2)
 
-_, r, t, newMask = cv2.recoverPose(E, pts1, pts2)
+_, r, t, newMask = cv2.recoverPose(E, pts1, pts2, mask=mask)
 
 proj1mat = numpy.append(numpy.identity(3), numpy.zeros((3,1)),1)
 proj2mat = numpy.append(r,t,1)
@@ -87,10 +87,10 @@ def ourTriangulatePoints(proj1mat, proj2mat, kps1, kps2):
 
         cv2.SVDecomp(matrA, matrW, matrU, matrV)
 
-        outputPoints[i][0] = matrV[3][0] # X
-        outputPoints[i][1] = matrV[3][1] # Y
-        outputPoints[i][2] = matrV[3][2] # Z
-        outputPoints[i][3] = matrV[3][3] # W
+        outputPoints[i][0] = matrV.transpose()[3][0] # X
+        outputPoints[i][1] = matrV.transpose()[3][1] # Y
+        outputPoints[i][2] = matrV.transpose()[3][2] # Z
+        outputPoints[i][3] = matrV.transpose()[3][3] # W
 
     return outputPoints
 
@@ -113,7 +113,7 @@ def ptsToFile(pts, filename):
 
         writeline(f,"ply")
         writeline(f,"format ascii 1.0")
-        writeline(f, "element vertex {}".format(pts.shape[1]))
+        writeline(f, "element vertex {}".format(pts.shape[0]))
         writeline(f, "property float x")
         writeline(f, "property float y")
         writeline(f, "property float z")
@@ -121,11 +121,12 @@ def ptsToFile(pts, filename):
 
         for row_num in range(pts.shape[0]):
             row = pts[row_num]
-            writeline(f, "{} {} {}".format(row[0], row[1], row[2]))
+            writeline(f, "%f %f %f" % (row[0], row[1], row[2]))
 
 m = ourTriangulatePoints(proj1mat, proj2mat, pts1, pts2)
 n = homogeneousCoordinatesToRegular(m)
-ptsToFile(n, 'pts_fixed.ply')
+print n.shape
+ptsToFile(m, 'pts_fixed.ply')
 
 
 # print cv2.triangulatePoints(proj1mat,proj2mat,pts1.transpose(),pts2.transpose())
