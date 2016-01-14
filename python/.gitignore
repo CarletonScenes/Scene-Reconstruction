@@ -3,3 +3,4 @@ activate
 *.png
 *.pyc
 env/
+*.ply
