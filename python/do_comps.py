@@ -59,7 +59,8 @@ pts2 = np.int32(pts2)
 E, mask = cv2.findEssentialMat(pts1, pts2)
 print mask.shape
 
-_, r, t, newMask = cv2.recoverPose(E, pts1, pts2, mask=mask)
+points, r, t, newMask = cv2.recoverPose(E, pts1, pts2, mask=mask)
+print points
 
 proj1mat = np.append(np.identity(3), np.zeros((3,1)),1)
 proj2mat = np.append(r,t,1)
@@ -79,17 +80,42 @@ def ourTriangulatePoints(proj1mat, proj2mat, kps1, kps2):
     projMatrs = [proj1mat, proj2mat]
 
     for i in range(len(kps1)):
-        # projMatrs[0]
+        
+        # Row 1 (x1 * P1 3T - P1 1T)
+        matrA[0][0] = kps1[i][0] * proj1mat[2][0] - proj1mat[0][0]
+        matrA[0][1] = kps1[i][0] * proj1mat[2][1] - proj1mat[0][1]
+        matrA[0][2] = kps1[i][0] * proj1mat[2][2] - proj1mat[0][2]
+        matrA[0][3] = kps1[i][0] * proj1mat[2][3] - proj1mat[0][3]
 
-        for j in range(2):
-            x = kps[j][i][0]
-            y = kps[j][i][1]
-            for k in range(4):
-                matrA[j*2 + 0][k] = x * projMatrs[j][2][k] - projMatrs[j][0][k]
-                matrA[j*2 + 1][k] = y * projMatrs[j][2][k] - projMatrs[j][1][k]
+        # Row 2 (y1 * P1 3T - P1 2T)
+        matrA[1][0] = kps1[i][1] * proj1mat[2][0] - proj1mat[1][0]
+        matrA[1][1] = kps1[i][1] * proj1mat[2][1] - proj1mat[1][1]
+        matrA[1][2] = kps1[i][1] * proj1mat[2][2] - proj1mat[1][2]
+        matrA[1][3] = kps1[i][1] * proj1mat[2][3] - proj1mat[1][3]
+
+        # Row 3 (x2 * P2 3T - P1 1T)
+        matrA[2][0] = kps2[i][0] * proj2mat[2][0] - proj2mat[0][0]
+        matrA[2][1] = kps2[i][0] * proj2mat[2][1] - proj2mat[0][1]
+        matrA[2][2] = kps2[i][0] * proj2mat[2][2] - proj2mat[0][2]
+        matrA[2][3] = kps2[i][0] * proj2mat[2][3] - proj2mat[0][3]
+
+        # Row 3 (y2 * P2 3T - P1 2T)
+        matrA[3][0] = kps2[i][1] * proj2mat[2][0] - proj2mat[1][0]
+        matrA[3][1] = kps2[i][1] * proj2mat[2][1] - proj2mat[1][1]
+        matrA[3][2] = kps2[i][1] * proj2mat[2][2] - proj2mat[1][2]
+        matrA[3][3] = kps2[i][1] * proj2mat[2][3] - proj2mat[1][3]
+
+
+
+        # for j in range(2):
+        #     x = kps[j][i][0]
+        #     y = kps[j][i][1]
+        #     for k in range(4):
+        #         matrA[j*2 + 0][k] = x * projMatrs[j][2][k] - projMatrs[j][0][k]
+        #         matrA[j*2 + 1][k] = y * projMatrs[j][2][k] - projMatrs[j][1][k]
 
         # cv2.SVDecomp(matrA, matrW, matrU, matrV)
-        newMatr = matrA * matrA.transpose()
+        # newMatr = matrA * matrA.transpose()
         # w, v = np.linalg.eig(newMatr)
         # minEigVec = v[np.where(w == w.min())]
         U, s, matrV = np.linalg.svd(matrA, full_matrices=True)
