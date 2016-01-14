@@ -1,2 +1,15 @@
 photos/absmall.jpg filter=lfs diff=lfs merge=lfs -text
 photos/aasmall.jpg filter=lfs diff=lfs merge=lfs -text
+adams_old_stuff/1.jpg filter=lfs diff=lfs merge=lfs -text
+adams_old_stuff/1l.jpg filter=lfs diff=lfs merge=lfs -text
+adams_old_stuff/2.jpg filter=lfs diff=lfs merge=lfs -text
+adams_old_stuff/2l.jpg filter=lfs diff=lfs merge=lfs -text
+adams_old_stuff/3.jpg filter=lfs diff=lfs merge=lfs -text
+adams_old_stuff/3s.jpg filter=lfs diff=lfs merge=lfs -text
+adams_old_stuff/4.jpg filter=lfs diff=lfs merge=lfs -text
+adams_old_stuff/4s.jpg filter=lfs diff=lfs merge=lfs -text
+adams_old_stuff/5.jpg filter=lfs diff=lfs merge=lfs -text
+adams_old_stuff/6.jpg filter=lfs diff=lfs merge=lfs -text
+adams_old_stuff/7.jpg filter=lfs diff=lfs merge=lfs -text
+adams_old_stuff/8.jpg filter=lfs diff=lfs merge=lfs -text
+adams_old_stuff/test.jpg filter=lfs diff=lfs merge=lfs -text
