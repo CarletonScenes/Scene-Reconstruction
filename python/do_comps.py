@@ -52,6 +52,7 @@ for match in matches:
     pts2.append(img2.kps[match.trainIdx].pt)
     pts1.append(img1.kps[match.queryIdx].pt)
 
+# print(pts1)
 pts1 = np.int32(pts1)
 pts2 = np.int32(pts2)
 
