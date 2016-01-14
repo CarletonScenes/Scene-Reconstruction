@@ -57,6 +57,7 @@ pts2 = np.int32(pts2)
 
 # E, mask = cv2.findFundamentalMat(pts1,pts2,cv2.FM_LMEDS)
 E, mask = cv2.findEssentialMat(pts1, pts2)
+print mask.shape
 
 _, r, t, newMask = cv2.recoverPose(E, pts1, pts2, mask=mask)
 
@@ -78,6 +79,8 @@ def ourTriangulatePoints(proj1mat, proj2mat, kps1, kps2):
     projMatrs = [proj1mat, proj2mat]
 
     for i in range(len(kps1)):
+        # projMatrs[0]
+
         for j in range(2):
             x = kps[j][i][0]
             y = kps[j][i][1]
@@ -86,10 +89,24 @@ def ourTriangulatePoints(proj1mat, proj2mat, kps1, kps2):
                 matrA[j*2 + 1][k] = y * projMatrs[j][2][k] - projMatrs[j][1][k]
 
         # cv2.SVDecomp(matrA, matrW, matrU, matrV)
+        newMatr = matrA * matrA.transpose()
+        # w, v = np.linalg.eig(newMatr)
+        # minEigVec = v[np.where(w == w.min())]
         U, s, matrV = np.linalg.svd(matrA, full_matrices=True)
+        # print s
+        # ls = list(s)
+        # print ls == sorted(ls)
+        # print U
+        # exit()
 
         # print matrV
         # print matrV[3]
+
+        # outputPoints[i][0] = minEigVec[0][0] # X
+        # outputPoints[i][1] = minEigVec[0][1] # Y
+        # outputPoints[i][2] = minEigVec[0][2] # Z
+        # outputPoints[i][3] = minEigVec[0][3] # W
+
 
         outputPoints[i][0] = matrV[3][0] # X
         outputPoints[i][1] = matrV[3][1] # Y
@@ -126,11 +143,12 @@ def ptsToFile(pts, filename):
         writeline(f,"end_header")
 
         for row_num in range(pts.shape[0]):
-            row = pts[row_num]
+            row = pts[row_num][0]
             writeline(f, "%f %f %f" % (row[0], row[1], row[2]))
 
 m = ourTriangulatePoints(proj1mat, proj2mat, pts1, pts2)
-n = homogeneousCoordinatesToRegular(m)
+# n = homogeneousCoordinatesToRegular(m)
+n = cv2.convertPointsFromHomogeneous(m)
 print n.shape
 ptsToFile(n, 'pts_fixed.ply')
 
