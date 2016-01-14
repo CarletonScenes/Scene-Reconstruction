@@ -10,7 +10,7 @@ We use git-lfs to track large files in the repo. Install that on OSX like this:
     
 or take a look at [their docs](https://git-lfs.github.com/).
 
-Then run the ol' clone command
+Then run the ol' clone command:
 
     git clone git@github.com:CarletonScenes/Scene-Reconstruction.git
 
