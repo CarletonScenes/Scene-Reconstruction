@@ -2,6 +2,18 @@
 
 This is gonna rock.
 
+## Pulling the repo
+
+We use git-lfs to track large files in the repo. Install that on OSX like this:
+
+    brew install git-lfs
+    
+or take a look at [their docs](https://git-lfs.github.com/).
+
+Then run the ol' clone command
+
+    git clone git@github.com:CarletonScenes/Scene-Reconstruction.git
+
 ## Installing OpenCV for feature detection
 
 On Mac OSX:
