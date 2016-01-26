@@ -82,13 +82,6 @@ def ptsToFile(pts, filename):
 			row = pts[row_num][0]
 			writeline(f, "%f %f %f" % (row[0], row[1], row[2]))
 
-def imageToCameraPts(points):
-	newpoints = points[:]
-	for i in range(len(points)):
-		point = points[i]
-		newpoints[i] = (point[0] - 300, point[1] - 250)
-	return newpoints
-
 def main():
 	# Hard-coded from annotated images
 	imagePoints1 = [
@@ -116,53 +109,57 @@ def main():
 		(462, 330)
 	]
 
-	cameraPoints1 = imageToCameraPts(imagePoints1)
-	cameraPoints2 = imageToCameraPts(imagePoints2)
-
-	# # We need to comment this vvv
-
-	imagePoints1 = np.array(imagePoints1)
-	imagePoints2 = np.array(imagePoints2)
-
-	cameraPoints1 = np.int32(cameraPoints1)
-	cameraPoints2 = np.int32(cameraPoints2)
+	imagePoints1 = np.int32(imagePoints1)
+	imagePoints2 = np.int32(imagePoints2)
 
 	principlePoint = (300, 250)
 
-	# (-208, -167, 1)
-	# (-235, -146, 1)
-
-	E, mask = cv2.findEssentialMat(cameraPoints1, cameraPoints2, pp=principlePoint)
+	E, mask = cv2.findEssentialMat(imagePoints1, imagePoints2, pp=principlePoint)
 
 	print "E:"
 	print E
 
-	print "Essential mat test:"
+	K = np.array([[1, 0, principlePoint[0]], [0, 1, principlePoint[1]], [0, 0, 1]])
+
+	print "Essential mat test: (Should be zero)"
 	for i in range(len(imagePoints1)):
-		homoPoint1 = np.append(imagePoints1[i], np.array([1]), 0)
-		homoPoint1 = np.array([homoPoint1])
+		ip1 = imagePoints1[i]
+		ip2 = imagePoints2[i]
 
-		homoPoint2 = np.append(imagePoints2[i], np.array([1]), 0)
-		homoPoint2 = np.array([homoPoint2])
+		# Homogenize
+		ip1 = np.append(ip1, [1])
+		ip2 = np.append(ip2, [1])
 
-		homoPoint2 = homoPoint2.transpose()
-		print np.dot(np.dot(homoPoint1, E), homoPoint2)
+		# Needs to be np array
+		arr1 = np.array([ip1])
+		arr2 = np.array([ip2]).transpose()
 
-	# points, r, t, newMask = cv2.recoverPose(E, pts1, pts2, mask=mask)
-	# print "R:"
-	# print r
-	# print "T:"
-	# print t
+		# K inverse and K inverse-transpose
+		KI = np.linalg.inv(K)
+		KIT = KI.transpose()
 
-	# proj1mat = np.append(np.identity(3), np.zeros((3,1)),1)
-	# proj2mat = np.append(r,t,1)
+		# Normalized coordinates
+		norm1 = np.dot(arr1, KIT)
+		norm2 = np.dot(KI, arr2)
 
-	# m = ourTriangulatePoints(proj1mat, proj2mat, pts1, pts2)
-	# n = cv2.convertPointsFromHomogeneous(m)
-	# ptsToFile(n, 'debug_out.ply')
+		result = np.dot(np.dot(norm1, E), norm2)
+		print result
 
-	# cmd = "open -a meshlab.app debug_out.ply".split(" ")
-	# p = subprocess.Popen(cmd)
+	points, r, t, newMask = cv2.recoverPose(E, imagePoints1, imagePoints2, mask=mask)
+	print "R:"
+	print r
+	print "T:"
+	print t
+
+	proj1mat = np.append(np.identity(3), np.zeros((3,1)),1)
+	proj2mat = np.append(r,t,1)
+
+	m = ourTriangulatePoints(proj1mat, proj2mat, imagePoints1, imagePoints2)
+	n = cv2.convertPointsFromHomogeneous(m)
+	ptsToFile(n, 'debug_out.ply')
+
+	cmd = "open -a meshlab.app debug_out.ply".split(" ")
+	p = subprocess.Popen(cmd)
 
 
 if __name__ == '__main__':
