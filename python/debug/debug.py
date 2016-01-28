@@ -120,6 +120,9 @@ def main():
 	print E
 
 	K = np.array([[1, 0, principlePoint[0]], [0, 1, principlePoint[1]], [0, 0, 1]])
+	# K inverse and K inverse-transpose
+	KI = np.linalg.inv(K)
+	KIT = KI.transpose()
 
 	print "Essential mat test: (Should be zero)"
 	for i in range(len(imagePoints1)):
@@ -133,10 +136,6 @@ def main():
 		# Needs to be np array
 		arr1 = np.array([ip1])
 		arr2 = np.array([ip2]).transpose()
-
-		# K inverse and K inverse-transpose
-		KI = np.linalg.inv(K)
-		KIT = KI.transpose()
 
 		# Normalized coordinates
 		norm1 = np.dot(arr1, KIT)
