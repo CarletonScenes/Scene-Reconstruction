@@ -1,7 +1,7 @@
 import os
 import cv2
 import numpy as np
-# from matplotlib import pyplot as plt
+from matplotlib import pyplot as plt
 
 from image import Image
 
@@ -15,13 +15,13 @@ for f in os.listdir(os.path.join(current_dir,"photos")):
     img.detect_features()
     images.append(img)
     count += 1
-    if count > 3:
+    if count > 5:
         break
 
 import pprint
 
-img1 = images[2]
-img2 = images[3]
+img1 = images[3]
+img2 = images[4]
 
 
 # img1 = cv2.imread("testimg.jpg")
@@ -59,14 +59,85 @@ for match in matches:
 pts1 = np.int32(pts1)
 pts2 = np.int32(pts2)
 
+diff_ys = []
+for pt1, pt2 in zip(pts1, pts2):
+    diff_ys.append(pt2[1] - pt1[1])
+
+threshold = np.std(diff_ys)
+
+new_pts1 = []
+new_pts2 = []
+new_kps1 = []
+new_kps2 = []
+new_matches = []
+for i, match in enumerate(matches):
+    if abs(pts1[i][1] - pts2[i][1]) < threshold * 0.5:
+        new_matches.append(matches[i])
+        new_pts1.append(pts1[i]) 
+        new_pts2.append(pts2[i])
+        new_kps1.append(img1.kps[i]) 
+        new_kps2.append(img2.kps[i]) 
+
+# exit()
+
+# _, mask = cv2.findFundamentalMat(pts1, pts2, method=cv2.FM_8POINT)
+# new_pts1 = []
+# new_pts2 = []
+# new_matches = []
+# for i, (mask_incl, match) in enumerate(zip(mask, matches)):
+#     if mask_incl[0] == 1:
+#         new_matches.append(matches[i])
+#         new_pts1.append(pts1[i]) 
+#         new_pts2.append(pts2[i]) 
+
+img3 = cv2.drawMatches(img1.img,img1.kps,img2.img,img2.kps,new_matches, images[1].img, flags=2)
+
+# plt.imshow(img3),plt.show()
+
 # E, mask = cv2.findFundamentalMat(pts1,pts2,cv2.FM_LMEDS)
 focalLength = img2.k[0][0]
 print "Focal", focalLength
 
-E, mask = cv2.findEssentialMat(pts1, pts2, focal = focalLength)
+new_pts1 = np.int32(new_pts1)
+new_pts2 = np.int32(new_pts2)
+
+E, mask = cv2.findEssentialMat(new_pts1, new_pts2, focal = focalLength)
+print "E"
+print E
+
+points, r, t, newMask = cv2.recoverPose(E, new_pts1, new_pts2, mask=mask)
+# print points
+print "E-R"
+print r
+print "E-T"
+print t
+
+F1, mask = cv2.findFundamentalMat(new_pts1, new_pts2, method=cv2.FM_8POINT)
+F2, mask = cv2.findFundamentalMat(new_pts1, new_pts2)
+print "F1"
+print F1
+
+points, r, t, newMask = cv2.recoverPose(img1.k.transpose().dot(F1).dot(img2.k), new_pts1, new_pts2, mask=mask)
+# print points
+print "F1-R"
+print r
+print "F1-T"
+print t
+print "F2"
+print F2
+points, r, t, newMask = cv2.recoverPose(img1.k.transpose().dot(F2).dot(img2.k), new_pts1, new_pts2, mask=mask)
+
+print "F2-R"
+print r
+print "F2-T"
+print t
+
+
+
+exit()
 print mask.shape
 
-points, r, t, newMask = cv2.recoverPose(E, pts1, pts2, mask=mask)
+points, r, t, newMask = cv2.recoverPose(F, pts1, pts2, mask=mask)
 print points
 
 proj1mat = np.append(np.identity(3), np.zeros((3,1)),1)
