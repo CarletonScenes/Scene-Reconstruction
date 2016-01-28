@@ -10,6 +10,7 @@ count = 0
 
 current_dir = os.path.dirname(os.path.realpath(__file__))
 for f in os.listdir(os.path.join(current_dir,"photos")):
+    print f
     img = Image(os.path.join(current_dir, "photos/{}".format(f)))
     img.detect_features()
     images.append(img)
@@ -35,6 +36,8 @@ img2 = images[3]
 
 bf = cv2.BFMatcher(cv2.NORM_L1, crossCheck=True)
 
+
+
 # print img1.descs, img2.descs
 
 matches = bf.match(img1.descs, img2.descs)
@@ -57,7 +60,10 @@ pts1 = np.int32(pts1)
 pts2 = np.int32(pts2)
 
 # E, mask = cv2.findFundamentalMat(pts1,pts2,cv2.FM_LMEDS)
-E, mask = cv2.findEssentialMat(pts1, pts2)
+focalLength = img2.k[0][0]
+print "Focal", focalLength
+
+E, mask = cv2.findEssentialMat(pts1, pts2, focal = focalLength)
 print mask.shape
 
 points, r, t, newMask = cv2.recoverPose(E, pts1, pts2, mask=mask)
