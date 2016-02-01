@@ -263,7 +263,6 @@ p = subprocess.Popen(cmd)
 # p.kill()
 
 
-
 # print cv2.triangulatePoints(proj1mat,proj2mat,pts1.transpose(),pts2.transpose())
 
 
@@ -347,3 +346,25 @@ p = subprocess.Popen(cmd)
 
 # plt.imshow(img3, 'gray'),plt.show()
 # # print("# kps: {}, descriptors: {}".format(len(kps), descs.shape))
+
+
+
+#### /ADDING MORE PICTURES STUFF ####
+
+# Ideally, we start the process with two images with a "large" number of matches 
+#   subject to the condition that the matches cannot be modelled by a single homography
+#   We could also just try doing this manually
+
+# To add a next camera, pick the camera that shares the most keypoints already recovered. 
+#   Starting with another camera, we could compute either the essential or fundamental matrices
+#   If we compute essential, the pose we recover must be composed with the R and t of the camera
+#       that we just assumed to be I 0
+#   Add tracks observed by current camera if 1) they have already been observed by a recovered
+#       camera, and 2) if triangulating the track gives a "well-conditioned estimate of its position"
+
+# Useful methods:
+#   RecoverPose
+#   FindFundamentalMat/FindEssentialMat
+
+# We need to make sure we can easily identify cameras by the number of tracks already discovered
+#   So that we know which camera to choose next
