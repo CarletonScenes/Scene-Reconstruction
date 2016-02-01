@@ -63,3 +63,7 @@ make
 ## If you're using fish, you have to activate the env differently
     
     . ./bin/activate.fish
+    
+    
+## Pythonpath stuff (in fish)
+    set -x PYTHONPATH /Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/
