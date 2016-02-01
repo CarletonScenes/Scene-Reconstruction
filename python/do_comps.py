@@ -34,13 +34,16 @@ img2 = images[3]
 # index_params = dict(algorithm = FLANN_INDEX_KDTREE, trees = 5)
 # search_params = dict(checks = 50)
 
-bf = cv2.BFMatcher(cv2.NORM_L1, crossCheck=True)
+# bf = cv2.FlannBasedMatcher(cv2.NORM_L1, crossCheck=True)
 
 
 
 # print img1.descs, img2.descs
 
+bf = cv2.BFMatcher(cv2.NORM_L1, crossCheck=True)
 matches = bf.match(img1.descs, img2.descs)
+# matches = cv2.FlannBasedMatcher(img1.descs, img2.descs)
+
 print "Matches:"
 # pprint.pprint(matches)
 print len(matches)
@@ -60,8 +63,10 @@ pts1 = np.int32(pts1)
 pts2 = np.int32(pts2)
 
 diff_ys = []
+diff_xs = []
 for pt1, pt2 in zip(pts1, pts2):
     diff_ys.append(pt2[1] - pt1[1])
+    diff_xs.append(pt2[0] - pt1[0])
 
 threshold = np.std(diff_ys)
 
