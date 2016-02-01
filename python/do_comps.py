@@ -1,7 +1,7 @@
 import os
 import cv2
 import numpy as np
-from matplotlib import pyplot as plt
+# from matplotlib import pyplot as plt
 
 from image import Image
 
@@ -20,8 +20,8 @@ for f in os.listdir(os.path.join(current_dir,"photos")):
 
 import pprint
 
-img1 = images[3]
-img2 = images[4]
+img1 = images[2]
+img2 = images[3]
 
 
 # img1 = cv2.imread("testimg.jpg")
