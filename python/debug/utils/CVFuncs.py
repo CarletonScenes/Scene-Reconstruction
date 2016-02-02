@@ -66,19 +66,32 @@ def findFundamentalMat(points1, points2):
 def findEssentialMat(points1, points2, K=KMatrix()):
     return cv2.findEssentialMat(np.array(points1), np.array(points2), focal=K.focalLength, pp=K.principalPoint)
 
-def getEssentialMat(points1, points2):
+def getEssentialMat(points1, points2, K):
+    #TODO: Test
 
-    # Build the Y matrix
+    # Build the Y matrix using the first 8 matches (assuming they're the best)
     yMat = np.array([])
-    for i in range(len(points1)):
-        p1 = points1[i]
-        p2 = points2[i]
+    for i in range(9)
+        p1 = np.linalg.inv(K).dot(points1[i])
+        p2 = np.linalg.inv(K).dot(points2[i])
         tempColumn = np.array([p2[0]*p1[0], p2[0]*p1[1], p2[0], p2[1]*p1[0], p2[1]*p1[1], p2[1], 
             p1[0], p1[1], 1])
         yMat.append(tempColumn)
 
-    
-    return False
+    # Solve the homogeneous linear system of equations
+    b = np.zeros(9)
+    eVector = np.linalg.solve(yMat, b)
+    eEstMat = np.array([[eVector[0], eVector[1], eVector[2]],
+        [eVector[3], eVector[4], eVector[5]],
+        [eVector[6], eVector[7], eVector[8]]
+        ])
+
+    # Extract E from E estimate
+    W, U, VT = cv2.SVDecomp(eEstMat)
+    S = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 0]])
+    E = W.dot(U.dot(VT))
+
+    return E
 
 def EFromF(F, K=KMatrix()):
     return np.dot(np.dot(K.matrix.transpose(), F), K.matrix)
