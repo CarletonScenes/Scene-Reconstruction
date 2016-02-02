@@ -55,6 +55,9 @@ def findFundamentalMat(points1, points2):
 def findEssentialMat(points1, points2, K=KMatrix()):
     return cv2.findEssentialMat(np.array(points1), np.array(points2), focal=K.focalLength, pp=K.principalPoint)
 
+def getEssentialMat():
+    return False
+
 def EFromF(F, K=KMatrix()):
     return np.dot(np.dot(K.matrix.transpose(), F), K.matrix)
 
