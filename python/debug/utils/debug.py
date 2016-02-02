@@ -54,7 +54,7 @@ def printRandTPossibilities(possibilities):
         print possibility[1]
         print "---------------"
 
-def drawRandTTransformation(r, t, points1, points2, filepath):
+def drawRandTTransformation(r, t, K, points1, points2, filepath):
     writePoints = []
     P = composeRandT(r, t)
 
@@ -64,14 +64,21 @@ def drawRandTTransformation(r, t, points1, points2, filepath):
 
         # Homogenize
         point1 = np.append(point1, [1])
-        point2 = np.append(np.append(point2, [1]), [1])
+        point2 = np.append(point2, [1])
+
+        # Cvt to camera coordinates
+        point1 = np.dot(point1, np.linalg.inv(K.matrix).transpose())
+        point2 = np.dot(np.linalg.inv(K.matrix), point2)
+
+        # add ANOTHA [ONE] so we can multiply by P
+        point2 = np.append(point2, [1])
 
         # Needs to be np array
         point1 = np.array([point1]).transpose()
         point2 = np.array([point2]).transpose()
 
         transformedPoint2 = np.dot(P, point2)
-        writePoints.append(point1)
+        # writePoints.append(point1)
         writePoints.append(transformedPoint2)
 
     writePointsToFile(writePoints, filepath)

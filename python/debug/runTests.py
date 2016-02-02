@@ -1,9 +1,16 @@
 import os, sys, subprocess
 import cv2
+import math
 import numpy as np
 import utils.debug as Debug
 import utils.CVFuncs as CVFuncs
 from utils import KMatrix, Image
+
+def getArtificalR(deg):
+    rad = math.radians(deg)
+    return np.array([[math.cos(rad), 0, math.sin(rad)],
+                     [0, 1, 0],
+                     [-1 * math.sin(rad), 0, math.cos(rad)]])
 
 def main():
 
@@ -26,7 +33,7 @@ def main():
 
 
     E, mask = CVFuncs.findEssentialMat(pts1, pts2, K)
-    # E = CVFuncs.EFromF(F, K)
+    E = CVFuncs.EFromF(F, K)
     # Debug.testEssentialMat(E, K, pts1, pts2)
 
     points, r, t, newMask = CVFuncs.recoverPose(E, pts1, pts2, K)
@@ -35,8 +42,9 @@ def main():
 
     # possibilities = CVFuncs.decomposeEssentialMat(E)
     # Debug.printRandTPossibilities(possibilities)
+    r = getArtificalR(14)
 
-    Debug.drawRandTTransformation(r, t, pts1, pts2, "rotate.ply")
+    Debug.drawRandTTransformation(r, t, K, pts1, pts2, "real_transformed.ply")
 
     # projectionMatrix1 = np.append(np.identity(3), np.zeros((3,1)),1)
     # projectionMatrix2 = CVFuncs.composeRandT(r, t)
