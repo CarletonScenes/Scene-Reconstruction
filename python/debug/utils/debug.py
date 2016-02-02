@@ -100,7 +100,7 @@ def drawProjections(pts1, pts2, k, r, t, filename):
         imgpoint = normalized
         planepoint = (imgpoint[0] * 10, imgpoint[1] * 10, imgpoint[2] * 10)
         writePoints.append(imgpoint)
-        # writePoints.append(planepoint)
+        writePoints.append(planepoint)
 
     # IMAGE TWO
     for point in pts2:
@@ -112,7 +112,7 @@ def drawProjections(pts1, pts2, k, r, t, filename):
         transformed_image = (r.dot(imgpoint) + t.transpose())[0]
         transformed_plane = (r.dot(planepoint) + t.transpose())[0]
         writePoints.append(transformed_image)
-        # writePoints.append(transformed_plane)
+        writePoints.append(transformed_plane)
 
     writePointsToFile(writePoints, filename)    
 
