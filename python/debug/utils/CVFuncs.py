@@ -1,7 +1,18 @@
-import cv2
+import cv2, math, debug
 import numpy as np
 from KMatrix import *
+from line import *
 from PIL import Image as PILImage
+
+def normalizeCoordinates(points, K):
+    normPoints = []
+    for point in points:
+        homogenous = np.append(np.array(point),[1]).transpose()
+        inv_k = np.linalg.inv(K.matrix)
+        normalized = inv_k.dot(homogenous)
+
+        normPoints.append(normalized)
+    return normPoints
 
 def findMatches(image1, image2, filter=False):
 
@@ -82,6 +93,68 @@ def decomposeEssentialMat(E):
     T2 = [-1*T1[0], -1*T1[1], -1*T1[2]]
 
     return [(R1, T1), (R1, T2), (R2, T1), (R2, T2)]
+
+def eucDist(pt1, pt2):
+    return math.sqrt(((pt1[0] - pt2[0]) ** 2) + ((pt1[1] - pt2[1]) ** 2) + ((pt1[2] - pt2[2]) ** 2))
+
+def midpoint(pt1, pt2):
+    return ((pt1[0] + pt2[0])/ 2, (pt1[1] + pt2[1])/ 2, (pt1[2] + pt2[2])/ 2)
+
+def triangulateFromLines(line1, line2):
+    # Iteratively finds the two points that are closest together,
+    # Then returns their midpoint
+
+    minDist = 100000000
+    minPoints = [(0, 0, 0), (0, 0, 0)]
+
+    searchRange = 10.0
+    iterations = 1000
+    for i in range(iterations):
+        t = (searchRange / iterations) * i
+        pt1 = line1.atT(t)
+        pt2 = line2.atT(t)
+        distance = eucDist(pt1, pt2)
+        if distance < minDist:
+            minDist = distance
+            minPoints = [pt1, pt2]
+
+    return midpoint(minPoints[0], minPoints[1])
+
+def naiveTriangulate(pts1, pts2, k, r, t):
+    # Transforms image planes by r and t, draws epipolar lines,
+    # and uses those lines to triangulate points
+
+    origin1 = (0,0,0)
+    origin2 = (t[0][0], t[1][0], t[2][0])
+
+    # Image plane points (normalized and transformed)
+    imgpoints1 = []
+    imgpoints2 = []
+ 
+    # IMAGE ONE
+    for point in pts1:
+        homogenous = np.append(np.array(point),[1]).transpose()
+        inv_k = np.linalg.inv(k)
+        normalized = inv_k.dot(homogenous)
+        imgpoints1.append(normalized)
+
+    # IMAGE TWO
+    for point in pts2:
+        homogenous = np.append(np.array(point),[1]).transpose()
+        inv_k = np.linalg.inv(k)
+        normalized = inv_k.dot(homogenous)
+        transformed_point = (r.dot(normalized) + t.transpose())[0]
+        imgpoints2.append((transformed_point[0], transformed_point[1], transformed_point[2]))
+
+    outpoints = []
+
+    # Draw  lines and triangulate
+    for pt1, pt2 in zip(imgpoints1, imgpoints2):
+        line1 = Line(origin1, pt1)
+        line2 = Line(origin2, pt2)
+        outpoints.append(triangulateFromLines(line1, line2))
+
+    return outpoints
 
 # reimplement: https://github.com/Itseez/opencv/blob/ddf82d0b154873510802ef75c53e628cd7b2cb13/modules/calib3d/src/triangulate.cpp#L54
 def triangulatePoints(proj1mat, proj2mat, kps1, kps2):

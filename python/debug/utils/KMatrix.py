@@ -1,3 +1,4 @@
+# To help build an intrinsic camera matrix
 import numpy as np
 
 class KMatrix:

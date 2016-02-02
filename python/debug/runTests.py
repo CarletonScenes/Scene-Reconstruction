@@ -13,72 +13,83 @@ def getArtificalR(deg):
                      [0, 1, 0],
                      [-1 * math.sin(rad), 0, math.cos(rad)]])
 
-
-# pixel values seem to work
+# units are unclear
 def getArtificialTranslation(x=0,y=0,z=0):
     return np.array([np.array([x,y,z]).transpose()]).transpose()
 
-# pts2[i] * r + t, then "dehomogenize" should be pts1[i]
-def sanityCheckRT(pts1,pts2, k, r,t):
-    for ptPair in zip(pts1, pts2):
-        homogeneous_coord = np.append(np.array(ptPair[0]),[1])
-        inv_k = np.linalg.inv(k)
-
-        rotated_and_translated_point = r.dot(inv_k.dot(homogeneous_coord)) + t
-        projected_point = [rotated_and_translated_point[0] / rotated_and_translated_point[2],
-                           rotated_and_translated_point[1] / rotated_and_translated_point[2]]
-
-        point_in_pixels = [projected_point[0] + 500,
-                           projected_point[1] + 500]
-        print point_in_pixels, ptPair[1]
-
 def main():
 
+    ''' 
+    Read images and detect features 
+    '''
     current_dir = os.path.dirname(os.path.realpath(__file__))
     img1 = Image(os.path.join(current_dir, "images/chapel1.jpg"))
     img1.detect_features()
     img2 = Image(os.path.join(current_dir, "images/chapel2.jpg"))
     img2.detect_features()
 
+    # Match keypoints
     pts1, pts2, matches = CVFuncs.findMatches(img1, img2, filter=True)
-
     # CVFuncs.drawMatches(img1, img2, matches, "test.png")
-    # Debug.writePointsToFile(pts1, "test.ply", planar=True)
 
+    ''' 
+    Construct K 
+    '''
     principalPoint = (500, 500)
-    K = KMatrix(principalPoint=principalPoint)
+    K = KMatrix(focalLength=1000, principalPoint=principalPoint)
 
-    F, mask = CVFuncs.findFundamentalMat(pts1, pts2)
+    ''' 
+    Get essential or fundamental matrix
+    '''
+    # F, mask = CVFuncs.findFundamentalMat(pts1, pts2)
     # Debug.testFundamentalMat(F, pts1, pts2)
 
-
-    E, mask = CVFuncs.findEssentialMat(pts1, pts2, K)
-    E = CVFuncs.EFromF(F, K)
+    # E, mask = CVFuncs.findEssentialMat(pts1, pts2, K)
+    # E = CVFuncs.EFromF(F, K)
     # Debug.testEssentialMat(E, K, pts1, pts2)
 
-    points, r, t, newMask = CVFuncs.recoverPose(E, pts1, pts2, K)
+    '''
+    Get R and T (using artificial ones for now)
+    '''
+    # points, r, t, newMask = CVFuncs.recoverPose(E, pts1, pts2, K)
     # print "R:", r
     # print "T:", t
-
+    # r = np.linalg.inv(r)
+    # t = t * -1
     # possibilities = CVFuncs.decomposeEssentialMat(E)
     # Debug.printRandTPossibilities(possibilities)
-    # sanityCheckRT(pts1,pts2,K.matrix,r,t)
-    # exit()
-    # 
 
     r = getArtificalR(-14)
-    print t.shape
-    t = getArtificialTranslation(250)
-    print t.shape
+    t = getArtificialTranslation(1.4)
 
-    Debug.drawRandTTransformation(r, t, K, pts1, pts2, "real_transformed.ply")
+    ''' 
+    Draw image projections using R and T
+    '''
+    Debug.drawProjections(pts1, pts2, K.matrix, r, t, "projections.ply")
 
-    projectionMatrix1 = np.append(np.identity(3), np.zeros((3,1)),1)
-    projectionMatrix2 = CVFuncs.composeRandT(r, t)
+    '''
+    Triangulate and draw points
+    '''
+    triangulated = CVFuncs.naiveTriangulate(pts1,pts2,K.matrix,r,t)
+    Debug.writePointsToFile(triangulated, "triangulated.ply")
 
-    triangulatedPoints = CVFuncs.triangulatePoints(projectionMatrix1, projectionMatrix2, pts1, pts2)
 
-    Debug.writePointsToFile(triangulatedPoints, "triangulated_pts.ply")
+    ## OLD TRIANGULATION CODE
+
+    # A1 = K.matrix.dot(np.append(np.identity(3), np.zeros((3,1)),1))
+    # A2 = K.matrix.dot(CVFuncs.composeRandT(r, t))
+
+    # pts1 = CVFuncs.normalizeCoordinates(pts1, K)
+    # pts2 = CVFuncs.normalizeCoordinates(pts2, K)
+
+    # Debug.drawRandTTransformation(r, t, K, pts1, pts2, "real_transformed.ply")
+
+    # projectionMatrix1 = np.append(np.identity(3), np.zeros((3,1)),1)
+    # projectionMatrix2 = CVFuncs.composeRandT(r, t)
+
+    # triangulatedPoints = CVFuncs.triangulatePoints(A1, A2, pts1, pts2)
+
+    # Debug.writePointsToFile(triangulatedPoints, "triangulated_pts.ply")
     # cmd = "open -a meshlab.app debug_out.ply".split(" ")
     # p = subprocess.Popen(cmd)
 
