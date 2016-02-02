@@ -88,9 +88,9 @@ def triangulatePoints(proj1mat, proj2mat, kps1, kps2):
     assert len(kps1) == len(kps2)
 
     matrA = np.zeros((4,4))
-    matrU = np.zeros((4,4))
-    matrW = np.zeros((4,1))
-    matrV = np.zeros((4,4))
+    # matrU = np.zeros((4,4))
+    # matrW = np.zeros((4,1))
+    # matrV = np.zeros((4,4))
 
     outputPoints = np.zeros((len(kps1),4))
 
