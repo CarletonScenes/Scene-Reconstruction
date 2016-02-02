@@ -36,16 +36,16 @@ def main():
     # possibilities = CVFuncs.decomposeEssentialMat(E)
     # Debug.printRandTPossibilities(possibilities)
 
-    # Debug.drawRandTTransformation(r, t, pts1, pts2, "rotate.ply")
+    Debug.drawRandTTransformation(r, t, pts1, pts2, "rotate.ply")
 
-    projectionMatrix1 = np.append(np.identity(3), np.zeros((3,1)),1)
-    projectionMatrix2 = CVFuncs.composeRandT(r, t)
+    # projectionMatrix1 = np.append(np.identity(3), np.zeros((3,1)),1)
+    # projectionMatrix2 = CVFuncs.composeRandT(r, t)
 
-    triangulatedPoints = CVFuncs.triangulatePoints(projectionMatrix1, projectionMatrix2, pts1, pts2)
+    # triangulatedPoints = CVFuncs.triangulatePoints(projectionMatrix1, projectionMatrix2, pts1, pts2)
 
-    Debug.writePointsToFile(triangulatedPoints, "debug_out.ply")
-    cmd = "open -a meshlab.app debug_out.ply".split(" ")
-    p = subprocess.Popen(cmd)
+    # Debug.writePointsToFile(triangulatedPoints, "debug_out.ply")
+    # cmd = "open -a meshlab.app debug_out.ply".split(" ")
+    # p = subprocess.Popen(cmd)
 
 
 if __name__ == '__main__':

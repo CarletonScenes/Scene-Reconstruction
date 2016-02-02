@@ -56,7 +56,7 @@ def printRandTPossibilities(possibilities):
 
 def drawRandTTransformation(r, t, points1, points2, filepath):
     writePoints = []
-    P = CVFuncs.composeRandT(r, t)
+    P = composeRandT(r, t)
 
     for i in range(len(points1)):
         point1 = points1[i]
@@ -74,7 +74,7 @@ def drawRandTTransformation(r, t, points1, points2, filepath):
         writePoints.append(point1)
         writePoints.append(transformedPoint2)
 
-    DrawPoints.drawFromList(writePoints, filepath)
+    writePointsToFile(writePoints, filepath)
 
 def writePointsToFile(points, filename, planar=False):
     points = points[:]
