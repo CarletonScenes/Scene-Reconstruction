@@ -21,7 +21,16 @@ def getArtificialTranslation(x=0,y=0,z=0):
 # pts2[i] * r + t, then "dehomogenize" should be pts1[i]
 def sanityCheckRT(pts1,pts2, k, r,t):
     for ptPair in zip(pts1, pts2):
-        print np.append(np.linalg.inv(k).dot(np.array(ptPair[0]),[1])).dot(r) + t, ptPair[1]
+        homogeneous_coord = np.append(np.array(ptPair[0]),[1])
+        inv_k = np.linalg.inv(k)
+
+        rotated_and_translated_point = r.dot(inv_k.dot(homogeneous_coord)) + t
+        projected_point = [rotated_and_translated_point[0] / rotated_and_translated_point[2],
+                           rotated_and_translated_point[1] / rotated_and_translated_point[2]]
+
+        point_in_pixels = [projected_point[0] + 500,
+                           projected_point[1] + 500]
+        print point_in_pixels, ptPair[1]
 
 def main():
 
@@ -54,7 +63,9 @@ def main():
     # possibilities = CVFuncs.decomposeEssentialMat(E)
     # Debug.printRandTPossibilities(possibilities)
     # sanityCheckRT(pts1,pts2,K.matrix,r,t)
-    
+    # exit()
+    # 
+
     r = getArtificalR(-14)
     print t.shape
     t = getArtificialTranslation(250)
