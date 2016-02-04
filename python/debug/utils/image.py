@@ -31,7 +31,7 @@ class Image:
         ccdWidth = 4.89
         # Calculate focal length in pixels
         self.focalLength = self.width * mm_focal_length / ccdWidth
-
+        print mm_focal_length
         center_x = float(self.width) / 2
         center_y = float(self.height) / 2
 

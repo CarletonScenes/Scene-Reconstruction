@@ -30,8 +30,8 @@ def main():
 
     # Match keypoints
     pts1, pts2, matches = CVFuncs.findMatches(img1, img2, filter=True)
-    # CVFuncs.drawMatches(img1, img2, matches, "test.png")
-
+    CVFuncs.drawMatches(img1, img2, matches, "test.png")
+    exit(0)
     ''' 
     Find K 
     '''
