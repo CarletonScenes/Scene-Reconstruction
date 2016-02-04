@@ -141,7 +141,7 @@ def triangulateFromLines(line1, line2):
     minDist = 100000000
     minPoints = [(0, 0, 0), (0, 0, 0)]
 
-    searchRange = 10.0
+    searchRange = 20.0
     iterations = 1000
     for i in range(iterations):
         t = (searchRange / iterations) * i
