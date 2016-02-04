@@ -70,8 +70,7 @@ def getEssentialMat(points1, points2, K):
     #TODO: Test
 
     # Build the Y matrix using the first 8 matches (assuming they're the best)
-    yMat = np.array([])
-
+    yMat = np.empty([9, 9])
     kInv = np.linalg.inv(K)
     for i in range(9):
         print "points1", points1[i]
@@ -81,13 +80,13 @@ def getEssentialMat(points1, points2, K):
         p2 = kInv.dot(pts2)
         tempColumn = np.array([p2[0]*p1[0], p2[0]*p1[1], p2[0], p2[1]*p1[0], p2[1]*p1[1], p2[1], 
             p1[0], p1[1], 1])
-        yMat = np.concatenate((yMat, tempColumn))
+        yMat[i] = tempColumn
 
     # Solve the homogeneous linear system of equations
     b = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0])
-    print "b", b
-    print "Y", yMat
+    print "yMat", yMat
     eVector = np.linalg.solve(yMat, b)
+    print "eVector", eVector
     eEstMat = np.array([[eVector[0], eVector[1], eVector[2]],
         [eVector[3], eVector[4], eVector[5]],
         [eVector[6], eVector[7], eVector[8]]
