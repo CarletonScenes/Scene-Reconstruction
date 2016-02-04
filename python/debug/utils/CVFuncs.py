@@ -71,7 +71,7 @@ def getEssentialMat(points1, points2, K):
 
     # Build the Y matrix using the first 8 matches (assuming they're the best)
     yMat = np.array([])
-    for i in range(9)
+    for i in range(9):
         p1 = np.linalg.inv(K).dot(points1[i])
         p2 = np.linalg.inv(K).dot(points2[i])
         tempColumn = np.array([p2[0]*p1[0], p2[0]*p1[1], p2[0], p2[1]*p1[0], p2[1]*p1[1], p2[1], 
