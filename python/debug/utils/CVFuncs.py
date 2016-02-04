@@ -110,16 +110,18 @@ def triangulateFromLines(line1, line2):
     minDist = 100000000
     minPoints = [(0, 0, 0), (0, 0, 0)]
 
-    searchRange = 10.0
-    iterations = 1000
+    searchRange = 10.0 # maximum t
+    iterations = 31
     for i in range(iterations):
-        t = (searchRange / iterations) * i
-        pt1 = line1.atT(t)
-        pt2 = line2.atT(t)
-        distance = eucDist(pt1, pt2)
-        if distance < minDist:
-            minDist = distance
-            minPoints = [pt1, pt2]
+        for j in range(iterations): 
+            t1 = (searchRange / iterations) * i
+            t2 = (searchRange / iterations) * j
+            pt1 = line1.atT(t1)
+            pt2 = line2.atT(t2)
+            distance = eucDist(pt1, pt2)
+            if distance < minDist:
+                minDist = distance
+                minPoints = [pt1, pt2]
 
     return midpoint(minPoints[0], minPoints[1])
 
@@ -152,9 +154,13 @@ def naiveTriangulate(pts1, pts2, k, r, t):
     outpoints = []
 
     # Draw  lines and triangulate
+    count = 0
+    print len(imgpoints1)
     for pt1, pt2 in zip(imgpoints1, imgpoints2):
         line1 = Line(origin1, pt1)
         line2 = Line(origin2, pt2)
+        print count
+        count += 1 
         outpoints.append(triangulateFromLines(line1, line2))
 
     return outpoints
