@@ -33,10 +33,9 @@ def main():
     # CVFuncs.drawMatches(img1, img2, matches, "test.png")
 
     ''' 
-    Construct K 
+    Find K 
     '''
-    principalPoint = (500, 500)
-    K = KMatrix(focalLength=1000, principalPoint=principalPoint)
+    K = img1.K
 
     ''' 
     Get essential or fundamental matrix
@@ -59,8 +58,8 @@ def main():
     # possibilities = CVFuncs.decomposeEssentialMat(E)
     # Debug.printRandTPossibilities(possibilities)
 
-    r = getArtificalR(-14)
-    t = getArtificialTranslation(1.4)
+    r = getArtificalR(-20)
+    t = getArtificialTranslation(5)
 
     ''' 
     Draw image projections using R and T
