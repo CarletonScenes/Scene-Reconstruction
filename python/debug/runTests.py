@@ -40,6 +40,10 @@ def main():
     ''' 
     Get essential or fundamental matrix
     '''
+
+    print CVFuncs.getEssentialMat(pts1, pts2, K.matrix)
+    exit()
+
     # F, mask = CVFuncs.findFundamentalMat(pts1, pts2)
     # Debug.testFundamentalMat(F, pts1, pts2)
 
