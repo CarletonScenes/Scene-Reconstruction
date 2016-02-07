@@ -41,8 +41,8 @@ def main():
     Get essential or fundamental matrix
     '''
 
-    print CVFuncs.getEssentialMat(pts1, pts2, K.matrix)
-    exit()
+    # print CVFuncs.getEssentialMat(pts1, pts2, K.matrix)
+    # exit(0)
 
     # F, mask = CVFuncs.findFundamentalMat(pts1, pts2)
     # Debug.testFundamentalMat(F, pts1, pts2)
@@ -50,6 +50,7 @@ def main():
     # E, mask = CVFuncs.findEssentialMat(pts1, pts2, K)
     # E = CVFuncs.EFromF(F, K)
     # Debug.testEssentialMat(E, K, pts1, pts2)
+    # exit(0)
 
     '''
     Get R and T (using artificial ones for now)
