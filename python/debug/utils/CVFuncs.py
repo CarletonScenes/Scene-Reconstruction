@@ -195,51 +195,48 @@ def naiveTriangulate(pts1, pts2, k, r, t):
     # Now pick two random points on L1 and L2, calling them R1 and R2; find the difference between the two of them. Call this D
     # Find the vector of D along the common perpendicular, call this D_paralle
         # Find that as follows: Dot product D with the common perpendicular, and now multiply val of dot product by common perpendicular, call this the perp. dist.
-    # Now place this vector, which is perpendicular to L1, at R1. R1 + perp. dist.. Now to get the equation of 
+    # Now place this vector, which is perpendicular to L1, at R1. R1 + perp. dist.. Now to get the equation of
     # the new line that needs to intersect L2: (R1 + per. dist.) + t (l1x, l1y, l1z)
     # Find the intersection between (R1 + per. dist.) + t (l1x, l1y, l1z) and P2 + t (l2x, l2y, l2z)
-    
-    
-    
-    
-    # Transforms image planes by r and t, draws epipolar lines,
-    # and uses those lines to triangulate points
 
-    # origin1 = (0, 0, 0)
-    # origin2 = (t[0][0], t[1][0], t[2][0])
+    Transforms image planes by r and t, draws epipolar lines,
+    and uses those lines to triangulate points
 
-    # # Image plane points (normalized and transformed)
-    # imgpoints1 = []
-    # imgpoints2 = []
+    origin1 = (0, 0, 0)
+    origin2 = (t[0][0], t[1][0], t[2][0])
 
-    # # IMAGE ONE
-    # for point in pts1:
-    #     homogenous = np.append(np.array(point), [1]).transpose()
-    #     inv_k = np.linalg.inv(k)
-    #     normalized = inv_k.dot(homogenous)
-    #     imgpoints1.append(normalized)
+    # Image plane points (normalized and transformed)
+    imgpoints1 = []
+    imgpoints2 = []
 
-    # # IMAGE TWO
-    # for point in pts2:
-    #     homogenous = np.append(np.array(point), [1]).transpose()
-    #     inv_k = np.linalg.inv(k)
-    #     normalized = inv_k.dot(homogenous)
-    #     transformed_point = (r.dot(normalized) + t.transpose())[0]
-    #     imgpoints2.append((transformed_point[0], transformed_point[1], transformed_point[2]))
+    # IMAGE ONE
+    for point in pts1:
+        homogenous = np.append(np.array(point), [1]).transpose()
+        inv_k = np.linalg.inv(k)
+        normalized = inv_k.dot(homogenous)
+        imgpoints1.append(normalized)
 
-    # outpoints = []
+    # IMAGE TWO
+    for point in pts2:
+        homogenous = np.append(np.array(point), [1]).transpose()
+        inv_k = np.linalg.inv(k)
+        normalized = inv_k.dot(homogenous)
+        transformed_point = (r.dot(normalized) + t.transpose())[0]
+        imgpoints2.append((transformed_point[0], transformed_point[1], transformed_point[2]))
 
-    # Draw  lines and triangulate
-    # count = 0
-    # print len(imgpoints1)
-    # for pt1, pt2 in zip(imgpoints1, imgpoints2):
-    #     line1 = Line(origin1, pt1)
-    #     line2 = Line(origin2, pt2)
-    #     print count
-    #     count += 1
-    #     outpoints.append(triangulateFromLines(line1, line2))
+    outpoints = []
 
-    # return outpoints
+    Draw  lines and triangulate
+    count = 0
+    print len(imgpoints1)
+    for pt1, pt2 in zip(imgpoints1, imgpoints2):
+        line1 = Line(origin1, pt1)
+        line2 = Line(origin2, pt2)
+        print count
+        count += 1
+        outpoints.append(triangulateFromLines(line1, line2))
+
+    return outpoints
 
 # reimplement: https://github.com/Itseez/opencv/blob/ddf82d0b154873510802ef75c53e628cd7b2cb13/modules/calib3d/src/triangulate.cpp#L54
 
