@@ -72,13 +72,13 @@ def triangulateTwoImages(filename1, filename2):
     ''' 
     Draw image projections using R and T
     '''
-    Debug.drawProjections(pts1, pts2, K.matrix, r, t, "projections.ply")
+    # Debug.drawProjections(pts1, pts2, K.matrix, r, t, "projections.ply")
 
     '''
     Triangulate and draw points
     '''
     triangulated = CVFuncs.naiveTriangulate(pts1, pts2, K.matrix, r, t)
-    return triangulated
+    return triangulated, r, t
 
     # OLD TRIANGULATION CODE
 
@@ -101,7 +101,7 @@ def triangulateTwoImages(filename1, filename2):
 
 def main():
     # Lil test
-    points = triangulateTwoImages("images/chapel1.jpg", "images/chapel2.jpg")
+    points, r, t = triangulateTwoImages("images/chapel1.jpg", "images/chapel2.jpg")
     Debug.writePointsToFile(points, "test.ply")
 
 if __name__ == '__main__':

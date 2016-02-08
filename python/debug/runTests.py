@@ -10,6 +10,11 @@ from utils import KMatrix, Image
 from triangulate import *
 
 def triangulateFromImages(*images):
+	print "Triangulating from images:"
+	for image in images:
+		print image
+	print "-------------"
+
 	# Init R and T, which will be used to compose multiple point clouds
 	r = np.array([
 		[1, 0, 0],
@@ -19,11 +24,21 @@ def triangulateFromImages(*images):
 		[0], 
 		[0], 
 		[0]])
-	for image in images:
-		print image
+
+	for i in range(len(images)-1):
+		image1 = images[i]
+		image2 = images[i+1]
+
+		print "Triangulating " + image1 + " and " + image2 + "..."
+
+		points, new_r, new_t = triangulateTwoImages(image1, image2)
+		points = CVFuncs.applyRandTToPoints(r, t, points)
+		r = CVFuncs.composeRotations(r, new_r)
+		t = CVFuncs.composeTranslations(t, new_t)
+		Debug.writePointsToFile(points, "points{}.ply".format(i))
 
 def main():
-	triangulateFromImages("images/chapel2.jpg", "images/chapel3.jpg")
+	triangulateFromImages("images/chapel1.jpg", "images/chapel2.jpg", "images/chapel3.jpg")
     # points = triangulateTwoImages("images/chapel2.jpg", "images/chapel3.jpg")
     # r = getArtificalR(-20)
     # t = getArtificialTranslation(5)

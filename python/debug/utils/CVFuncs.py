@@ -141,7 +141,15 @@ def crossProductForm(v):
 
 def composeRandT(r, t):
     return np.append(r, t, 1)
+    
 
+def composeRotations(r1, r2):
+    return r1.dot(r2)
+    
+
+def composeTranslations(t1, t2):
+    return t1 + t2
+    
 
 def decomposeEssentialMat(E):
     W, U, VT = cv2.SVDecomp(E)
