@@ -91,3 +91,12 @@ def triangulateTwoImages(filename1, filename2):
     # Debug.writePointsToFile(triangulatedPoints, "triangulated_pts.ply")
     # cmd = "open -a meshlab.app debug_out.ply".split(" ")
     # p = subprocess.Popen(cmd)
+
+def main():
+    # Lil test
+    points = triangulateTwoImages("images/chapel1.jpg", "images/chapel2.jpg")
+    Debug.writePointsToFile(points, "test.ply")
+
+if __name__ == '__main__':
+    main()
+
