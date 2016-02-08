@@ -37,6 +37,14 @@ def findMatches(image1, image2, filter=False):
         return points1, points2, matches
 
 
+def sortMatchesByDistance(matches):
+    '''
+    Takes in the matches from a BF matcher (list of DMatch objects)
+    Returns matches sorted by distance between the bitvectors.
+    '''
+    return sorted(matches, key=lambda x: x.distance)
+
+
 def filterMatches(points1, points2, matches):
 
     # Determine mean and stdev of point y values
