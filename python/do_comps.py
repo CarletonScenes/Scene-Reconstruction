@@ -1,7 +1,7 @@
 import os
 import cv2
 import numpy as np
-from matplotlib import pyplot as plt
+# from matplotlib import pyplot as plt
 
 from image import Image
 
@@ -9,7 +9,7 @@ images = []
 count = 0
 
 current_dir = os.path.dirname(os.path.realpath(__file__))
-for f in os.listdir(os.path.join(current_dir,"photos")):
+for f in os.listdir(os.path.join(current_dir, "photos")):
     print f
     img = Image(os.path.join(current_dir, "photos/{}".format(f)))
     img.detect_features()
@@ -34,13 +34,16 @@ img2 = images[3]
 # index_params = dict(algorithm = FLANN_INDEX_KDTREE, trees = 5)
 # search_params = dict(checks = 50)
 
-bf = cv2.BFMatcher(cv2.NORM_L1, crossCheck=True)
-
+# bf = cv2.FlannBasedMatcher(cv2.NORM_L1, crossCheck=True)
 
 
 # print img1.descs, img2.descs
 
+bf = cv2.BFMatcher(cv2.NORM_L1, crossCheck=True)
 matches = bf.match(img1.descs, img2.descs)
+exit()
+# matches = cv2.FlannBasedMatcher(img1.descs, img2.descs)
+
 print "Matches:"
 # pprint.pprint(matches)
 print len(matches)
@@ -60,8 +63,10 @@ pts1 = np.int32(pts1)
 pts2 = np.int32(pts2)
 
 diff_ys = []
+diff_xs = []
 for pt1, pt2 in zip(pts1, pts2):
     diff_ys.append(pt2[1] - pt1[1])
+    diff_xs.append(pt2[0] - pt1[0])
 
 threshold = np.std(diff_ys)
 
@@ -73,10 +78,10 @@ new_matches = []
 for i, match in enumerate(matches):
     if abs(pts1[i][1] - pts2[i][1]) < threshold * 0.5:
         new_matches.append(matches[i])
-        new_pts1.append(pts1[i]) 
+        new_pts1.append(pts1[i])
         new_pts2.append(pts2[i])
-        new_kps1.append(img1.kps[i]) 
-        new_kps2.append(img2.kps[i]) 
+        new_kps1.append(img1.kps[i])
+        new_kps2.append(img2.kps[i])
 
 # exit()
 
@@ -87,10 +92,10 @@ for i, match in enumerate(matches):
 # for i, (mask_incl, match) in enumerate(zip(mask, matches)):
 #     if mask_incl[0] == 1:
 #         new_matches.append(matches[i])
-#         new_pts1.append(pts1[i]) 
-#         new_pts2.append(pts2[i]) 
+#         new_pts1.append(pts1[i])
+#         new_pts2.append(pts2[i])
 
-img3 = cv2.drawMatches(img1.img,img1.kps,img2.img,img2.kps,new_matches, images[1].img, flags=2)
+img3 = cv2.drawMatches(img1.img, img1.kps, img2.img, img2.kps, new_matches, images[1].img, flags=2)
 
 # plt.imshow(img3),plt.show()
 
@@ -101,7 +106,7 @@ print "Focal", focalLength
 new_pts1 = np.int32(new_pts1)
 new_pts2 = np.int32(new_pts2)
 
-E, mask = cv2.findEssentialMat(new_pts1, new_pts2, focal = focalLength)
+E, mask = cv2.findEssentialMat(new_pts1, new_pts2, focal=focalLength)
 print "E"
 print E
 
@@ -133,32 +138,33 @@ print "F2-T"
 print t
 
 
-
 exit()
 print mask.shape
 
 points, r, t, newMask = cv2.recoverPose(F, pts1, pts2, mask=mask)
 print points
 
-proj1mat = np.append(np.identity(3), np.zeros((3,1)),1)
-proj2mat = np.append(r,t,1)
+proj1mat = np.append(np.identity(3), np.zeros((3, 1)), 1)
+proj2mat = np.append(r, t, 1)
 
 # reimplement: https://github.com/Itseez/opencv/blob/ddf82d0b154873510802ef75c53e628cd7b2cb13/modules/calib3d/src/triangulate.cpp#L54
+
+
 def ourTriangulatePoints(proj1mat, proj2mat, kps1, kps2):
     assert len(kps1) == len(kps2)
 
-    matrA = np.zeros((4,4))
-    matrU = np.zeros((4,4))
-    matrW = np.zeros((4,1))
-    matrV = np.zeros((4,4))
+    matrA = np.zeros((4, 4))
+    matrU = np.zeros((4, 4))
+    matrW = np.zeros((4, 1))
+    matrV = np.zeros((4, 4))
 
-    outputPoints = np.zeros((len(kps1),4))
+    outputPoints = np.zeros((len(kps1), 4))
 
-    kps = [kps1,kps2]
+    kps = [kps1, kps2]
     projMatrs = [proj1mat, proj2mat]
 
     for i in range(len(kps1)):
-        
+
         # Row 1 (x1 * P1 3T - P1 1T)
         matrA[0][0] = kps1[i][0] * proj1mat[2][0] - proj1mat[0][0]
         matrA[0][1] = kps1[i][0] * proj1mat[2][1] - proj1mat[0][1]
@@ -182,8 +188,6 @@ def ourTriangulatePoints(proj1mat, proj2mat, kps1, kps2):
         matrA[3][1] = kps2[i][1] * proj2mat[2][1] - proj2mat[1][1]
         matrA[3][2] = kps2[i][1] * proj2mat[2][2] - proj2mat[1][2]
         matrA[3][3] = kps2[i][1] * proj2mat[2][3] - proj2mat[1][3]
-
-
 
         # for j in range(2):
         #     x = kps[j][i][0]
@@ -211,17 +215,17 @@ def ourTriangulatePoints(proj1mat, proj2mat, kps1, kps2):
         # outputPoints[i][2] = minEigVec[0][2] # Z
         # outputPoints[i][3] = minEigVec[0][3] # W
 
-
-        outputPoints[i][0] = matrV[3][0] # X
-        outputPoints[i][1] = matrV[3][1] # Y
-        outputPoints[i][2] = matrV[3][2] # Z
-        outputPoints[i][3] = matrV[3][3] # W
+        outputPoints[i][0] = matrV[3][0]  # X
+        outputPoints[i][1] = matrV[3][1]  # Y
+        outputPoints[i][2] = matrV[3][2]  # Z
+        outputPoints[i][3] = matrV[3][3]  # W
 
     return outputPoints
 
+
 def homogeneousCoordinatesToRegular(arr):
     num_keypoints = arr.shape[0]
-    outputArr = np.zeros((num_keypoints,3))
+    outputArr = np.zeros((num_keypoints, 3))
 
     for i in range(num_keypoints):
         # TODO: Throw out point if div by zero?
@@ -233,18 +237,19 @@ def homogeneousCoordinatesToRegular(arr):
 
     return outputArr
 
+
 def ptsToFile(pts, filename):
     with open(filename, 'w') as f:
-        def writeline(f,line):
+        def writeline(f, line):
             return f.write("{}\n".format(line))
 
-        writeline(f,"ply")
-        writeline(f,"format ascii 1.0")
+        writeline(f, "ply")
+        writeline(f, "format ascii 1.0")
         writeline(f, "element vertex {}".format(pts.shape[0]))
         writeline(f, "property float x")
         writeline(f, "property float y")
         writeline(f, "property float z")
-        writeline(f,"end_header")
+        writeline(f, "end_header")
 
         for row_num in range(pts.shape[0]):
             row = pts[row_num][0]
@@ -261,7 +266,6 @@ cmd = "open -a meshlab.app pts_fixed.ply".split(" ")
 import subprocess
 p = subprocess.Popen(cmd)
 # p.kill()
-
 
 
 # print cv2.triangulatePoints(proj1mat,proj2mat,pts1.transpose(),pts2.transpose())
@@ -307,12 +311,6 @@ p = subprocess.Popen(cmd)
 #### /DRAWING EPIPOLAR LINES STUFF ####
 
 
-
-
-
-
-
-
 # store all the good matches as per Lowe's ratio test.
 # good = []
 # for m,n in matches:
@@ -347,3 +345,24 @@ p = subprocess.Popen(cmd)
 
 # plt.imshow(img3, 'gray'),plt.show()
 # # print("# kps: {}, descriptors: {}".format(len(kps), descs.shape))
+
+
+#### /ADDING MORE PICTURES STUFF ####
+
+# Ideally, we start the process with two images with a "large" number of matches
+#   subject to the condition that the matches cannot be modelled by a single homography
+#   We could also just try doing this manually
+
+# To add a next camera, pick the camera that shares the most keypoints already recovered.
+#   Starting with another camera, we could compute either the essential or fundamental matrices
+#   If we compute essential, the pose we recover must be composed with the R and t of the camera
+#       that we just assumed to be I 0
+#   Add tracks observed by current camera if 1) they have already been observed by a recovered
+#       camera, and 2) if triangulating the track gives a "well-conditioned estimate of its position"
+
+# Useful methods:
+#   RecoverPose
+#   FindFundamentalMat/FindEssentialMat
+
+# We need to make sure we can easily identify cameras by the number of tracks already discovered
+#   So that we know which camera to choose next

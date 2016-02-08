@@ -1,6 +1,8 @@
 import numpy as np
 import cv2
 import exifread
+import sys
+from KMatrix import KMatrix
 
 
 class Image:
@@ -8,14 +10,13 @@ class Image:
     def __init__(self, filepath):
         self.fname = filepath
         self.img = cv2.imread(filepath)
-        # self.gray = cv2.cvtColor(self.img, cv2.COLOR_BGR2GRAY)
         self.height = self.img.shape[0]
         self.width = self.img.shape[1]
 
         try:
             with open(filepath, 'r') as f:
                 self.tags = exifread.process_file(f)
-            self.focal_length_num = self.tags['EXIF FocalLength'].values[0].num
+            self.focal_length_num = float(self.tags['EXIF FocalLength'].values[0].num)
             self.focal_length_den = self.tags['EXIF FocalLength'].values[0].den
         except:
             self.tags = {}
@@ -25,16 +26,19 @@ class Image:
         self.kps = None
         self.descs = None
 
-        focal_length = self.focal_length_num / self.focal_length_den
-        cx = float(self.width) / 2
-        cy = float(self.height) / 2
-        self.k = np.array([
-            [focal_length, 0, cx],
-            [0, focal_length, cy],
-            [0, 0, 1]
-        ])
+        # CALCULATE K
 
-        self.k_inv = np.linalg.inv(self.k)
+        # First, find focal length in mm
+        mm_focal_length = self.focal_length_num / self.focal_length_den
+        # CCD width is the width of the image sensor (using iphone as default for now)
+        ccdWidth = 4.89
+        # Calculate focal length in pixels
+        self.focalLength = self.width * mm_focal_length / ccdWidth
+
+        center_x = float(self.width) / 2
+        center_y = float(self.height) / 2
+
+        self.K = KMatrix(focalLength=self.focalLength, principalPoint=(center_x, center_y))
 
     def detect_features(self):
         sift = cv2.xfeatures2d.SIFT_create()
