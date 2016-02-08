@@ -1,4 +1,5 @@
-import os, sys
+import os
+import sys
 import cv2
 import math
 import numpy as np
@@ -7,6 +8,8 @@ import utils.CVFuncs as CVFuncs
 from utils import KMatrix, Image
 
 # -14 degrees between chapel1.jpg and chapel2.jpg
+
+
 def getArtificalR(deg):
     rad = math.radians(deg)
     return np.array([[math.cos(rad), 0, math.sin(rad)],
@@ -14,8 +17,11 @@ def getArtificalR(deg):
                      [-1 * math.sin(rad), 0, math.cos(rad)]])
 
 # units are unclear
-def getArtificialTranslation(x=0,y=0,z=0):
-    return np.array([np.array([x,y,z]).transpose()]).transpose()
+
+
+def getArtificialTranslation(x=0, y=0, z=0):
+    return np.array([np.array([x, y, z]).transpose()]).transpose()
+
 
 def triangulateTwoImages(filename1, filename2):
     ''' 
@@ -69,11 +75,10 @@ def triangulateTwoImages(filename1, filename2):
     '''
     Triangulate and draw points
     '''
-    triangulated = CVFuncs.naiveTriangulate(pts1,pts2,K.matrix,r,t)
+    triangulated = CVFuncs.naiveTriangulate(pts1, pts2, K.matrix, r, t)
     return triangulated
 
-
-    ## OLD TRIANGULATION CODE
+    # OLD TRIANGULATION CODE
 
     # A1 = K.matrix.dot(np.append(np.identity(3), np.zeros((3,1)),1))
     # A2 = K.matrix.dot(CVFuncs.composeRandT(r, t))
