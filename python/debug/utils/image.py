@@ -1,9 +1,12 @@
 import numpy as np
 import cv2
-import exifread, sys
+import exifread
+import sys
 from KMatrix import KMatrix
 
+
 class Image:
+
     def __init__(self, filepath):
         self.fname = filepath
         self.img = cv2.imread(filepath)
@@ -42,15 +45,15 @@ class Image:
         (self.kps, self.descs) = sift.detectAndCompute(self.img, None)
 
     def __repr__(self):
-        if not self.kps and not self.descs: 
+        if not self.kps and not self.descs:
             return "{} - Focal Length: {} / {} - KPs: {} Descs: {}".format(
-                self.fname, 
-                self.focal_length_num, 
+                self.fname,
+                self.focal_length_num,
                 self.focal_length_den)
         else:
             return "{} - Focal Length: {} / {} - KPs: {} Descs: {}".format(
-                self.fname, 
-                self.focal_length_num, 
+                self.fname,
+                self.focal_length_num,
                 self.focal_length_den,
                 len(self.kps),
                 len(self.descs))

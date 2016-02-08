@@ -1,11 +1,13 @@
 
 class KeypointMetadata:
+
     def __init__(self, kp, image):
         self.point_index = kp
         self.image_index = image
         self.visited = 0
         self.track_number = -1
         self.match_index_list = []
+
 
 class TrackCreator:
 
@@ -32,7 +34,7 @@ class TrackCreator:
             fundamental_mat_array.append([])
             # for j in range(0,i+1):
             #     fundamental_mat_array[i].
-            for j in range(i+1, len(images)):
+            for j in range(i + 1, len(images)):
                 key1 = []
                 key2 = []
                 image1 = images[i]
@@ -44,15 +46,15 @@ class TrackCreator:
                 if i == 0:
                     if j == 1:
                         for a in range(len(key1)):
-                            point_list.append(KeypointMetadata(a,i))
+                            point_list.append(KeypointMetadata(a, i))
                     for b in range(len(key2)):
-                        point_list.append(KeypointMetadata(b,j))
+                        point_list.append(KeypointMetadata(b, j))
 
-                for k in range(0,len(matches)):
+                for k in range(0, len(matches)):
                     total_matches += 1
-                    for p in range(0,len(point_list)):
+                    for p in range(0, len(point_list)):
                         if point_list[p].image_index == i and point_list[p].point_index = matches[k].queryIdx:
-                            for q in range(0,len(point_list)):
+                            for q in range(0, len(point_list)):
                                 if point_list[q].image_index == j and point_list[q].point_index == matches[k].trainIdx:
                                     point_list[q].match_index_list.append(p)
                                     point_list[p].match_index_list.append(q)
@@ -110,8 +112,6 @@ class TrackCreator:
                         for k in range(0, len(currrent_track_indicies)):
                             point_list[currrent_track_indicies[k]].track_number = -2
 
-
-
     @classmethod
     def traverse_from_point(cls, index, point_list, currrent_track_indicies):
         currrent_track_indicies.append(index)
@@ -119,7 +119,6 @@ class TrackCreator:
         for i in range(0, len(point_list[index].match_index_list)):
             if point_list[point_list[index].match_index_list[i]].visited == 0:
                 cls.traverse_from_point(point_list[index].match_index_list[i], point_list, currrent_track_indicies)
-
 
     # returns key1, key2, matches, fundamental_mat
     @classmethod
@@ -138,7 +137,7 @@ class TrackCreator:
         #     query_indexes.append(matches[i].queryIdx)
         #     train_indexes.append(matches[i].trainIdx)
 
-        # fundamental_mat = 
+        # fundamental_mat =
 
         pts1 = []
         pts2 = []
@@ -150,13 +149,9 @@ class TrackCreator:
         pts1 = numpy.int32(pts1)
         pts2 = numpy.int32(pts2)
 
-        F, mask = cv2.findFundamentalMat(pts1,pts2,cv2.FM_LMEDS)
+        F, mask = cv2.findFundamentalMat(pts1, pts2, cv2.FM_LMEDS)
         # E, mask = cv2.findEssentialMat(pts1, pts2)
 
         # TODO: do something to filter matches?
 
         return pts1, pts2, matches, F
-
-
-
-

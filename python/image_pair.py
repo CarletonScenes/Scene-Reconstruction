@@ -1,5 +1,6 @@
 
 class ImagePair:
+
     def __init__(self, imageA, imageB, matches):
         self.imageA = imageA
         self.imageB = imageB
@@ -8,6 +9,6 @@ class ImagePair:
 
     def __repr__(self):
         return "<ImagePair Matches: {} A: {} B: {}".format(
-            self.num_matches, 
-            self.imageA.fname, 
+            self.num_matches,
+            self.imageA.fname,
             self.imageB.fname)
