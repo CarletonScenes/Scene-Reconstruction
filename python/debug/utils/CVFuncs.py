@@ -165,29 +165,18 @@ def midpoint(pt1, pt2):
 
 
 def triangulateFromLines(line1, line2):
-    # Iteratively finds the two points that are closest together,
-    # Then returns their midpoint
 
-    minDist = 100000000
-    minPoints = [(0, 0, 0), (0, 0, 0)]
+    # Input Description: 
+    # P = [Px, Py, Pz], where P is a point on line 1,
+    # R = [Rx, Ry, Rz], where R is a point on line 2,
+    # D1 = [D1x, D1y, D1z], where D1 is a ray in dir. of line 1
+    # D2 = [D2x, D2y, D2z], where D2 is a ray in dir. of line 2
+    # line1 = [P, D1]
+    # line2 = [R, D2]
+    # In summary, line1 and line2 are the parametric equations of 
+    # the respective lines
 
-    searchRange = 10.0  # maximum t
-    iterations = 31
-    for i in range(iterations):
-        for j in range(iterations):
-            t1 = (searchRange / iterations) * i
-            t2 = (searchRange / iterations) * j
-            pt1 = line1.atT(t1)
-            pt2 = line2.atT(t2)
-            distance = eucDist(pt1, pt2)
-            if distance < minDist:
-                minDist = distance
-                minPoints = [pt1, pt2]
-
-    return midpoint(minPoints[0], minPoints[1])
-
-
-def naiveTriangulate(pts1, pts2, k, r, t):
+    #Algorithm design: 
 
     # You want to find a common perpendicular line to both lines in 3d
         # Write a parametric equation for each line: L1 = P1 + t (l1x, l1y, l1z); L2 = P2 + t (l2x, l2y, l2z)
@@ -198,48 +187,101 @@ def naiveTriangulate(pts1, pts2, k, r, t):
     # Now place this vector, which is perpendicular to L1, at R1. R1 + perp. dist.. Now to get the equation of 
     # the new line that needs to intersect L2: (R1 + per. dist.) + t (l1x, l1y, l1z)
     # Find the intersection between (R1 + per. dist.) + t (l1x, l1y, l1z) and P2 + t (l2x, l2y, l2z)
-    
-    
-    
-    
-    # Transforms image planes by r and t, draws epipolar lines,
-    # and uses those lines to triangulate points
 
-    # origin1 = (0, 0, 0)
-    # origin2 = (t[0][0], t[1][0], t[2][0])
+    # Find the cross product of the two lines
+    DIMENSIONS = 3
+    v1 = [0,0,0]
+    v2 = [0,0,0]
+    for i in range(DIMENSIONS):
+        base1 = line1[0][i]
+        offset1 = line1[1][i]
+        base2 = line2[0][i]
+        offset2 = line2[1][i]
 
-    # # Image plane points (normalized and transformed)
-    # imgpoints1 = []
-    # imgpoints2 = []
+        v1[0] = (base1 + offset1) - base1
+        v2[0] = (base2 + offset2) - base2
+    crossproduct = np.cross(v1, v2)
 
-    # # IMAGE ONE
-    # for point in pts1:
-    #     homogenous = np.append(np.array(point), [1]).transpose()
-    #     inv_k = np.linalg.inv(k)
-    #     normalized = inv_k.dot(homogenous)
-    #     imgpoints1.append(normalized)
+    # Pick two random points, R1 and R2, one of line1 and line2, respectively. Find distance between them
+    R1 = [0,0,0]
+    R2 = [0,0,0]
+    D = [0,0,0]
+    for i in range(DIMENSIONS):
+        R1[i] = line1[0][i] + 2 * line1[1][i]
+        R2[i] = line2[0][i] + 2 * line2[1][i]
+        D[i] = R1[i] - R2[i]
 
-    # # IMAGE TWO
-    # for point in pts2:
-    #     homogenous = np.append(np.array(point), [1]).transpose()
-    #     inv_k = np.linalg.inv(k)
-    #     normalized = inv_k.dot(homogenous)
-    #     transformed_point = (r.dot(normalized) + t.transpose())[0]
-    #     imgpoints2.append((transformed_point[0], transformed_point[1], transformed_point[2]))
+    # Dot the distance vector with the common perp.
+    dotproduct = np.inner(D, crossproduct)
 
-    # outpoints = []
 
-    # Draw  lines and triangulate
-    # count = 0
-    # print len(imgpoints1)
-    # for pt1, pt2 in zip(imgpoints1, imgpoints2):
-    #     line1 = Line(origin1, pt1)
-    #     line2 = Line(origin2, pt2)
-    #     print count
-    #     count += 1
-    #     outpoints.append(triangulateFromLines(line1, line2))
 
-    # return outpoints
+
+
+
+
+    # Iteratively finds the two points that are closest together,
+    # Then returns their midpoint
+
+    # minDist = 100000000
+    # minPoints = [(0, 0, 0), (0, 0, 0)]
+
+    # searchRange = 10.0  # maximum t
+    # iterations = 31
+    # for i in range(iterations):
+    #     for j in range(iterations):
+    #         t1 = (searchRange / iterations) * i
+    #         t2 = (searchRange / iterations) * j
+    #         pt1 = line1.atT(t1)
+    #         pt2 = line2.atT(t2)
+    #         distance = eucDist(pt1, pt2)
+    #         if distance < minDist:
+    #             minDist = distance
+    #             minPoints = [pt1, pt2]
+
+    # return midpoint(minPoints[0], minPoints[1])
+
+
+def naiveTriangulate(pts1, pts2, k, r, t):
+
+    Transforms image planes by r and t, draws epipolar lines,
+    and uses those lines to triangulate points
+
+    origin1 = (0, 0, 0)
+    origin2 = (t[0][0], t[1][0], t[2][0])
+
+    # Image plane points (normalized and transformed)
+    imgpoints1 = []
+    imgpoints2 = []
+
+    # IMAGE ONE
+    for point in pts1:
+        homogenous = np.append(np.array(point), [1]).transpose()
+        inv_k = np.linalg.inv(k)
+        normalized = inv_k.dot(homogenous)
+        imgpoints1.append(normalized)
+
+    # IMAGE TWO
+    for point in pts2:
+        homogenous = np.append(np.array(point), [1]).transpose()
+        inv_k = np.linalg.inv(k)
+        normalized = inv_k.dot(homogenous)
+        transformed_point = (r.dot(normalized) + t.transpose())[0]
+        imgpoints2.append((transformed_point[0], transformed_point[1], transformed_point[2]))
+
+    outpoints = []
+
+    Draw  lines and triangulate
+    count = 0
+    print len(imgpoints1)
+    for pt1, pt2 in zip(imgpoints1, imgpoints2):
+        line1 = Line(origin1, pt1)
+        line2 = Line(origin2, pt2)
+        print count
+        count += 1
+        outpoints.append(triangulateFromLines(line1, line2))
+
+    return outpoints
 
 # reimplement: https://github.com/Itseez/opencv/blob/ddf82d0b154873510802ef75c53e628cd7b2cb13/modules/calib3d/src/triangulate.cpp#L54
 
