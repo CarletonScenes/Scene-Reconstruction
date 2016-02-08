@@ -16,11 +16,13 @@ def getArtificalR(deg):
                      [0, 1, 0],
                      [-1 * math.sin(rad), 0, math.cos(rad)]])
 
-# units are unclear
-
 
 def getArtificialTranslation(x=0, y=0, z=0):
-    return np.array([np.array([x, y, z]).transpose()]).transpose()
+    # units are unclear
+    return np.array([
+        [x], 
+        [y], 
+        [z]])
 
 
 def triangulateTwoImages(filename1, filename2):
