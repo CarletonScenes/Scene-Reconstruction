@@ -184,7 +184,7 @@ def triangulateFromLines(line1, line2):
     # Now pick two random points on L1 and L2, calling them R1 and R2; find the difference between the two of them. Call this D
     # Find the vector of D along the common perpendicular, call this D_paralle
         # Find that as follows: Dot product D with the common perpendicular, and now multiply val of dot product by common perpendicular, call this the perp. dist.
-    # Now place this vector, which is perpendicular to L1, at R1. R1 + perp. dist.. Now to get the equation of 
+    # Now place this vector, which is perpendicular to L1, at R1. R1 + perp. dist.. Now to get the equation of
     # the new line that needs to intersect L2: (R1 + per. dist.) + t (l1x, l1y, l1z)
     # Find the intersection between (R1 + per. dist.) + t (l1x, l1y, l1z) and P2 + t (l2x, l2y, l2z)
 
@@ -243,9 +243,8 @@ def triangulateFromLines(line1, line2):
 
 
 def naiveTriangulate(pts1, pts2, k, r, t):
-
-    Transforms image planes by r and t, draws epipolar lines,
-    and uses those lines to triangulate points
+    # Transforms image planes by r and t, draws epipolar lines,
+    # and uses those lines to triangulate points
 
     origin1 = (0, 0, 0)
     origin2 = (t[0][0], t[1][0], t[2][0])
