@@ -37,14 +37,6 @@ def findMatches(image1, image2, filter=False):
         return points1, points2, matches
 
 
-def sortMatchesByDistance(matches):
-    '''
-    Takes in the matches from a BF matcher (list of DMatch objects)
-    Returns matches sorted by distance between the bitvectors.
-    '''
-    return sorted(matches, key=lambda x: x.distance)
-
-
 def filterMatches(points1, points2, matches):
 
     # Determine mean and stdev of point y values
@@ -156,6 +148,15 @@ def decomposeEssentialMat(E):
     return [(R1, T1), (R1, T2), (R2, T1), (R2, T2)]
 
 
+def applyRandTToPoints(r, t, points):
+    newPoints = []
+    for point in points:
+        transformed = (r.dot(point) + t.transpose())[0]
+        # Convert from np array back to tuple
+        newPoints.append((transformed[0], transformed[1], transformed[2]))
+    return newPoints
+
+
 def eucDist(pt1, pt2):
     return math.sqrt(((pt1[0] - pt2[0]) ** 2) + ((pt1[1] - pt2[1]) ** 2) + ((pt1[2] - pt2[2]) ** 2))
 
@@ -171,7 +172,7 @@ def triangulateFromLines(line1, line2):
     minDist = 100000000
     minPoints = [(0, 0, 0), (0, 0, 0)]
 
-    searchRange = 10.0  # maximum t
+    searchRange = 20.0  # maximum t
     iterations = 31
     for i in range(iterations):
         for j in range(iterations):
@@ -210,19 +211,16 @@ def naiveTriangulate(pts1, pts2, k, r, t):
         homogenous = np.append(np.array(point), [1]).transpose()
         inv_k = np.linalg.inv(k)
         normalized = inv_k.dot(homogenous)
-        transformed_point = (r.dot(normalized) + t.transpose())[0]
-        imgpoints2.append((transformed_point[0], transformed_point[1], transformed_point[2]))
+        imgpoints2.append(normalized)
+
+    imgpoints2 = applyRandTToPoints(r, t, imgpoints2)
 
     outpoints = []
 
     # Draw  lines and triangulate
-    count = 0
-    print len(imgpoints1)
     for pt1, pt2 in zip(imgpoints1, imgpoints2):
         line1 = Line(origin1, pt1)
-        line2 = Line(origin2, pt2)
-        print count
-        count += 1
+        line2 = Line(origin2, pt2) 
         outpoints.append(triangulateFromLines(line1, line2))
 
     return outpoints

@@ -59,34 +59,28 @@ def printRandTPossibilities(possibilities):
         print "---------------"
 
 
-def drawRandTTransformation(r, t, K, points1, points2, filepath):
-    writePoints = []
-    P = composeRandT(r, t)
+def drawRandTTransformation(pts1, pts2, k, r, t, filename):
+    cameraOnePoints = []
+    cameraTwoPoints = []
 
-    for i in range(len(points1)):
-        point1 = points1[i]
-        point2 = points2[i]
+    # IMAGE ONE
+    for point in pts1:
+        homogenous = np.append(np.array(point), [1]).transpose()
+        inv_k = np.linalg.inv(k)
+        normalized = inv_k.dot(homogenous)
+        cameraOnePoints.append(normalized)
 
-        # Homogenize
-        point1 = np.append(point1, [1])
-        point2 = np.append(point2, [1])
+    # IMAGE TWO
+    for point in pts2:
+        homogenous = np.append(np.array(point), [1]).transpose()
+        inv_k = np.linalg.inv(k)
+        normalized = inv_k.dot(homogenous)
+        cameraTwoPoints.append(normalized)
 
-        # Cvt to camera coordinates
-        point1 = np.dot(point1, np.linalg.inv(K.matrix).transpose())
-        point2 = np.dot(np.linalg.inv(K.matrix), point2)
+    cameraTwoPoints = applyRandTToPoints(r, t, cameraTwoPoints)
+    writePoints = cameraOnePoints + cameraTwoPoints
 
-        # add ANOTHA [ONE] so we can multiply by P
-        point2 = np.append(point2, [1])
-
-        # Needs to be np array
-        point1 = np.array([point1]).transpose()
-        point2 = np.array([point2]).transpose()
-
-        transformedPoint2 = np.dot(P, point2)
-        # writePoints.append(point1)
-        writePoints.append(transformedPoint2)
-
-    writePointsToFile(writePoints, filepath)
+    writePointsToFile(writePoints, filename)
 
 
 def drawProjections(pts1, pts2, k, r, t, filename):
@@ -97,15 +91,18 @@ def drawProjections(pts1, pts2, k, r, t, filename):
 
     writePoints = [origin1, origin2]
 
+    cameraOnePoints = []
+    cameraTwoPoints = []
+
     # IMAGE ONE
     for point in pts1:
         homogenous = np.append(np.array(point), [1]).transpose()
         inv_k = np.linalg.inv(k)
         normalized = inv_k.dot(homogenous)
         imgpoint = normalized
-        planepoint = (imgpoint[0] * 10, imgpoint[1] * 10, imgpoint[2] * 10)
-        writePoints.append(imgpoint)
-        writePoints.append(planepoint)
+        planepoint = (imgpoint[0] * 20, imgpoint[1] * 20, imgpoint[2] * 20)
+        cameraOnePoints.append(imgpoint)
+        cameraOnePoints.append(planepoint)
 
     # IMAGE TWO
     for point in pts2:
@@ -113,11 +110,12 @@ def drawProjections(pts1, pts2, k, r, t, filename):
         inv_k = np.linalg.inv(k)
         normalized = inv_k.dot(homogenous)
         imgpoint = normalized
-        planepoint = (imgpoint[0] * 10, imgpoint[1] * 10, imgpoint[2] * 10)
-        transformed_image = (r.dot(imgpoint) + t.transpose())[0]
-        transformed_plane = (r.dot(planepoint) + t.transpose())[0]
-        writePoints.append(transformed_image)
-        writePoints.append(transformed_plane)
+        planepoint = (imgpoint[0] * 20, imgpoint[1] * 20, imgpoint[2] * 20)
+        cameraTwoPoints.append(imgpoint)
+        cameraTwoPoints.append(planepoint)
+
+    cameraTwoPoints = applyRandTToPoints(r, t, cameraTwoPoints)
+    writePoints += cameraOnePoints + cameraTwoPoints
 
     writePointsToFile(writePoints, filename)
 
