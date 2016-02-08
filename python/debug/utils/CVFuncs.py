@@ -38,6 +38,10 @@ def findMatches(image1, image2, filter=False):
 
 
 def sortMatchesByDistance(matches):
+    '''
+    Takes in the matches from a BF matcher (list of DMatch objects)
+    Returns matches sorted by distance between the bitvectors.
+    '''
     return sorted(matches, key=lambda x: x.distance)
 
 
