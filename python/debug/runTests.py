@@ -1,4 +1,6 @@
-import os, sys, subprocess
+import os
+import sys
+import subprocess
 import cv2
 import math
 import numpy as np
@@ -6,6 +8,7 @@ import utils.debug as Debug
 import utils.CVFuncs as CVFuncs
 from utils import KMatrix, Image
 from triangulate import *
+
 
 def main():
     points = triangulateTwoImages("images/chapel2.jpg", "images/chapel3.jpg")

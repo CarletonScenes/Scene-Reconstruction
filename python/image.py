@@ -2,7 +2,9 @@ import numpy as np
 import cv2
 import exifread
 
+
 class Image:
+
     def __init__(self, filepath):
         self.fname = filepath
         self.img = cv2.imread(filepath)
@@ -27,10 +29,10 @@ class Image:
         cx = float(self.width) / 2
         cy = float(self.height) / 2
         self.k = np.array([
-                [focal_length,0,cx],
-                [0,focal_length,cy],
-                [0,0,1]
-            ])
+            [focal_length, 0, cx],
+            [0, focal_length, cy],
+            [0, 0, 1]
+        ])
 
         self.k_inv = np.linalg.inv(self.k)
 
@@ -39,15 +41,15 @@ class Image:
         (self.kps, self.descs) = sift.detectAndCompute(self.img, None)
 
     def __repr__(self):
-        if not self.kps and not self.descs: 
+        if not self.kps and not self.descs:
             return "{} - Focal Length: {} / {} - KPs: {} Descs: {}".format(
-                self.fname, 
-                self.focal_length_num, 
+                self.fname,
+                self.focal_length_num,
                 self.focal_length_den)
         else:
             return "{} - Focal Length: {} / {} - KPs: {} Descs: {}".format(
-                self.fname, 
-                self.focal_length_num, 
+                self.fname,
+                self.focal_length_num,
                 self.focal_length_den,
                 len(self.kps),
                 len(self.descs))

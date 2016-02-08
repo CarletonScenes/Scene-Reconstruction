@@ -10,7 +10,7 @@ count = 0
 
 # Open all images and detect keypoints
 current_dir = os.path.dirname(os.path.realpath(__file__))
-for f in os.listdir(os.path.join(current_dir,"photos")):
+for f in os.listdir(os.path.join(current_dir, "photos")):
     img = Image(os.path.join(current_dir, "photos/{}".format(f)))
     img.detect_features()
     images.append(img)
@@ -18,9 +18,9 @@ for f in os.listdir(os.path.join(current_dir,"photos")):
 
 # Match all pairs of images and sort
 bf = cv2.BFMatcher(cv2.NORM_L1, crossCheck=True)
-all_pairs = [] # [ImagePair]
+all_pairs = []  # [ImagePair]
 for i in range(count):
-    for j in range(i+1,count):
+    for j in range(i + 1, count):
         imgA = images[i]
         imgB = images[j]
 
@@ -35,5 +35,3 @@ import pprint
 pprint.pprint(all_pairs)
 
 # print img1.descs, img2.descs
-
-
