@@ -37,6 +37,10 @@ def findMatches(image1, image2, filter=False):
         return points1, points2, matches
 
 
+def sortMatchesByDistance(matches):
+    return sorted(matches, key=lambda x: x.distance)
+
+
 def filterMatches(points1, points2, matches):
 
     # Determine mean and stdev of point y values
