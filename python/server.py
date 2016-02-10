@@ -1,5 +1,5 @@
 from flask import Flask, render_template
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='')
 
 
 @app.route("/")
@@ -11,9 +11,9 @@ def submit_job():
     pass
 
 
-@app.route("/job/:job_id")
-def view_results(job_id):
-    pass
+@app.route("/stream.ply")
+def view_results():
+    return app.send_static_file('debug_out.ply')
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
