@@ -75,6 +75,8 @@ def makeChapel(factor, percent):
                 string = string+" "+str(line[i])
         f.write(string+"\n")
 
+#factor is an int >= 1 that decides density of the pointcloud
+#percent is the chance that any given point will be randomly missing
 factor = int(sys.argv[1])
 percent = int(sys.argv[2])
 makeChapel(factor, percent)
