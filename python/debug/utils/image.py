@@ -10,6 +10,8 @@ class Image:
     def __init__(self, filepath):
         self.fname = filepath
         self.img = cv2.imread(filepath)
+        if self.img == None:
+            raise IOError("File " + filepath + " could not be read.")
         self.height = self.img.shape[0]
         self.width = self.img.shape[1]
 
