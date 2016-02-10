@@ -213,12 +213,50 @@ def triangulateFromLines(line1, line2):
 
     # Dot the distance vector with the common perp.
     dotproduct = np.inner(D, crossproduct)
+    perpD = crossproduct*dotproduct
 
+    # Construct the other line
+    line3 = [[0,0,0], [0,0,0]]
+    for i in range(DIMENSIONS):
+        base3 = line1[0][i]
+        offset3 = dotproduct[i]
+        line3[0][i] = base3 + offset3
+    line3[1] = line1[1]
 
+    # Find the intersection between line 3 and line 2:
+        # Outline:
+        # Given the two lines:
+            # line 2 = [X2, Y2, Z2] + s<X'_2, Y'_2, Z'_2>
+            # line 3 = [X3, Y3, Z3] + t<X'_3, Y'_3, Z'_3>
+        # line 2 = [X2 + s*X'_2, Y2 + s*Y'_2, Z2 + s*Z'_2]
+        # line 3 = [X3 + t*X'_3, Y3 + t*Y'_3, Z3 + t*Z'_3]
+        # looking for when each coordinate is the same, which means 3 lin. eq.s:
+            # X2 + s*X'_2 = X3 + t*X'_3
+            # Y2 + s*Y'_2 = Y3 + t*Y'_3
+            # Z2 + s*Z'_2 = Z3 + t*Z'_3
+        # Reorganizing the above equations to get a matrix
+            # s * X'_2 - t * X'_3 = X3 - X2
+            # s * Y'_2 - t * Y'_3 = Y3 - Y2
+            # s * Z'_1 - t * Z'_3 = Z3 - Z2
+        # Convert into the following matrix
+            # [[X'_2, -X'_3],[Y'_2, - Y'_3], [Z'_2, Z'_3]][[s],[t]] = [[X3, -X2], [Y3, -Y2], [Z3, -Z2]]
+        # x contains the solution [[s],[t]]
+        a = np.array([line2[1][0], -1 * line3[1][0]], [line2[1][1], -1 * line3[1][1]], [line2[1][2], -1 * line3[1][2]])
+        b = np.array([line3[0][0], -1 * line2[0][0]], [line3[0][1], -1 * line2[0][1]], [line3[0][2], -1 * line2[0][2]])
+        x = np.linalg.solve(a,b)
 
+        # find intersection point on line 2, using s, which is x[0]
+        inters2 = [0,0,0]
+        s = x[0]
+        for i in range(DIMENSIONS):
+            inters2[i] = line2[0][i] + s * line2[1][i]
 
-
-
+        # find the closest approach by taking inters2 and adding 0.5 * perp. distance line (0.5 because we want the half way point between 
+        # line 1 and line 2)
+        closest = [0,0,0]
+        for i in range(DIMENSIONS):
+            closest[i] = inters2[i] + 0.5 * perpD[i]
+        return closest
 
     # Iteratively finds the two points that are closest together,
     # Then returns their midpoint
