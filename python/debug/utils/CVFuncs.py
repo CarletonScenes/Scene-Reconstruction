@@ -166,17 +166,17 @@ def midpoint(pt1, pt2):
 
 def triangulateFromLines(line1, line2):
 
-    # Input Description: 
+    # Input Description:
     # P = [Px, Py, Pz], where P is a point on line 1,
     # R = [Rx, Ry, Rz], where R is a point on line 2,
     # D1 = [D1x, D1y, D1z], where D1 is a ray in dir. of line 1
     # D2 = [D2x, D2y, D2z], where D2 is a ray in dir. of line 2
     # line1 = [P, D1]
     # line2 = [R, D2]
-    # In summary, line1 and line2 are the parametric equations of 
+    # In summary, line1 and line2 are the parametric equations of
     # the respective lines
 
-    #Algorithm design: 
+    # Algorithm design:
 
     # You want to find a common perpendicular line to both lines in 3d
         # Write a parametric equation for each line: L1 = P1 + t (l1x, l1y, l1z); L2 = P2 + t (l2x, l2y, l2z)
@@ -190,8 +190,8 @@ def triangulateFromLines(line1, line2):
 
     # Find the cross product of the two lines
     DIMENSIONS = 3
-    v1 = [0,0,0]
-    v2 = [0,0,0]
+    v1 = [0, 0, 0]
+    v2 = [0, 0, 0]
     for i in range(DIMENSIONS):
         base1 = line1[0][i]
         offset1 = line1[1][i]
@@ -203,9 +203,9 @@ def triangulateFromLines(line1, line2):
     crossproduct = np.cross(v1, v2)
 
     # Pick two random points, R1 and R2, one of line1 and line2, respectively. Find distance between them
-    R1 = [0,0,0]
-    R2 = [0,0,0]
-    D = [0,0,0]
+    R1 = [0, 0, 0]
+    R2 = [0, 0, 0]
+    D = [0, 0, 0]
     for i in range(DIMENSIONS):
         R1[i] = line1[0][i] + 2 * line1[1][i]
         R2[i] = line2[0][i] + 2 * line2[1][i]
@@ -213,10 +213,10 @@ def triangulateFromLines(line1, line2):
 
     # Dot the distance vector with the common perp.
     dotproduct = np.inner(D, crossproduct)
-    perpD = crossproduct*dotproduct
+    perpD = crossproduct * dotproduct
 
     # Construct the other line
-    line3 = [[0,0,0], [0,0,0]]
+    line3 = [[0, 0, 0], [0, 0, 0]]
     for i in range(DIMENSIONS):
         base3 = line1[0][i]
         offset3 = dotproduct[i]
@@ -224,36 +224,36 @@ def triangulateFromLines(line1, line2):
     line3[1] = line1[1]
 
     # Find the intersection between line 3 and line 2:
-        # Outline:
-        # Given the two lines:
-            # line 2 = [X2, Y2, Z2] + s<X'_2, Y'_2, Z'_2>
-            # line 3 = [X3, Y3, Z3] + t<X'_3, Y'_3, Z'_3>
-        # line 2 = [X2 + s*X'_2, Y2 + s*Y'_2, Z2 + s*Z'_2]
-        # line 3 = [X3 + t*X'_3, Y3 + t*Y'_3, Z3 + t*Z'_3]
-        # looking for when each coordinate is the same, which means 3 lin. eq.s:
-            # X2 + s*X'_2 = X3 + t*X'_3
-            # Y2 + s*Y'_2 = Y3 + t*Y'_3
-            # Z2 + s*Z'_2 = Z3 + t*Z'_3
-        # Reorganizing the above equations to get a matrix
-            # s * X'_2 - t * X'_3 = X3 - X2
-            # s * Y'_2 - t * Y'_3 = Y3 - Y2
-            # s * Z'_1 - t * Z'_3 = Z3 - Z2
-        # Convert into the following matrix
-            # [[X'_2, -X'_3],[Y'_2, - Y'_3], [Z'_2, Z'_3]][[s],[t]] = [[X3, -X2], [Y3, -Y2], [Z3, -Z2]]
-        # x contains the solution [[s],[t]]
+    # Outline:
+    # Given the two lines:
+    # line 2 = [X2, Y2, Z2] + s<X'_2, Y'_2, Z'_2>
+    # line 3 = [X3, Y3, Z3] + t<X'_3, Y'_3, Z'_3>
+    # line 2 = [X2 + s*X'_2, Y2 + s*Y'_2, Z2 + s*Z'_2]
+    # line 3 = [X3 + t*X'_3, Y3 + t*Y'_3, Z3 + t*Z'_3]
+    # looking for when each coordinate is the same, which means 3 lin. eq.s:
+    # X2 + s*X'_2 = X3 + t*X'_3
+    # Y2 + s*Y'_2 = Y3 + t*Y'_3
+    # Z2 + s*Z'_2 = Z3 + t*Z'_3
+    # Reorganizing the above equations to get a matrix
+    # s * X'_2 - t * X'_3 = X3 - X2
+    # s * Y'_2 - t * Y'_3 = Y3 - Y2
+    # s * Z'_1 - t * Z'_3 = Z3 - Z2
+    # Convert into the following matrix
+    # [[X'_2, -X'_3],[Y'_2, - Y'_3], [Z'_2, Z'_3]][[s],[t]] = [[X3, -X2], [Y3, -Y2], [Z3, -Z2]]
+    # x contains the solution [[s],[t]]
         a = np.array([line2[1][0], -1 * line3[1][0]], [line2[1][1], -1 * line3[1][1]], [line2[1][2], -1 * line3[1][2]])
         b = np.array([line3[0][0], -1 * line2[0][0]], [line3[0][1], -1 * line2[0][1]], [line3[0][2], -1 * line2[0][2]])
-        x = np.linalg.solve(a,b)
+        x = np.linalg.solve(a, b)
 
         # find intersection point on line 2, using s, which is x[0]
-        inters2 = [0,0,0]
+        inters2 = [0, 0, 0]
         s = x[0]
         for i in range(DIMENSIONS):
             inters2[i] = line2[0][i] + s * line2[1][i]
 
-        # find the closest approach by taking inters2 and adding 0.5 * perp. distance line (0.5 because we want the half way point between 
+        # find the closest approach by taking inters2 and adding 0.5 * perp. distance line (0.5 because we want the half way point between
         # line 1 and line 2)
-        closest = [0,0,0]
+        closest = [0, 0, 0]
         for i in range(DIMENSIONS):
             closest[i] = inters2[i] + 0.5 * perpD[i]
         return closest
@@ -308,7 +308,7 @@ def naiveTriangulate(pts1, pts2, k, r, t):
 
     outpoints = []
 
-    Draw  lines and triangulate
+    # Draw  lines and triangulate
     count = 0
     print len(imgpoints1)
     for pt1, pt2 in zip(imgpoints1, imgpoints2):
