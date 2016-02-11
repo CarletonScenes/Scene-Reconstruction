@@ -163,6 +163,12 @@ def eucDist(pt1, pt2):
 def midpoint(pt1, pt2):
     return ((pt1[0] + pt2[0]) / 2, (pt1[1] + pt2[1]) / 2, (pt1[2] + pt2[2]) / 2)
 
+def normalize(arr):
+    magnitude = (arr[0] ** 2 + arr[1] ** 2 + arr[2] ** 2) ** (1/2)
+    arr[0] = arr[0]/magnitude
+    arr[1] = arr[1]/magnitude
+    arr[2] = arr[2]/magnitude
+    return arr
 
 def triangulateFromLines(line1, line2):
 
@@ -198,9 +204,10 @@ def triangulateFromLines(line1, line2):
         base2 = line2[0][i]
         offset2 = line2[1][i]
 
-        v1[0] = (base1 + offset1) - base1
-        v2[0] = (base2 + offset2) - base2
+        v1[i] = (base1 + offset1) - base1
+        v2[i] = (base2 + offset2) - base2
     crossproduct = np.cross(v1, v2)
+    crossproduct = normalize(crossproduct)
 
     # Pick two random points, R1 and R2, one of line1 and line2, respectively. Find distance between them
     R1 = [0, 0, 0]
@@ -218,10 +225,11 @@ def triangulateFromLines(line1, line2):
     # Construct the other line
     line3 = [[0, 0, 0], [0, 0, 0]]
     for i in range(DIMENSIONS):
-        base3 = line1[0][i]
-        offset3 = dotproduct[i]
+        base3 = line2[0][i]
+        # offset3 = dotproduct[i]
+        offset3 = perpD[i]
         line3[0][i] = base3 + offset3
-    line3[1] = line1[1]
+    line3[1] = line2[1]
 
     # Find the intersection between line 3 and line 2:
     # Outline:
@@ -241,9 +249,9 @@ def triangulateFromLines(line1, line2):
     # Convert into the following matrix
     # [[X'_2, -X'_3],[Y'_2, - Y'_3], [Z'_2, Z'_3]][[s],[t]] = [[X3, -X2], [Y3, -Y2], [Z3, -Z2]]
     # x contains the solution [[s],[t]]
-    a = np.array([line2[1][0], -1 * line3[1][0]], [line2[1][1], -1 * line3[1][1]], [line2[1][2], -1 * line3[1][2]])
-    b = np.array([line3[0][0], -1 * line2[0][0]], [line3[0][1], -1 * line2[0][1]], [line3[0][2], -1 * line2[0][2]])
-    x = np.linalg.solve(a, b)
+    a = np.array([[line2[1][0], -1 * line3[1][0]], [line2[1][1], -1 * line3[1][1]], [line2[1][2], -1 * line3[1][2]]])
+    b = np.array([[line3[0][0] - line2[0][0]], [line3[0][1] - line2[0][1]], [line3[0][2] - line2[0][2]]])
+    x = np.linalg.lstsq(a, b)
 
     # find intersection point on line 2, using s, which is x[0]
     inters2 = [0, 0, 0]

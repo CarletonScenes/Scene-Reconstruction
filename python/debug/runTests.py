@@ -11,6 +11,11 @@ from triangulate import *
 
 
 def main():
+
+    print "BLAR", CVFuncs.triangulateFromLines([[0, 0, 2], [0, 1, 0]], [[0, 0, 0], [1, 0, 0]])
+    exit(0)
+
+
     points = triangulateTwoImages("images/chapel2.jpg", "images/chapel3.jpg")
     r = getArtificalR(-20)
     t = getArtificialTranslation(5)
