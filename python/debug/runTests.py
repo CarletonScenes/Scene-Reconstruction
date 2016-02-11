@@ -12,7 +12,7 @@ from triangulate import *
 
 def main():
 
-    print "BLAR", CVFuncs.triangulateFromLines([[0, 0, 2], [0, 1, 0]], [[0, 0, 0], [1, 0, 0]])
+    print "BLAR", CVFuncs.triangulateFromLines([[0, 0, 1], [0, 1, 1]], [[0, 0, 0], [1, 0, 0]])
     exit(0)
 
 
