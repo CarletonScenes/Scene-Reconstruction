@@ -241,22 +241,22 @@ def triangulateFromLines(line1, line2):
     # Convert into the following matrix
     # [[X'_2, -X'_3],[Y'_2, - Y'_3], [Z'_2, Z'_3]][[s],[t]] = [[X3, -X2], [Y3, -Y2], [Z3, -Z2]]
     # x contains the solution [[s],[t]]
-        a = np.array([line2[1][0], -1 * line3[1][0]], [line2[1][1], -1 * line3[1][1]], [line2[1][2], -1 * line3[1][2]])
-        b = np.array([line3[0][0], -1 * line2[0][0]], [line3[0][1], -1 * line2[0][1]], [line3[0][2], -1 * line2[0][2]])
-        x = np.linalg.solve(a, b)
+    a = np.array([line2[1][0], -1 * line3[1][0]], [line2[1][1], -1 * line3[1][1]], [line2[1][2], -1 * line3[1][2]])
+    b = np.array([line3[0][0], -1 * line2[0][0]], [line3[0][1], -1 * line2[0][1]], [line3[0][2], -1 * line2[0][2]])
+    x = np.linalg.solve(a, b)
 
-        # find intersection point on line 2, using s, which is x[0]
-        inters2 = [0, 0, 0]
-        s = x[0]
-        for i in range(DIMENSIONS):
-            inters2[i] = line2[0][i] + s * line2[1][i]
+    # find intersection point on line 2, using s, which is x[0]
+    inters2 = [0, 0, 0]
+    s = x[0]
+    for i in range(DIMENSIONS):
+        inters2[i] = line2[0][i] + s * line2[1][i]
 
-        # find the closest approach by taking inters2 and adding 0.5 * perp. distance line (0.5 because we want the half way point between
-        # line 1 and line 2)
-        closest = [0, 0, 0]
-        for i in range(DIMENSIONS):
-            closest[i] = inters2[i] + 0.5 * perpD[i]
-        return closest
+    # find the closest approach by taking inters2 and adding 0.5 * perp. distance line (0.5 because we want the half way point between
+    # line 1 and line 2)
+    closest = [0, 0, 0]
+    for i in range(DIMENSIONS):
+        closest[i] = inters2[i] + 0.5 * perpD[i]
+    return closest
 
     # Iteratively finds the two points that are closest together,
     # Then returns their midpoint
