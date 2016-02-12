@@ -72,7 +72,7 @@ def triangulateTwoImages(filename1, filename2):
     ''' 
     Draw image projections using R and T
     '''
-    # Debug.drawProjections(pts1, pts2, K.matrix, r, t, "projections.ply")
+    Debug.drawProjections(pts1, pts2, K.matrix, r, t, "projections.ply")
 
     '''
     Triangulate and draw points

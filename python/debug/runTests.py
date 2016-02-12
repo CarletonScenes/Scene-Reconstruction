@@ -9,7 +9,7 @@ import utils.CVFuncs as CVFuncs
 from utils import KMatrix, Image
 from triangulate import *
 
-def triangulateFromImages(*images):
+def triangulateFromImages(images):
 	print "Triangulating from images:"
 	for image in images:
 		print image
@@ -38,7 +38,9 @@ def triangulateFromImages(*images):
 		Debug.writePointsToFile(points, "points{}.ply".format(i))
 
 def main():
-	triangulateFromImages("images/chapel1.jpg", "images/chapel2.jpg", "images/chapel3.jpg")
+	images = ["images/chair/" + image for image in os.listdir("images/chair")]
+	images = images[:2]
+	triangulateFromImages(images)
 
 
 if __name__ == '__main__':

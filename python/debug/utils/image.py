@@ -16,10 +16,11 @@ class Image:
         self.width = self.img.shape[1]
 
         # Resize to 1000x1000 if too large
-        if self.height > 1000 or self.width > 1000:
-            self.height = 1000
-            self.width = 1000
-            self.img = cv2.resize(self.img, (self.height, self.width))
+        # This was a dumb idea and I'm going to comment it out
+        # if self.height > 1000 or self.width > 1000:
+        #     self.height = 1000
+        #     self.width = 1000
+        #     self.img = cv2.resize(self.img, (self.height, self.width))
 
         try:
             with open(filepath, 'r') as f:
