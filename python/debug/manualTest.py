@@ -25,21 +25,6 @@ for line in file(f3):
     image1.kps.append(cv2.KeyPoint(int(pointList[0]),int(pointList[1]), 1, 1,1))
     image2.kps.append(cv2.KeyPoint(int(pointList[2]),int(pointList[3]), 1, 1,1))   
     i += 1
-        
-#CVFuncs.drawMatches(image1, image2, matches, "out.png")
-    # Use openCV's brute force point matcher
-#image1.detect_features()
-#image2.detect_features()
-#
-#bf = cv2.BFMatcher(cv2.NORM_L1, crossCheck=True)
-#matches = bf.match(image1.descs, image2.descs)
-
-#points1 = []
-#points2 = []
-#
-#for match in matches:
-#    points1.append(image1.kps[match.queryIdx].pt)
-#    points2.append(image2.kps[match.trainIdx].pt)
     
 print len(image1.kps)
 print len(image2.kps)
