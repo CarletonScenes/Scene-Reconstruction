@@ -170,7 +170,9 @@ def normalize(arr):
     arr[2] = arr[2]/magnitude
     return arr
 
-def triangulateFromLines(line1, line2):
+def triangulateFromLines(lineObj1, lineObj2):
+# def triangulateFromLines(line1, line2):
+
 
     # Input Description:
     # P = [Px, Py, Pz], where P is a point on line 1,
@@ -195,6 +197,10 @@ def triangulateFromLines(line1, line2):
     # Find the intersection between (R1 + per. dist.) + t (l1x, l1y, l1z) and P2 + t (l2x, l2y, l2z)
 
     # Find the cross product of the two lines
+
+    line1 = [lineObj1.origin, lineObj1.other]
+    line2 = [lineObj2.origin, lineObj2.other]
+
     DIMENSIONS = 3
     v1 = [0, 0, 0]
     v2 = [0, 0, 0]

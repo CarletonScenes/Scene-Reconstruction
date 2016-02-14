@@ -6,13 +6,17 @@ import math
 import numpy as np
 import utils.debug as Debug
 import utils.CVFuncs as CVFuncs
-from utils import KMatrix, Image
+from utils import KMatrix, Image, line
 from triangulate import *
 
 
 def main():
 
-    print "BLAR", CVFuncs.triangulateFromLines([[0, 0, 1], [0, 1, 1]], [[0, 0, 0], [1, 0, 0]])
+    l1 = line.Line([0, 1, 0], [1, 0, 0])
+    l2 = line.Line([1, 0, 0], [1, 0, 1])
+
+    # print "BLAR", CVFuncs.triangulateFromLines([[0, 1, 0], [1, 0, 0]], [[1, 0, 0], [1, 0, 1]])
+    print "Triangulation Attempt", CVFuncs.triangulateFromLines(l1, l2)
     exit(0)
 
 
