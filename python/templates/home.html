@@ -87,9 +87,13 @@
 
                 var loader = new THREE.PLYLoader();
                 loader.load( '/stream.ply', function ( geometry ) {
+                    console.log(geometry);
 
                     geometry.computeFaceNormals();
 
+                    // Add in points
+                    var points = new THREE.Points(geometry);
+                    
                     var material = new THREE.MeshStandardMaterial( { color: 0x0055ff } );
                     var mesh = new THREE.Mesh( geometry, material );
 
@@ -101,6 +105,7 @@
                     mesh.receiveShadow = true;
 
                     scene.add( mesh );
+                    scene.add(points);
 
                 } );
 
