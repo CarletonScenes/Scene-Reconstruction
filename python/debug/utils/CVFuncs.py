@@ -6,6 +6,11 @@ from KMatrix import *
 from line import *
 from PIL import Image as PILImage
 
+def invertY(points):
+    outpoints = []
+    for point in points:
+        outpoints.append((point[0], -point[1], point[2]))
+    return outpoints
 
 def normalizeCoordinates(points, K):
     normPoints = []

@@ -48,10 +48,10 @@ def triangulateWithImagesAndPointFile(filename1, filename2, pointFile):
     img1.kps = kp1
     img2.kps = kp2
 
-    CVFuncs.drawMatches(img1, img2, matches, "new.png")
+    # CVFuncs.drawMatches(img1, img2, matches, "new.png")
     # print pts1
     # print pts2
-    exit(0)
+    
     ''' 
     Find K 
     '''
@@ -64,14 +64,15 @@ def triangulateWithImagesAndPointFile(filename1, filename2, pointFile):
     # F, mask = CVFuncs.findFundamentalMat(pts1, pts2)
     # Debug.testFundamentalMat(F, pts1, pts2)
 
-    # E, mask = CVFuncs.findEssentialMat(pts1, pts2, K)
+    E, mask = CVFuncs.findEssentialMat(pts1, pts2, K)
     # E = CVFuncs.EFromF(F, K)
     # Debug.testEssentialMat(E, K, pts1, pts2)
 
     '''
     Get R and T (using artificial ones for now)
     '''
-    # points, r, t, newMask = CVFuncs.recoverPose(E, pts1, pts2, K)
+    points, r, t, newMask = CVFuncs.recoverPose(E, pts1, pts2, K)
+    print t
     # print "R:", r
     # print "T:", t
     # r = np.linalg.inv(r)
@@ -79,13 +80,14 @@ def triangulateWithImagesAndPointFile(filename1, filename2, pointFile):
     # possibilities = CVFuncs.decomposeEssentialMat(E)
     # Debug.printRandTPossibilities(possibilities)
 
-    r = getArtificalR(-20)
-    t = getArtificialTranslation(5)
+    # r = getArtificalR(-20)
+    # t = getArtificialTranslation(5)
 
     ''' 
     Draw image projections using R and T
     '''
-    Debug.drawProjections(pts1, pts2, K.matrix, r, t, "projections.ply")
+    Debug.drawProjections(pts1, pts2, K.matrix, r, t, "manualprojections.ply")
+    # Debug.drawRandTTransformation(pts1, pts2, K.matrix, r, t, "projections.ply")
 
     '''
     Triangulate and draw points
@@ -124,7 +126,7 @@ def readPointsFromFile(pointFile):
 
 def main():
     # Lil test
-    points, r, t = triangulateWithImagesAndPointFile("images/pdp1.jpeg", "images/pdp2.jpeg", "points.txt")
+    points, r, t = triangulateWithImagesAndPointFile("images/c1.jpg", "images/c2.jpg", "pointsout.txt")
     Debug.writePointsToFile(points, "test.ply")
 
 if __name__ == '__main__':

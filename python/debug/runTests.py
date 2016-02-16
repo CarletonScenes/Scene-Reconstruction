@@ -38,7 +38,8 @@ def triangulateFromImages(images):
 		Debug.writePointsToFile(points, "points{}.ply".format(i))
 
 def main():
-	images = ["images/chair/" + image for image in os.listdir("images/chair")]
+	# images = ["images/c1/" + image for image in os.listdir("images/c2")]
+	images = ["images/c1.jpg", "images/c2.jpg"]
 	images = images[:2]
 	triangulateFromImages(images)
 
