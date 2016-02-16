@@ -47,6 +47,11 @@ class Image:
         center_x = float(self.width) / 2
         center_y = float(self.height) / 2
 
+        self.scale_factor = self.width / ccdWidth  # note: equiv to mm_focal_length / self.focalLength. multiply this by pixels to get mm
+
+        # multiply by pixel coords (x, y, 1) and remain in pixels -- this just translates so image center is origin
+        self.naiveK = KMatrix(focalLength=1, principalPoint=(center_x, center_y))
+
         self.K = KMatrix(focalLength=self.focalLength, principalPoint=(center_x, center_y))
 
     def detect_features(self):
