@@ -6,6 +6,7 @@ import numpy as np
 import utils.debug as Debug
 import utils.CVFuncs as CVFuncs
 from utils import KMatrix, Image
+from utils.line import Line
 
 # -14 degrees between chapel1.jpg and chapel2.jpg
 
@@ -128,8 +129,13 @@ def readPointsFromFile(pointFile):
 
 def main():
     # Lil test
-    points, r, t = triangulateWithImagesAndPointFile("images/c1.jpg", "images/c2.jpg", "pointsout.txt")
-    Debug.writePointsToFile(points, "test.ply")
+#    points, r, t = triangulateWithImagesAndPointFile("images/c1.jpg", "images/c2.jpg", "pointsout.txt")
+#    Debug.writePointsToFile(points, "test.ply")
+    pointA1, pointA2, pointB1, pointB2 = (0,0,0), (5,0,0), (1,2,0), (1,-20,0)
+    lineA = Line(pointA1, pointA2)
+    lineB = Line(pointB1, pointB2)
+    print CVFuncs.triangulateFromLines(lineA, lineB)
+    
 
 if __name__ == '__main__':
     main()

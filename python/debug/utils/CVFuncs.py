@@ -7,13 +7,6 @@ from line import *
 from PIL import Image as PILImage
 
 
-def invertY(points):
-    outpoints = []
-    for point in points:
-        outpoints.append((point[0], -point[1], point[2]))
-    return outpoints
-
-
 def normalizeCoordinates(points, K):
     normPoints = []
     for point in points:
@@ -135,7 +128,6 @@ def EFromF(F, K=KMatrix()):
 
 
 def recoverPose(E, points1, points2, K=KMatrix()):
-    decomposeEssentialMat(E)
     return cv2.recoverPose(E, np.array(points1), np.array(points2), pp=K.principalPoint)
 
 
@@ -151,19 +143,8 @@ def composeRandT(r, t):
     return np.append(r, t, 1)
 
 
-def composeRotations(r1, r2):
-    return r1.dot(r2)
-
-
-def composeTranslations(t1, t2):
-    return t1 + t2
-
-
 def decomposeEssentialMat(E):
     W, U, VT = cv2.SVDecomp(E)
-    print "W", W
-    print "U", U
-    print "VT", VT
     W = np.array([[0, -1, 0], [1, 0, 0], [0, 0, 1]])
 
     R1 = np.dot(np.dot(U, W), VT)
@@ -175,15 +156,6 @@ def decomposeEssentialMat(E):
     return [(R1, T1), (R1, T2), (R2, T1), (R2, T2)]
 
 
-def applyRandTToPoints(r, t, points):
-    newPoints = []
-    for point in points:
-        transformed = (r.dot(point) + t.transpose())[0]
-        # Convert from np array back to tuple
-        newPoints.append((transformed[0], transformed[1], transformed[2]))
-    return newPoints
-
-
 def eucDist(pt1, pt2):
     return math.sqrt(((pt1[0] - pt2[0]) ** 2) + ((pt1[1] - pt2[1]) ** 2) + ((pt1[2] - pt2[2]) ** 2))
 
@@ -191,28 +163,140 @@ def eucDist(pt1, pt2):
 def midpoint(pt1, pt2):
     return ((pt1[0] + pt2[0]) / 2, (pt1[1] + pt2[1]) / 2, (pt1[2] + pt2[2]) / 2)
 
+def normalize(arr):
+    magnitude = (arr[0] ** 2 + arr[1] ** 2 + arr[2] ** 2) ** (1/2)
+    arr[0] = arr[0]/magnitude
+    arr[1] = arr[1]/magnitude
+    arr[2] = arr[2]/magnitude
+    return arr
 
-def triangulateFromLines(line1, line2):
+def triangulateFromLines(lineObj1, lineObj2):
+# def triangulateFromLines(line1, line2):
+
+
+    # Input Description:
+    # P = [Px, Py, Pz], where P is a point on line 1,
+    # R = [Rx, Ry, Rz], where R is a point on line 2,
+    # D1 = [D1x, D1y, D1z], where D1 is a ray in dir. of line 1
+    # D2 = [D2x, D2y, D2z], where D2 is a ray in dir. of line 2
+    # line1 = [P, D1]
+    # line2 = [R, D2]
+    # In summary, line1 and line2 are the parametric equations of
+    # the respective lines
+
+    # Algorithm design:
+
+    # You want to find a common perpendicular line to both lines in 3d
+        # Write a parametric equation for each line: L1 = P1 + t (l1x, l1y, l1z); L2 = P2 + t (l2x, l2y, l2z)
+        # Find the cross product between L1 and L2, the resulting vector is the common perpendicular
+    # Now pick two random points on L1 and L2, calling them R1 and R2; find the difference between the two of them. Call this D
+    # Find the vector of D along the common perpendicular, call this D_paralle
+        # Find that as follows: Dot product D with the common perpendicular, and now multiply val of dot product by common perpendicular, call this the perp. dist.
+    # Now place this vector, which is perpendicular to L1, at R1. R1 + perp. dist.. Now to get the equation of
+    # the new line that needs to intersect L2: (R1 + per. dist.) + t (l1x, l1y, l1z)
+    # Find the intersection between (R1 + per. dist.) + t (l1x, l1y, l1z) and P2 + t (l2x, l2y, l2z)
+
+    # Find the cross product of the two lines
+
+    line1 = [lineObj1.origin, lineObj1.other]
+    line2 = [lineObj2.origin, lineObj2.other]
+
+    DIMENSIONS = 3
+    v1 = [0, 0, 0]
+    v2 = [0, 0, 0]
+    for i in range(DIMENSIONS):
+        base1 = line1[0][i]
+        offset1 = line1[1][i]
+        base2 = line2[0][i]
+        offset2 = line2[1][i]
+
+        v1[i] = (base1 + offset1) - base1
+        v2[i] = (base2 + offset2) - base2
+    crossproduct = np.cross(v1, v2)
+    crossproduct = normalize(crossproduct)
+
+    # Pick two random points, R1 and R2, one of line1 and line2, respectively. Find distance between them
+    R1 = [0, 0, 0]
+    R2 = [0, 0, 0]
+    D = [0, 0, 0]
+    for i in range(DIMENSIONS):
+        R1[i] = line1[0][i] + 2 * line1[1][i]
+        R2[i] = line2[0][i] + 2 * line2[1][i]
+        D[i] = R1[i] - R2[i]
+
+    # Dot the distance vector with the common perp.
+    dotproduct = np.inner(D, crossproduct)
+    perpD = crossproduct * dotproduct
+
+    # Construct the other line
+    line3 = [[0, 0, 0], [0, 0, 0]]
+    for i in range(DIMENSIONS):
+        base3 = line2[0][i]
+        # offset3 = dotproduct[i]
+        offset3 = perpD[i]
+        line3[0][i] = base3 + offset3
+    line3[1] = line2[1]
+
+    # Find the intersection between line 3 and line 2:
+    # Outline:
+    # Given the two lines:
+    # line 2 = [X2, Y2, Z2] + s<X'_2, Y'_2, Z'_2>
+    # line 3 = [X3, Y3, Z3] + t<X'_3, Y'_3, Z'_3>
+    # line 2 = [X2 + s*X'_2, Y2 + s*Y'_2, Z2 + s*Z'_2]
+    # line 3 = [X3 + t*X'_3, Y3 + t*Y'_3, Z3 + t*Z'_3]
+    # looking for when each coordinate is the same, which means 3 lin. eq.s:
+    # X2 + s*X'_2 = X3 + t*X'_3
+    # Y2 + s*Y'_2 = Y3 + t*Y'_3
+    # Z2 + s*Z'_2 = Z3 + t*Z'_3
+    # Reorganizing the above equations to get a matrix
+    # s * X'_2 - t * X'_3 = X3 - X2
+    # s * Y'_2 - t * Y'_3 = Y3 - Y2
+    # s * Z'_1 - t * Z'_3 = Z3 - Z2
+    # Convert into the following matrix
+    # [[X'_2, -X'_3],[Y'_2, - Y'_3], [Z'_2, Z'_3]][[s],[t]] = [[X3, -X2], [Y3, -Y2], [Z3, -Z2]]
+    # x contains the solution [[s],[t]]
+    a = np.array([[line2[1][0], -1 * line3[1][0]], [line2[1][1], -1 * line3[1][1]], [line2[1][2], -1 * line3[1][2]]])
+    b = np.array([[line3[0][0] - line2[0][0]], [line3[0][1] - line2[0][1]], [line3[0][2] - line2[0][2]]])
+    x = np.linalg.lstsq(a, b)
+    # x = np.linalg.solve(a, b)
+    print "x", x
+
+    # find intersection point on line 2, using s, which is x[0]
+    inters2 = [0, 0, 0]
+    s = x[0][0]
+    print "s", s
+    for i in range(DIMENSIONS):
+        inters2[i] = line2[0][i] + s[0] * line2[1][i]
+        print "inters", inters2[i]
+
+    # find the closest approach by taking inters2 and adding 0.5 * perp. distance line (0.5 because we want the half way point between
+    # line 1 and line 2)
+    closest = [0, 0, 0]
+    for i in range(DIMENSIONS):
+        closest[i] = inters2[i] + 0.5 * perpD[i]
+        print "clo", closest[i]
+    return closest
+
     # Iteratively finds the two points that are closest together,
     # Then returns their midpoint
 
-    minDist = 100000000
-    minPoints = [(0, 0, 0), (0, 0, 0)]
+    # minDist = 100000000
+    # minPoints = [(0, 0, 0), (0, 0, 0)]
 
-    searchRange = 20.0  # maximum t
-    iterations = 31
-    for i in range(iterations):
-        for j in range(iterations):
-            t1 = (searchRange / iterations) * i
-            t2 = (searchRange / iterations) * j
-            pt1 = line1.atT(t1)
-            pt2 = line2.atT(t2)
-            distance = eucDist(pt1, pt2)
-            if distance < minDist:
-                minDist = distance
-                minPoints = [pt1, pt2]
+    # searchRange = 10.0  # maximum t
+    # iterations = 31
+    # for i in range(iterations):
+    #     for j in range(iterations):
+    #         t1 = (searchRange / iterations) * i
+    #         t2 = (searchRange / iterations) * j
+    #         pt1 = line1.atT(t1)
+    #         pt2 = line2.atT(t2)
+    #         distance = eucDist(pt1, pt2)
+    #         if distance < minDist:
+    #             minDist = distance
+    #             minPoints = [pt1, pt2]
 
-    return midpoint(minPoints[0], minPoints[1])
+    # return midpoint(minPoints[0], minPoints[1])
 
 
 def naiveTriangulate(pts1, pts2, k, r, t):
@@ -238,16 +322,19 @@ def naiveTriangulate(pts1, pts2, k, r, t):
         homogenous = np.append(np.array(point), [1]).transpose()
         inv_k = np.linalg.inv(k)
         normalized = inv_k.dot(homogenous)
-        imgpoints2.append(normalized)
-
-    imgpoints2 = applyRandTToPoints(r, t, imgpoints2)
+        transformed_point = (r.dot(normalized) + t.transpose())[0]
+        imgpoints2.append((transformed_point[0], transformed_point[1], transformed_point[2]))
 
     outpoints = []
 
     # Draw  lines and triangulate
+    count = 0
+    print len(imgpoints1)
     for pt1, pt2 in zip(imgpoints1, imgpoints2):
         line1 = Line(origin1, pt1)
         line2 = Line(origin2, pt2)
+        print count
+        count += 1
         outpoints.append(triangulateFromLines(line1, line2))
 
     return outpoints
