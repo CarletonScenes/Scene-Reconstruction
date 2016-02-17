@@ -198,22 +198,23 @@ def triangulateFromLines(lineObj1, lineObj2):
 
     # Find the cross product of the two lines
 
-    line1 = [lineObj1.origin, lineObj1.other]
-    line2 = [lineObj2.origin, lineObj2.other]
+    line1 = [lineObj1.origin, lineObj1.direction]
+    line2 = [lineObj2.origin, lineObj2.direction]
 
     DIMENSIONS = 3
     v1 = [0, 0, 0]
     v2 = [0, 0, 0]
-    for i in range(DIMENSIONS):
-        base1 = line1[0][i]
-        offset1 = line1[1][i]
-        base2 = line2[0][i]
-        offset2 = line2[1][i]
-
-        v1[i] = (base1 + offset1) - base1
-        v2[i] = (base2 + offset2) - base2
-    crossproduct = np.cross(v1, v2)
+#    for i in range(DIMENSIONS):
+#        base1 = line1[0][i]
+#        offset1 = line1[1][i]
+#        base2 = line2[0][i]
+#        offset2 = line2[1][i]
+#
+#        v1[i] = (base1 + offset1) - base1
+#        v2[i] = (base2 + offset2) - base2
+    crossproduct = np.cross(lineObj1.direction, lineObj2.direction)
     crossproduct = normalize(crossproduct)
+    print "crossproduct ", crossproduct
 
     # Pick two random points, R1 and R2, one of line1 and line2, respectively. Find distance between them
     R1 = [0, 0, 0]
