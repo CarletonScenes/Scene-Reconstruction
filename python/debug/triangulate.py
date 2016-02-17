@@ -51,14 +51,14 @@ def triangulateTwoImages(filename1, filename2):
     # F, mask = CVFuncs.findFundamentalMat(pts1, pts2)
     # Debug.testFundamentalMat(F, pts1, pts2)
 
-    # E, mask = CVFuncs.findEssentialMat(pts1, pts2, K)
+    E, mask = CVFuncs.findEssentialMat(pts1, pts2, K)
     # E = CVFuncs.EFromF(F, K)
     # Debug.testEssentialMat(E, K, pts1, pts2)
 
     '''
     Get R and T (using artificial ones for now)
     '''
-    # points, r, t, newMask = CVFuncs.recoverPose(E, pts1, pts2, K)
+    points, r, t, newMask = CVFuncs.recoverPose(E, pts1, pts2, K)
     # print "R:", r
     # print "T:", t
     # r = np.linalg.inv(r)
@@ -66,8 +66,8 @@ def triangulateTwoImages(filename1, filename2):
     # possibilities = CVFuncs.decomposeEssentialMat(E)
     # Debug.printRandTPossibilities(possibilities)
 
-    r = getArtificalR(-20)
-    t = getArtificialTranslation(5)
+    # r = getArtificalR(-20)
+    # t = getArtificialTranslation(5)
 
     ''' 
     Draw image projections using R and T

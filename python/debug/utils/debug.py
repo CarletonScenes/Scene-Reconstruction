@@ -3,6 +3,12 @@ from CVFuncs import *
 from KMatrix import *
 from line import *
 
+def transformPointsToViewingCoordinates(points):
+    # Aka flip them around the x and y axe
+    outpoints = []
+    for point in points:
+        outpoints.append((-point[0], -point[1], point[2]))
+    return outpoints
 
 def testFundamentalMat(F, points1, points2):
     print "F:"
@@ -116,7 +122,7 @@ def drawProjections(pts1, pts2, k, r, t, filename):
 
     cameraTwoPoints = applyRandTToPoints(r, t, cameraTwoPoints)
     writePoints += cameraOnePoints + cameraTwoPoints
-
+    writePoints = transformPointsToViewingCoordinates(writePoints)
     writePointsToFile(writePoints, filename)
 
 

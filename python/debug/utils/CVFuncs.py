@@ -7,6 +7,13 @@ from line import *
 from PIL import Image as PILImage
 
 
+def invertY(points):
+    outpoints = []
+    for point in points:
+        outpoints.append((point[0], -point[1], point[2]))
+    return outpoints
+
+
 def normalizeCoordinates(points, K):
     normPoints = []
     for point in points:
@@ -128,6 +135,7 @@ def EFromF(F, K=KMatrix()):
 
 
 def recoverPose(E, points1, points2, K=KMatrix()):
+    decomposeEssentialMat(E)
     return cv2.recoverPose(E, np.array(points1), np.array(points2), pp=K.principalPoint)
 
 
@@ -141,18 +149,21 @@ def crossProductForm(v):
 
 def composeRandT(r, t):
     return np.append(r, t, 1)
-    
+
 
 def composeRotations(r1, r2):
     return r1.dot(r2)
-    
+
 
 def composeTranslations(t1, t2):
     return t1 + t2
-    
+
 
 def decomposeEssentialMat(E):
     W, U, VT = cv2.SVDecomp(E)
+    print "W", W
+    print "U", U
+    print "VT", VT
     W = np.array([[0, -1, 0], [1, 0, 0], [0, 0, 1]])
 
     R1 = np.dot(np.dot(U, W), VT)
@@ -236,7 +247,7 @@ def naiveTriangulate(pts1, pts2, k, r, t):
     # Draw  lines and triangulate
     for pt1, pt2 in zip(imgpoints1, imgpoints2):
         line1 = Line(origin1, pt1)
-        line2 = Line(origin2, pt2) 
+        line2 = Line(origin2, pt2)
         outpoints.append(triangulateFromLines(line1, line2))
 
     return outpoints
