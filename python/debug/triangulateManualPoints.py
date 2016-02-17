@@ -51,7 +51,7 @@ def triangulateWithImagesAndPointFile(filename1, filename2, pointFile):
     CVFuncs.drawMatches(img1, img2, matches, "new.png")
     # print pts1
     # print pts2
-    exit(0)
+#    exit(0)
     ''' 
     Find K 
     '''
@@ -61,19 +61,19 @@ def triangulateWithImagesAndPointFile(filename1, filename2, pointFile):
     Get essential or fundamental matrix
     '''
 
-    # F, mask = CVFuncs.findFundamentalMat(pts1, pts2)
+    F, mask = CVFuncs.findFundamentalMat(pts1, pts2)
     # Debug.testFundamentalMat(F, pts1, pts2)
 
-    # E, mask = CVFuncs.findEssentialMat(pts1, pts2, K)
-    # E = CVFuncs.EFromF(F, K)
-    # Debug.testEssentialMat(E, K, pts1, pts2)
+    E, mask = CVFuncs.findEssentialMat(pts1, pts2, K)
+    E = CVFuncs.EFromF(F, K)
+#     Debug.testEssentialMat(E, K, pts1, pts2)
 
     '''
     Get R and T (using artificial ones for now)
     '''
-    # points, r, t, newMask = CVFuncs.recoverPose(E, pts1, pts2, K)
-    # print "R:", r
-    # print "T:", t
+    points, r, t, newMask = CVFuncs.recoverPose(E, pts1, pts2, K)
+    print "R:", r
+    print "T:", t
     # r = np.linalg.inv(r)
     # t = t * -1
     # possibilities = CVFuncs.decomposeEssentialMat(E)
@@ -86,7 +86,7 @@ def triangulateWithImagesAndPointFile(filename1, filename2, pointFile):
     Draw image projections using R and T
     '''
     Debug.drawProjections(pts1, pts2, K.matrix, r, t, "projections.ply")
-
+    
     '''
     Triangulate and draw points
     '''
@@ -124,8 +124,8 @@ def readPointsFromFile(pointFile):
 
 def main():
     # Lil test
-    points, r, t = triangulateWithImagesAndPointFile("images/pdp1.jpeg", "images/pdp2.jpeg", "points.txt")
-    Debug.writePointsToFile(points, "test.ply")
+    points, r, t = triangulateWithImagesAndPointFile("images/rubik1.jpg", "images/rubik2.jpg", "rubikpoints.txt")
+    Debug.writePointsToFile(points, "rubik.ply")
 
 if __name__ == '__main__':
     main()
