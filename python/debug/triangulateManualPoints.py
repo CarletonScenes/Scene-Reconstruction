@@ -131,7 +131,7 @@ def main():
     # Lil test
 #    points, r, t = triangulateWithImagesAndPointFile("images/c1.jpg", "images/c2.jpg", "pointsout.txt")
 #    Debug.writePointsToFile(points, "test.ply")
-    pointA1, pointA2, pointB1, pointB2 = (0,0,0), (5,0,0), (1,2,0), (1,-20,0)
+    pointA1, pointA2, pointB1, pointB2 = (1,0,0), (0,0,0), (1,1,0), (1,0,-1)
     lineA = Line(pointA1, pointA2)
     lineB = Line(pointB1, pointB2)
     print CVFuncs.triangulateFromLines(lineA, lineB)
