@@ -3,7 +3,9 @@ import sys
 import cv2
 import math
 import numpy as np
-import utils.debug as Debug
+import utils.output as output
+import utils.draw as draw
+import utils.test as test
 import utils.CVFuncs as CVFuncs
 from utils import KMatrix, Image
 
@@ -20,8 +22,8 @@ def getArtificalR(deg):
 def getArtificialTranslation(x=0, y=0, z=0):
     # units are unclear
     return np.array([
-        [x], 
-        [y], 
+        [x],
+        [y],
         [z]])
 
 
@@ -39,7 +41,7 @@ def triangulateWithImagesAndPointFile(filename1, filename2, pointFile):
     # pts1, pts2, matches = CVFuncs.findMatches(img1, img2, filter=True)
     pts1, pts2, matches = readPointsFromFile(pointFile)
 
-    ## CREATE KEYPOINTS
+    # CREATE KEYPOINTS
     kp1, kp2 = [], []
     for point1, point2 in zip(pts1, pts2):
         kp1.append(cv2.KeyPoint(point1[0], point1[1], 1))
@@ -51,7 +53,7 @@ def triangulateWithImagesAndPointFile(filename1, filename2, pointFile):
     # CVFuncs.drawMatches(img1, img2, matches, "new.png")
     # print pts1
     # print pts2
-    
+
     ''' 
     Find K 
     '''
@@ -62,11 +64,11 @@ def triangulateWithImagesAndPointFile(filename1, filename2, pointFile):
     '''
 
     # F, mask = CVFuncs.findFundamentalMat(pts1, pts2)
-    # Debug.testFundamentalMat(F, pts1, pts2)
+    # test.testFundamentalMat(F, pts1, pts2)
 
     E, mask = CVFuncs.findEssentialMat(pts1, pts2, K)
     # E = CVFuncs.EFromF(F, K)
-    # Debug.testEssentialMat(E, K, pts1, pts2)
+    # test.testEssentialMat(E, K, pts1, pts2)
 
     '''
     Get R and T (using artificial ones for now)
@@ -78,7 +80,7 @@ def triangulateWithImagesAndPointFile(filename1, filename2, pointFile):
     # r = np.linalg.inv(r)
     # t = t * -1
     # possibilities = CVFuncs.decomposeEssentialMat(E)
-    # Debug.printRandTPossibilities(possibilities)
+    # output.printRandTPossibilities(possibilities)
 
     # r = getArtificalR(-20)
     # t = getArtificialTranslation(5)
@@ -86,8 +88,8 @@ def triangulateWithImagesAndPointFile(filename1, filename2, pointFile):
     ''' 
     Draw image projections using R and T
     '''
-    Debug.drawProjections(pts1, pts2, K.matrix, r, t, "manualprojections.ply")
-    # Debug.drawRandTTransformation(pts1, pts2, K.matrix, r, t, "projections.ply")
+    draw.drawProjections(pts1, pts2, K.matrix, r, t, "manualprojections.ply")
+    # draw.drawRandTTransformation(pts1, pts2, K.matrix, r, t, "projections.ply")
 
     '''
     Triangulate and draw points
@@ -103,16 +105,17 @@ def triangulateWithImagesAndPointFile(filename1, filename2, pointFile):
     # pts1 = CVFuncs.normalizeCoordinates(pts1, K)
     # pts2 = CVFuncs.normalizeCoordinates(pts2, K)
 
-    # Debug.drawRandTTransformation(r, t, K, pts1, pts2, "real_transformed.ply")
+    # draw.drawRandTTransformation(r, t, K, pts1, pts2, "real_transformed.ply")
 
     # projectionMatrix1 = np.append(np.identity(3), np.zeros((3,1)),1)
     # projectionMatrix2 = CVFuncs.composeRandT(r, t)
 
     # triangulatedPoints = CVFuncs.triangulatePoints(A1, A2, pts1, pts2)
 
-    # Debug.writePointsToFile(triangulatedPoints, "triangulated_pts.ply")
+    # output.writePointsToFile(triangulatedPoints, "triangulated_pts.ply")
     # cmd = "open -a meshlab.app debug_out.ply".split(" ")
     # p = subprocess.Popen(cmd)
+
 
 def readPointsFromFile(pointFile):
     points1, points2, matches = [], [], []
@@ -124,11 +127,11 @@ def readPointsFromFile(pointFile):
             matches.append(cv2.DMatch(i, i, 1))
     return points1, points2, matches
 
+
 def main():
     # Lil test
     points, r, t = triangulateWithImagesAndPointFile("images/c1.jpg", "images/c2.jpg", "pointsout.txt")
-    Debug.writePointsToFile(points, "test.ply")
+    output.writePointsToFile(points, "test.ply")
 
 if __name__ == '__main__':
     main()
-
