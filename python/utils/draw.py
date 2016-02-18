@@ -5,7 +5,7 @@ from line import *
 
 
 def transformPointsToViewingCoordinates(points):
-    # Aka flip them around the x and y axe
+    # Aka flip them around the x and y axes
     outpoints = []
     for point in points:
         outpoints.append((-point[0], -point[1], point[2]))
@@ -70,7 +70,7 @@ def drawProjections(pts1, pts2, k, r, t, file):
     cameraTwoPoints = applyRandTToPoints(r, t, cameraTwoPoints)
     writePoints += cameraOnePoints + cameraTwoPoints
     writePoints = transformPointsToViewingCoordinates(writePoints)
-    output.emitPoints(writePoints, file)
+    file.emitPoints(writePoints)
 
 
 def drawLines(lines, filename):

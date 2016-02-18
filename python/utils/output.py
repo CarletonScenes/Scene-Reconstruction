@@ -14,41 +14,6 @@ def printRandTPossibilities(possibilities):
         print "---------------"
 
 
-def writeline(f, line):
-    return f.write("{}\n".format(line))
-
-
-# Writes a standard ply header with only verticies to a file-like obj
-def emitHeader(file):
-    writeline(f, "ply")
-    writeline(f, "format ascii 1.0")
-    writeline(f, "element vertex {}".format(len(points)))
-    writeline(f, "property float x")
-    writeline(f, "property float y")
-    writeline(f, "property float z")
-    writeline(f, "end_header")
-
-
-# Writes a color header with only verticies to a file-like obj
-def emitColorHeader(file):
-    writeline(f, "ply")
-    writeline(f, "format ascii 1.0")
-    writeline(f, "element vertex {}".format(pts.shape[0]))
-    writeline(f, "property float x")
-    writeline(f, "property float y")
-    writeline(f, "property float z")
-    writeline(f, "property uchar red")
-    writeline(f, "property uchar green")
-    writeline(f, "property uchar blue")
-    writeline(f, "end_header")
-
-
-# Writes some regular 3d points to a given file-like object
-def emitPoints(points, file):
-    for point in points:
-        writeline(file, "%f %f %f" % (point[0], point[1], point[2]))
-
-
 def writePointsToFile(points, filename, planar=False):
     points = points[:]
     # Add 3rd coord if necessary
@@ -64,7 +29,7 @@ def writePointsToFile(points, filename, planar=False):
 
 def ptsToFileColor(pts, filename, image1, kps1, image2, kps2):
     with open(filename, 'w') as f:
-        emitColorHeader(f)
+        emitColorHeader(f, pts.shape[0])
 
         for row_num in range(pts.shape[0]):
             row = pts[row_num][0]

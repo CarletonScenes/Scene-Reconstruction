@@ -6,6 +6,7 @@ import numpy as np
 import utils.output as output
 import utils.draw as draw
 import utils.test as test
+from utils.ply_file import PlyFile
 import utils.CVFuncs as CVFuncs
 from utils import KMatrix, Image
 import subprocess
@@ -33,9 +34,15 @@ def triangulateTwoImages(filename1, filename2, projections_file=None):
     Read images and detect features 
     '''
     current_dir = os.path.dirname(os.path.realpath(__file__))
-    img1 = Image(os.path.join(current_dir, filename1))
+    if type(filename1) == str:
+        img1 = Image(os.path.join(current_dir, filename1))
+    else:
+        img1 = Image(filename1)
     img1.detect_features()
-    img2 = Image(os.path.join(current_dir, filename2))
+    if type(filename2) == str:
+        img2 = Image(os.path.join(current_dir, filename2))
+    else:
+        img1 = Image(filename1)
     img2.detect_features()
 
     # Match keypoints
@@ -120,21 +127,24 @@ def triangulateFromImages(images, scene_file=sys.stdout, projections_file=None):
         [0],
         [0]])
 
-    output.emitHeader(scene_file)
-    if projections_file:
-        output.emitHeader(projections_file)
+    scene_ply_file = PlyFile()
+    projections_ply_file = PlyFile()
 
     for i in range(len(images) - 1):
         image1 = images[i]
         image2 = images[i + 1]
 
-        print "Triangulating " + image1 + " and " + image2 + "..."
+        # print "Triangulating " + image1 + " and " + image2 + "..."
 
-        points, new_r, new_t = triangulateTwoImages(image1, image2, projections_file=projections_file)
+        points, new_r, new_t = triangulateTwoImages(image1, image2, projections_file=projections_ply_file)
         points = CVFuncs.applyRandTToPoints(r, t, points)
         r = CVFuncs.composeRotations(r, new_r)
         t = CVFuncs.composeTranslations(t, new_t)
-        output.emitPoints(points, scene_file)
+        scene_ply_file.emitPoints(points, scene_file)
+
+    scene_ply_file.write_to_file(scene_file)
+    if projections_file:
+        projections_ply_file.write_to_file(projections_file)
 
 
 def main():

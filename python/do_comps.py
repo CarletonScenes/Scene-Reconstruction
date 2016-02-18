@@ -23,11 +23,11 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument('mode', default=None, type=str)
-    parser.add_argument('-i', default=[], action='append', nargs='?', type=str)
+    parser.add_argument('-i', default=[], action='append', nargs='?', type=argparse.FileType('r'))
     parser.add_argument('-f', default=None, type=str)
     parser.add_argument('-o', default='output.jpg', type=str)
-    parser.add_argument('--scene_output', default=sys.stdout, type=str)
-    parser.add_argument('--projection_output', default=None, type=str)
+    parser.add_argument('--scene_output', default=sys.stdout, type=argparse.FileType('w'))
+    parser.add_argument('--projection_output', default=None, type=argparse.FileType('w'))
     parser.add_argument('--silent', default=False, type=bool)
 
     args = parser.parse_args()
@@ -35,24 +35,24 @@ def main():
     mode = args.mode
 
     if mode == 'detect':
-        if not silent:
+        if not args.silent:
             print 'Detecting images: {}'.format(", ".join(args.i))
             print 'Outputting to: {}'.format(args.o)
         # detect()
 
     elif mode == 'match':
-        if not silent:
+        if not args.silent:
             print 'Matching images: {}'.format(", ".join(args.i))
             print 'Outputting to: {}'.format(args.o)
         # match()
 
     elif mode == 'triangulate':
-        if not silent:
-            print 'Triangulating images: {}'.format(", ".join(args.i))
+        if not args.silent:
+            print 'Triangulating images: {}'.format(args.i)
             print 'Outputting scene to: {}'.format(args.scene_output)
             if args.projection_output:
                 print 'Outputting projections to: {}'.format(args.projection_output)
-        triangulate.triangulateFromImages(args.i, scene_output=args.scene_output, projections_output=args.projection_output)
+        triangulate.triangulateFromImages(args.i, scene_file=args.scene_output, projections_file=args.projection_output)
 
 
 if __name__ == '__main__':
