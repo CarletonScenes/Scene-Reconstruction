@@ -3,6 +3,7 @@
 *.gif
 *~
 *.o
+*.ply
 *.a
 CMakeCache.txt
 CMakeFiles

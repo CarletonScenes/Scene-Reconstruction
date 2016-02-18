@@ -7,13 +7,6 @@ from line import *
 from PIL import Image as PILImage
 
 
-def invertY(points):
-    outpoints = []
-    for point in points:
-        outpoints.append((point[0], -point[1], point[2]))
-    return outpoints
-
-
 def normalizeCoordinates(points, K):
     normPoints = []
     for point in points:
@@ -252,6 +245,30 @@ def naiveTriangulate(pts1, pts2, k, r, t):
 
     return outpoints
 
+
+def cvTriangulate(pts1, pts2, k, r, t):
+    proj1 = np.array([[1, 0, 0, 0],
+                      [0, 1, 0, 0],
+                      [0, 0, 1, 0]])
+    proj2 = np.append(r, t, 1)
+    pts1 = np.array(pts1).transpose()
+    pts2 = np.array(pts2).transpose()
+
+    print pts1
+
+    homogeneous_4d_coords = cv2.triangulatePoints(proj1, proj2, pts1, pts2)
+
+    threeD_coords = cv2.convertPointsFromHomogeneous(homogeneous_4d_coords.transpose())
+
+    output_points = []
+
+    # print threeD_coords
+    for point in threeD_coords:
+        output_points.append((point[0][0], point[0][1], point[0][2]))
+        # output_points.append(point[0])
+    # for coord in homogeneous_4d_coords:
+
+    return output_points
 # reimplement: https://github.com/Itseez/opencv/blob/ddf82d0b154873510802ef75c53e628cd7b2cb13/modules/calib3d/src/triangulate.cpp#L54
 
 

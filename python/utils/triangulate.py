@@ -82,7 +82,8 @@ def triangulateTwoImages(filename1, filename2, projections_file=None):
     '''
     Triangulate and draw points
     '''
-    triangulated = CVFuncs.naiveTriangulate(pts1, pts2, K.matrix, r, t)
+    triangulated = CVFuncs.cvTriangulate(pts1, pts2, K.matrix, r, t)
+
     return triangulated, r, t
 
     # OLD TRIANGULATION CODE
