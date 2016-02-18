@@ -87,6 +87,8 @@ Once you have the virtualenv installed, and activated (activation is custom, che
     python python/do_comps.py triangulate -i photos/c1.jpg -i photos/c2.jpg --scene_output tri_out.ply
     python python/do_comps.py triangulate -i photos/c1.jpg -i photos/c2.jpg --scene_output tri_out.ply --projection_output proj_out.ply
 
+    python python/do_comps.py manual_pts python/points/pdppoints.txt -i photos/pdp1.jpeg -i photos/pdp2.jpeg --scene_output pdp_out.ply --projection_output pdp_proj.ply
+
     
 ## Pythonpath stuff (in fish)
     set -x PYTHONPATH /Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/
