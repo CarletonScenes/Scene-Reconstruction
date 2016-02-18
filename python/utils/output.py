@@ -14,6 +14,38 @@ def printRandTPossibilities(possibilities):
         print "---------------"
 
 
+def writeline(f, line):
+    return f.write("{}\n".format(line))
+
+
+def emitHeader(file):
+    writeline(f, "ply")
+    writeline(f, "format ascii 1.0")
+    writeline(f, "element vertex {}".format(len(points)))
+    writeline(f, "property float x")
+    writeline(f, "property float y")
+    writeline(f, "property float z")
+    writeline(f, "end_header")
+
+
+def emitColorHeader(file):
+    writeline(f, "ply")
+    writeline(f, "format ascii 1.0")
+    writeline(f, "element vertex {}".format(pts.shape[0]))
+    writeline(f, "property float x")
+    writeline(f, "property float y")
+    writeline(f, "property float z")
+    writeline(f, "property uchar red")
+    writeline(f, "property uchar green")
+    writeline(f, "property uchar blue")
+    writeline(f, "end_header")
+
+
+def emitPoints(points, file):
+    for point in points:
+        writeline(file, "%f %f %f" % (point[0], point[1], point[2]))
+
+
 def writePointsToFile(points, filename, planar=False):
     points = points[:]
     # Add 3rd coord if necessary
@@ -23,36 +55,13 @@ def writePointsToFile(points, filename, planar=False):
 
     # Write
     with open(filename, 'w') as f:
-        def writeline(f, line):
-            return f.write("{}\n".format(line))
-
-        writeline(f, "ply")
-        writeline(f, "format ascii 1.0")
-        writeline(f, "element vertex {}".format(len(points)))
-        writeline(f, "property float x")
-        writeline(f, "property float y")
-        writeline(f, "property float z")
-        writeline(f, "end_header")
-
-        for point in points:
-            writeline(f, "%f %f %f" % (point[0], point[1], point[2]))
+        emitHeader(f)
+        emitPoints(points, f)
 
 
 def ptsToFileColor(pts, filename, image1, kps1, image2, kps2):
     with open(filename, 'w') as f:
-        def writeline(f, line):
-            return f.write("{}\n".format(line))
-
-        writeline(f, "ply")
-        writeline(f, "format ascii 1.0")
-        writeline(f, "element vertex {}".format(pts.shape[0]))
-        writeline(f, "property float x")
-        writeline(f, "property float y")
-        writeline(f, "property float z")
-        writeline(f, "property uchar red")
-        writeline(f, "property uchar green")
-        writeline(f, "property uchar blue")
-        writeline(f, "end_header")
+        emitColorHeader(f)
 
         for row_num in range(pts.shape[0]):
             row = pts[row_num][0]

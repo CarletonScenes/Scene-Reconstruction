@@ -103,7 +103,7 @@ def triangulateTwoImages(filename1, filename2):
     # p = subprocess.Popen(cmd)
 
 
-def triangulateFromImages(images):
+def triangulateFromImages(images, file=):
     print "Triangulating from images:"
     for image in images:
         print image
