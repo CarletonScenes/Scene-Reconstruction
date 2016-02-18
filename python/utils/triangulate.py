@@ -28,7 +28,7 @@ def getArtificialTranslation(x=0, y=0, z=0):
         [z]])
 
 
-def triangulateTwoImages(filename1, filename2):
+def triangulateTwoImages(filename1, filename2, projections_file=None):
     ''' 
     Read images and detect features 
     '''
@@ -75,7 +75,8 @@ def triangulateTwoImages(filename1, filename2):
     ''' 
     Draw image projections using R and T
     '''
-    # draw.drawProjections(pts1, pts2, K.matrix, r, t, "projections.ply")
+    if projections_file:
+        draw.drawProjections(pts1, pts2, K.matrix, r, t, projections_file)
 
     '''
     Triangulate and draw points
@@ -103,7 +104,7 @@ def triangulateTwoImages(filename1, filename2):
     # p = subprocess.Popen(cmd)
 
 
-def triangulateFromImages(images, file=):
+def triangulateFromImages(images, scene_file=sys.stdout, projections_file=None):
     print "Triangulating from images:"
     for image in images:
         print image
@@ -119,17 +120,21 @@ def triangulateFromImages(images, file=):
         [0],
         [0]])
 
+    output.emitHeader(scene_file)
+    if projections_file:
+        output.emitHeader(projections_file)
+
     for i in range(len(images) - 1):
         image1 = images[i]
         image2 = images[i + 1]
 
         print "Triangulating " + image1 + " and " + image2 + "..."
 
-        points, new_r, new_t = triangulateTwoImages(image1, image2)
+        points, new_r, new_t = triangulateTwoImages(image1, image2, projections_file=projections_file)
         points = CVFuncs.applyRandTToPoints(r, t, points)
         r = CVFuncs.composeRotations(r, new_r)
         t = CVFuncs.composeTranslations(t, new_t)
-        output.writePointsToFile(points, "points{}.ply".format(i))
+        output.emitPoints(points, scene_file)
 
 
 def main():

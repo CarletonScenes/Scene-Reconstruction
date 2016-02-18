@@ -18,6 +18,7 @@ def writeline(f, line):
     return f.write("{}\n".format(line))
 
 
+# Writes a standard ply header with only verticies to a file-like obj
 def emitHeader(file):
     writeline(f, "ply")
     writeline(f, "format ascii 1.0")
@@ -28,6 +29,7 @@ def emitHeader(file):
     writeline(f, "end_header")
 
 
+# Writes a color header with only verticies to a file-like obj
 def emitColorHeader(file):
     writeline(f, "ply")
     writeline(f, "format ascii 1.0")
@@ -41,6 +43,7 @@ def emitColorHeader(file):
     writeline(f, "end_header")
 
 
+# Writes some regular 3d points to a given file-like object
 def emitPoints(points, file):
     for point in points:
         writeline(file, "%f %f %f" % (point[0], point[1], point[2]))

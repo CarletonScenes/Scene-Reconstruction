@@ -36,7 +36,7 @@ def drawRandTTransformation(pts1, pts2, k, r, t, filename):
     writePointsToFile(writePoints, filename)
 
 
-def drawProjections(pts1, pts2, k, r, t, filename):
+def drawProjections(pts1, pts2, k, r, t, file):
     # Draws a helpful ply file with origins, image planes and projected images
 
     origin1 = (0, 0, 0)
@@ -70,7 +70,7 @@ def drawProjections(pts1, pts2, k, r, t, filename):
     cameraTwoPoints = applyRandTToPoints(r, t, cameraTwoPoints)
     writePoints += cameraOnePoints + cameraTwoPoints
     writePoints = transformPointsToViewingCoordinates(writePoints)
-    writePointsToFile(writePoints, filename)
+    output.emitPoints(writePoints, file)
 
 
 def drawLines(lines, filename):

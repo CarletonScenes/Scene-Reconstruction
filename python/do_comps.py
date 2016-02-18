@@ -1,5 +1,6 @@
 import sys
 import argparse
+import utils.triangulate as triangulate
 
 
 def print_help():
@@ -24,7 +25,7 @@ def main():
     parser.add_argument('mode', default=None, type=str)
     parser.add_argument('-i', default=[], action='append', nargs='?', type=str)
     parser.add_argument('-f', default=None, type=str)
-    parser.add_argument('--scene_output', default=None, type=str)
+    parser.add_argument('--scene_output', default=sys.stdout, type=str)
     parser.add_argument('--projection_output', default=None, type=str)
 
     args = parser.parse_args()
@@ -43,7 +44,7 @@ def main():
 
     elif mode == 'triangulate':
         print 'doing triangulate'
-        # triangulate()
+        triangulate.triangulateFromImages(args.i, scene_output=args.scene_output, projections_output=args.projection_output)
 
 
 if __name__ == '__main__':
