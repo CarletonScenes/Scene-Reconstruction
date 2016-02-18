@@ -1,4 +1,5 @@
 import sys
+import os
 import argparse
 import utils.triangulate as triangulate
 
@@ -23,7 +24,7 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument('mode', default=None, type=str)
-    parser.add_argument('-i', default=[], action='append', nargs='?', type=argparse.FileType('r'))
+    parser.add_argument('-i', default=[], action='append', nargs='?', type=str)
     parser.add_argument('-f', default=None, type=str)
     parser.add_argument('-o', default='output.jpg', type=str)
     parser.add_argument('--scene_output', default=sys.stdout, type=argparse.FileType('w'))
@@ -31,6 +32,9 @@ def main():
     parser.add_argument('--silent', default=False, type=bool)
 
     args = parser.parse_args()
+
+    current_dir = os.path.dirname(os.path.realpath(__file__))
+    args.i = map(lambda x: os.path.join(current_dir, x), args.i)
 
     mode = args.mode
 

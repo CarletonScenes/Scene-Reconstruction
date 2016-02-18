@@ -8,12 +8,8 @@ from KMatrix import KMatrix
 class Image:
 
     def __init__(self, filepath):
-        if type(filepath) == str:
-            self.fname = filepath
-            self.img = cv2.imread(filepath)
-        else:
-            self.fname = ""
-            self.img = cv2.imdecode(filepath.read(), 1)
+        self.fname = filepath
+        self.img = cv2.imread(filepath)
         if self.img is None:
             raise IOError("File " + filepath + " could not be read.")
         self.height = self.img.shape[0]
