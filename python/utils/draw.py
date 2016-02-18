@@ -55,7 +55,7 @@ def drawProjections(pts1, pts2, k, r, t, file):
         imgpoint = normalized
         planepoint = (imgpoint[0] * 20, imgpoint[1] * 20, imgpoint[2] * 20)
         cameraOnePoints.append(imgpoint)
-        cameraOnePoints.append(planepoint)
+        # cameraOnePoints.append(planepoint)
 
     # IMAGE TWO
     for point in pts2:
@@ -65,7 +65,7 @@ def drawProjections(pts1, pts2, k, r, t, file):
         imgpoint = normalized
         planepoint = (imgpoint[0] * 20, imgpoint[1] * 20, imgpoint[2] * 20)
         cameraTwoPoints.append(imgpoint)
-        cameraTwoPoints.append(planepoint)
+        # cameraTwoPoints.append(planepoint)
 
     cameraTwoPoints = applyRandTToPoints(r, t, cameraTwoPoints)
     writePoints += cameraOnePoints + cameraTwoPoints

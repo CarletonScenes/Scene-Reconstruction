@@ -9,23 +9,7 @@ import utils.test as test
 import utils.CVFuncs as CVFuncs
 from utils.ply_file import PlyFile
 from utils import KMatrix, Image
-
-# -14 degrees between chapel1.jpg and chapel2.jpg
-
-
-def getArtificalR(deg):
-    rad = math.radians(deg)
-    return np.array([[math.cos(rad), 0, math.sin(rad)],
-                     [0, 1, 0],
-                     [-1 * math.sin(rad), 0, math.cos(rad)]])
-
-
-def getArtificialTranslation(x=0, y=0, z=0):
-    # units are unclear
-    return np.array([
-        [x],
-        [y],
-        [z]])
+from utils.line import Line
 
 
 def triangulateWithImagesAndPointFile(filename1, filename2, pointFile, projections_file=None):
@@ -75,11 +59,10 @@ def triangulateWithImagesAndPointFile(filename1, filename2, pointFile, projectio
     Get R and T (using artificial ones for now)
     '''
     points, r, t, newMask = CVFuncs.recoverPose(E, pts1, pts2, K)
-    print t
-    # print "R:", r
-    # print "T:", t
-    # r = np.linalg.inv(r)
-    # t = t * -1
+    r = np.linalg.inv(r)
+    t = t * -1
+
+
     # possibilities = CVFuncs.decomposeEssentialMat(E)
     # output.printRandTPossibilities(possibilities)
 
@@ -98,6 +81,7 @@ def triangulateWithImagesAndPointFile(filename1, filename2, pointFile, projectio
     Triangulate and draw points
     '''
     triangulated = CVFuncs.naiveTriangulate(pts1, pts2, K.matrix, r, t)
+    triangulated = draw.transformPointsToViewingCoordinates(triangulated)
     return triangulated, r, t
 
     # OLD TRIANGULATION CODE

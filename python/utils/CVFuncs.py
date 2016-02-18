@@ -1,6 +1,6 @@
 import cv2
 import math
-import debug
+import output
 import numpy as np
 from KMatrix import *
 from line import *
@@ -184,7 +184,6 @@ def eucDist(pt1, pt2):
 def midpoint(pt1, pt2):
     return ((pt1[0] + pt2[0]) / 2, (pt1[1] + pt2[1]) / 2, (pt1[2] + pt2[2]) / 2)
 
-
 def triangulateFromLines(line1, line2):
     # Iteratively finds the two points that are closest together,
     # Then returns their midpoint
@@ -192,8 +191,8 @@ def triangulateFromLines(line1, line2):
     minDist = 100000000
     minPoints = [(0, 0, 0), (0, 0, 0)]
 
-    searchRange = 20.0  # maximum t
-    iterations = 31
+    searchRange = 10.0  # maximum t
+    iterations = 100
     for i in range(iterations):
         for j in range(iterations):
             t1 = (searchRange / iterations) * i
