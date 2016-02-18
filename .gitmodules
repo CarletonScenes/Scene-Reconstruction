@@ -1,3 +1,0 @@
-[submodule "feature_detect/easyexif"]
-	path = feature_detect/easyexif
-	url = git@github.com:mayanklahiri/easyexif.git
