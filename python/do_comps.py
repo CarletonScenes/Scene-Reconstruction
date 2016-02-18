@@ -29,7 +29,7 @@ def main():
     parser.add_argument('-o', default='output.jpg', type=str)
     parser.add_argument('--scene_output', default=sys.stdout, type=argparse.FileType('w'))
     parser.add_argument('--projection_output', default=None, type=argparse.FileType('w'))
-    parser.add_argument('--silent', default=False, type=bool)
+    parser.add_argument('--silent', action='store_true')
 
     args = parser.parse_args()
 
@@ -56,7 +56,7 @@ def main():
             print 'Outputting scene to: {}'.format(args.scene_output)
             if args.projection_output:
                 print 'Outputting projections to: {}'.format(args.projection_output)
-        triangulate.triangulateFromImages(args.i, scene_file=args.scene_output, projections_file=args.projection_output)
+        triangulate.triangulateFromImages(args.i, scene_file=args.scene_output, projections_file=args.projection_output, silent=args.silent)
 
 
 if __name__ == '__main__':

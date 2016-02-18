@@ -105,11 +105,12 @@ def triangulateTwoImages(filename1, filename2, projections_file=None):
     # p = subprocess.Popen(cmd)
 
 
-def triangulateFromImages(images, scene_file=sys.stdout, projections_file=None):
-    print "Triangulating from images:"
-    for image in images:
-        print image
-    print "-------------"
+def triangulateFromImages(images, scene_file=sys.stdout, projections_file=None, silent=False):
+    if not silent:
+        print "Triangulating from images:"
+        for image in images:
+            print image
+        print "-------------"
 
     # Init R and T, which will be used to compose multiple point clouds
     r = np.array([
@@ -128,7 +129,8 @@ def triangulateFromImages(images, scene_file=sys.stdout, projections_file=None):
         image1 = images[i]
         image2 = images[i + 1]
 
-        print "Triangulating " + image1 + " and " + image2 + "..."
+        if not silent:
+            print "Triangulating " + image1 + " and " + image2 + "..."
 
         points, new_r, new_t = triangulateTwoImages(image1, image2, projections_file=projections_ply_file)
         points = CVFuncs.applyRandTToPoints(r, t, points)

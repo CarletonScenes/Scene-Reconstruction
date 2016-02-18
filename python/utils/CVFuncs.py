@@ -161,9 +161,9 @@ def composeTranslations(t1, t2):
 
 def decomposeEssentialMat(E):
     W, U, VT = cv2.SVDecomp(E)
-    print "W", W
-    print "U", U
-    print "VT", VT
+    # print "W", W
+    # print "U", U
+    # print "VT", VT
     W = np.array([[0, -1, 0], [1, 0, 0], [0, 0, 1]])
 
     R1 = np.dot(np.dot(U, W), VT)
