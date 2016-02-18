@@ -3,7 +3,9 @@ import sys
 import cv2
 import math
 import numpy as np
-import utils.output
+import utils.output as output
+import utils.draw as draw
+import utils.test as test
 import utils.CVFuncs as CVFuncs
 from utils import KMatrix, Image
 import subprocess
@@ -50,11 +52,11 @@ def triangulateTwoImages(filename1, filename2):
     '''
 
     # F, mask = CVFuncs.findFundamentalMat(pts1, pts2)
-    # Debug.testFundamentalMat(F, pts1, pts2)
+    # test.testFundamentalMat(F, pts1, pts2)
 
     E, mask = CVFuncs.findEssentialMat(pts1, pts2, K)
     # E = CVFuncs.EFromF(F, K)
-    # Debug.testEssentialMat(E, K, pts1, pts2)
+    # test.testEssentialMat(E, K, pts1, pts2)
 
     '''
     Get R and T (using artificial ones for now)
@@ -65,7 +67,7 @@ def triangulateTwoImages(filename1, filename2):
     # r = np.linalg.inv(r)
     # t = t * -1
     # possibilities = CVFuncs.decomposeEssentialMat(E)
-    # Debug.printRandTPossibilities(possibilities)
+    # output.printRandTPossibilities(possibilities)
 
     # r = getArtificalR(-20)
     # t = getArtificialTranslation(5)
@@ -73,7 +75,7 @@ def triangulateTwoImages(filename1, filename2):
     ''' 
     Draw image projections using R and T
     '''
-    Debug.drawProjections(pts1, pts2, K.matrix, r, t, "projections.ply")
+    # draw.drawProjections(pts1, pts2, K.matrix, r, t, "projections.ply")
 
     '''
     Triangulate and draw points
@@ -89,14 +91,14 @@ def triangulateTwoImages(filename1, filename2):
     # pts1 = CVFuncs.normalizeCoordinates(pts1, K)
     # pts2 = CVFuncs.normalizeCoordinates(pts2, K)
 
-    # Debug.drawRandTTransformation(r, t, K, pts1, pts2, "real_transformed.ply")
+    # draw.drawRandTTransformation(r, t, K, pts1, pts2, "real_transformed.ply")
 
     # projectionMatrix1 = np.append(np.identity(3), np.zeros((3,1)),1)
     # projectionMatrix2 = CVFuncs.composeRandT(r, t)
 
     # triangulatedPoints = CVFuncs.triangulatePoints(A1, A2, pts1, pts2)
 
-    # Debug.writePointsToFile(triangulatedPoints, "triangulated_pts.ply")
+    # output.writePointsToFile(triangulatedPoints, "triangulated_pts.ply")
     # cmd = "open -a meshlab.app debug_out.ply".split(" ")
     # p = subprocess.Popen(cmd)
 
