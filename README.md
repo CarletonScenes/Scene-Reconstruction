@@ -68,9 +68,25 @@ To activate the environment, run (in bash):
 Or in fish:
     source ./venv_activate.fish # This will both start the virtual env and set the PYTHONPATH variable.
 
+# Moving forward
+
+Once you have the virtualenv installed, and activated (activation is custom, check out the commands above, they set the $PYTHONPATH env variable for you), you can run the program from the project root:
 
 
-    
+    ✗ python python/do_comps.py
+    Welcome to do_comps.py!
+            To run this program, you'll need to select one of the
+            modes below and perhaps provide more input.
+
+            modes:
+                python do_comps.py detect -i img1.jpg [-i img2.jpg ...] [-f input_folder] [-o output.jpg]
+                python do_comps.py match -i img1.jpg -i img2.jpg [-i img3.jpg ...] [-f input_folder] [-o output.jpg]
+                python do_comps.py triangulate -i img1.jpg -i img2.jpg [-i img3.jpg ...] [-f input_folder]
+                                    --scene_output scene.ply [--projection_output projection.ply]
+
+    python python/do_comps.py triangulate -i photos/c1.jpg -i photos/c2.jpg --scene_output tri_out.ply
+    python python/do_comps.py triangulate -i photos/c1.jpg -i photos/c2.jpg --scene_output tri_out.ply --projection_output proj_out.ply
+
     
 ## Pythonpath stuff (in fish)
     set -x PYTHONPATH /Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/
