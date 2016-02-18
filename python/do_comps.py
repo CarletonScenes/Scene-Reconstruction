@@ -5,13 +5,13 @@ import utils.triangulate as triangulate
 
 def print_help():
     print """Welcome to do_comps.py!
-        To run this program, you'll need to select one of the 
+        To run this program, you'll need to select one of the
         modes below and perhaps provide more input.
 
         modes:
             python do_comps.py detect -i img1.jpg [-i img2.jpg ...] [-f input_folder] [-o output.jpg]
             python do_comps.py match -i img1.jpg -i img2.jpg [-i img3.jpg ...] [-f input_folder] [-o output.jpg]
-            python do_comps.py triangulate -i img1.jpg -i img2.jpg [-i img3.jpg ...] [-f input_folder] 
+            python do_comps.py triangulate -i img1.jpg -i img2.jpg [-i img3.jpg ...] [-f input_folder]
                                 --scene_output scene.ply [--projection_output projection.ply]
     """
 
@@ -25,25 +25,33 @@ def main():
     parser.add_argument('mode', default=None, type=str)
     parser.add_argument('-i', default=[], action='append', nargs='?', type=str)
     parser.add_argument('-f', default=None, type=str)
+    parser.add_argument('-o', default='output.jpg', type=str)
     parser.add_argument('--scene_output', default=sys.stdout, type=str)
     parser.add_argument('--projection_output', default=None, type=str)
+    parser.add_argument('--silent', default=False, type=bool)
 
     args = parser.parse_args()
-
-    print args
 
     mode = args.mode
 
     if mode == 'detect':
-        print 'doing detect'
+        if not silent:
+            print 'Detecting images: {}'.format(", ".join(args.i))
+            print 'Outputting to: {}'.format(args.o)
         # detect()
 
     elif mode == 'match':
-        print 'doing match'
+        if not silent:
+            print 'Matching images: {}'.format(", ".join(args.i))
+            print 'Outputting to: {}'.format(args.o)
         # match()
 
     elif mode == 'triangulate':
-        print 'doing triangulate'
+        if not silent:
+            print 'Triangulating images: {}'.format(", ".join(args.i))
+            print 'Outputting scene to: {}'.format(args.scene_output)
+            if args.projection_output:
+                print 'Outputting projections to: {}'.format(args.projection_output)
         triangulate.triangulateFromImages(args.i, scene_output=args.scene_output, projections_output=args.projection_output)
 
 
