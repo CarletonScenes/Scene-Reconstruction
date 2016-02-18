@@ -2,6 +2,7 @@ import sys
 import os
 import argparse
 import utils.triangulate as triangulate
+import points.triangulateManualPoints as triangulateManual
 
 
 def print_help():
@@ -24,6 +25,7 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument('mode', default=None, type=str)
+    parser.add_argument('manual_identifier', default=None, type=str)
     parser.add_argument('-i', default=[], action='append', nargs='?', type=str)
     parser.add_argument('-f', default=None, type=str)
     parser.add_argument('-o', default='output.jpg', type=str)
@@ -57,6 +59,12 @@ def main():
             if args.projection_output:
                 print 'Outputting projections to: {}'.format(args.projection_output)
         triangulate.triangulateFromImages(args.i, scene_file=args.scene_output, projections_file=args.projection_output, silent=args.silent)
+
+    elif mode == 'manual_pts':
+        manual_location = args.manual_identifier
+
+        triangulateManual.triangulateManualAndOutput(args.i[0], args.i[1], manual_location,
+                                                     output_file=args.scene_output, projections_file=args.projection_output)
 
 
 if __name__ == '__main__':

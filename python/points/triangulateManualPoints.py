@@ -7,6 +7,7 @@ import utils.output as output
 import utils.draw as draw
 import utils.test as test
 import utils.CVFuncs as CVFuncs
+from utils.ply_file import PlyFile
 from utils import KMatrix, Image
 
 # -14 degrees between chapel1.jpg and chapel2.jpg
@@ -27,7 +28,7 @@ def getArtificialTranslation(x=0, y=0, z=0):
         [z]])
 
 
-def triangulateWithImagesAndPointFile(filename1, filename2, pointFile):
+def triangulateWithImagesAndPointFile(filename1, filename2, pointFile, projections_file=None):
     ''' 
     Read images and detect features 
     '''
@@ -88,7 +89,9 @@ def triangulateWithImagesAndPointFile(filename1, filename2, pointFile):
     ''' 
     Draw image projections using R and T
     '''
-    draw.drawProjections(pts1, pts2, K.matrix, r, t, "manualprojections.ply")
+    if projections_file:
+        draw.drawProjections(pts1, pts2, K.matrix, r, t, projections_file)
+    # draw.drawProjections(pts1, pts2, K.matrix, r, t, "manualprojections.ply")
     # draw.drawRandTTransformation(pts1, pts2, K.matrix, r, t, "projections.ply")
 
     '''
@@ -115,6 +118,18 @@ def triangulateWithImagesAndPointFile(filename1, filename2, pointFile):
     # output.writePointsToFile(triangulatedPoints, "triangulated_pts.ply")
     # cmd = "open -a meshlab.app debug_out.ply".split(" ")
     # p = subprocess.Popen(cmd)
+
+
+def triangulateManualAndOutput(filename1, filename2, pointsFile, output_file=sys.stdout, projections_file=None):
+    projections_ply_file = PlyFile()
+    points, r, t = triangulateWithImagesAndPointFile(filename1, filename2, pointsFile, projections_file=projections_ply_file)
+
+    scene_ply_file = PlyFile()
+    scene_ply_file.emitPoints(points)
+
+    scene_ply_file.write_to_file(output_file)
+    if projections_file:
+        projections_ply_file.write_to_file(projections_file)
 
 
 def readPointsFromFile(pointFile):
