@@ -1,1 +1,0 @@
-Main stuff is in runTests. You will need to install PIL ("pip install Pillow") to run it :)
