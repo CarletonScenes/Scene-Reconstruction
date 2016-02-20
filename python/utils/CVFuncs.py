@@ -46,7 +46,7 @@ def findMatches(image1, image2, filter=False):
     else:
         return points1, points2, matches
     
-def findMatchesKnn(image1, image2, filter=True):
+def findMatchesKnn(image1, image2, filter=True, ratio=True):
     
     bf = cv2.BFMatcher()
     matches = bf.knnMatch(image1.descs, image2.descs, k=2)
@@ -54,10 +54,12 @@ def findMatchesKnn(image1, image2, filter=True):
     points2 = []
     new_matches = []
     for m,n in matches:
-        if m.distance < .75*n.distance:
+        if m.distance < .75*n.distance and ratio:
             new_matches.append(m)
             points1.append(image1.kps[m.queryIdx].pt)
             points2.append(image2.kps[m.trainIdx].pt)
+        elif not ratio:
+            new_matches.append(m)
     
     if filter:
         F, mask = cv2.findFundamentalMat(np.array(points1), np.array(points2), method=cv2.FM_RANSAC)

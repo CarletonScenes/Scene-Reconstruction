@@ -2,6 +2,7 @@ import sys
 import os
 import argparse
 import utils.triangulate as triangulate
+import utils.CVFuncs as CVFuncs
 import points.triangulateManualPoints as triangulateManual
 from utils import Image
 
@@ -56,6 +57,17 @@ def main():
             print 'Matching images: {}'.format(", ".join(args.i))
             print 'Outputting to: {}'.format(args.o)
         # match()
+        
+        imList = []
+        for imageLocation in args.i:
+            image1 = Image(imageLocation)
+            image1.detect_features()
+            imList.append(image1)
+        
+        for x in range(0,len(imList)):
+            for y in range(x+1,len(imList)):
+                points1, points2, matches = CVFuncs.findMatchesKnn(imList[x], imList[y], filter=True, ratio=True)
+                CVFuncs.drawMatches(imList[x], imList[y], matches, args.o)
 
     elif mode == 'triangulate':
         if not args.silent:
