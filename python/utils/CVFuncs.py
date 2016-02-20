@@ -26,35 +26,36 @@ def findMatches(image1, image2, filter=False):
 
     points1 = []
     points2 = []
-    
+
     for match in matches:
         points1.append(image1.kps[match.queryIdx].pt)
         points2.append(image2.kps[match.trainIdx].pt)
 
     if filter:
         F, mask = cv2.findFundamentalMat(np.array(points1), np.array(points2), method=cv2.FM_RANSAC)
-    
+
         new_points1, new_points2, new_matches = [], [], []
         for i in range(len(matches)):
             if mask[i] == 1:
                 new_points1.append(image1.kps[matches[i].queryIdx].pt)
                 new_points2.append(image2.kps[matches[i].trainIdx].pt)
                 new_matches.append(matches[i])
-                
+
         return new_points1, new_points2, new_matches
-    
+
     else:
         return points1, points2, matches
-    
+
+
 def findMatchesKnn(image1, image2, filter=True, ratio=True):
-    
+
     bf = cv2.BFMatcher()
     matches = bf.knnMatch(image1.descs, image2.descs, k=2)
     points1 = []
     points2 = []
     new_matches = []
-    for m,n in matches:
-        if m.distance < .75*n.distance and ratio:
+    for m, n in matches:
+        if m.distance < .75 * n.distance and ratio:
             new_matches.append(m)
             points1.append(image1.kps[m.queryIdx].pt)
             points2.append(image2.kps[m.trainIdx].pt)
@@ -62,7 +63,7 @@ def findMatchesKnn(image1, image2, filter=True, ratio=True):
             points1.append(image1.kps[m.queryIdx].pt)
             points2.append(image2.kps[m.trainIdx].pt)
             new_matches.append(m)
-    
+
     if filter:
         F, mask = cv2.findFundamentalMat(np.array(points1), np.array(points2), method=cv2.FM_RANSAC)
 
@@ -77,7 +78,7 @@ def findMatchesKnn(image1, image2, filter=True, ratio=True):
     else:
         return points1, points2, new_matches
 
-    
+
 def sortMatchesByDistance(matches):
     '''
     Takes in the matches from a BF matcher (list of DMatch objects)
@@ -108,6 +109,7 @@ def filterMatchesYDist(points1, points2, matches):
             new_points2.append(points2[i])
 
     return new_points1, new_points2, new_matches
+
 
 def drawMatches(image1, image2, matches, filename):
     matchImage = cv2.drawMatches(image1.img, image1.kps, image2.img, image2.kps, matches, image1.img, flags=2)
@@ -227,6 +229,7 @@ def eucDist(pt1, pt2):
 def midpoint(pt1, pt2):
     return ((pt1[0] + pt2[0]) / 2, (pt1[1] + pt2[1]) / 2, (pt1[2] + pt2[2]) / 2)
 
+
 def triangulateFromLines(line1, line2):
     # Iteratively finds the two points that are closest together,
     # Then returns their midpoint
@@ -296,9 +299,8 @@ def cvTriangulate(pts1, pts2, k, r, t):
     pts1 = np.array(pts1).transpose()
     pts2 = np.array(pts2).transpose()
 
-    print pts1
-
     homogeneous_4d_coords = cv2.triangulatePoints(proj1, proj2, pts1, pts2)
+    # return triangulatePoints(proj1, proj2, pts1, pts2)
 
     threeD_coords = cv2.convertPointsFromHomogeneous(homogeneous_4d_coords.transpose())
 
