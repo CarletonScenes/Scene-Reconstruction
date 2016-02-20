@@ -26,17 +26,54 @@ def findMatches(image1, image2, filter=False):
 
     points1 = []
     points2 = []
-
+    
     for match in matches:
         points1.append(image1.kps[match.queryIdx].pt)
         points2.append(image2.kps[match.trainIdx].pt)
 
     if filter:
-        return filterMatches(points1, points2, matches)
+        F, mask = cv2.findFundamentalMat(np.array(points1), np.array(points2), method=cv2.FM_RANSAC)
+    
+        new_points1, new_points2, new_matches = [], [], []
+        for i in range(len(matches)):
+            if mask[i] == 1:
+                new_points1.append(image1.kps[matches[i].queryIdx].pt)
+                new_points2.append(image2.kps[matches[i].trainIdx].pt)
+                new_matches.append(matches[i])
+                
+        return new_points1, new_points2, new_matches
+    
     else:
         return points1, points2, matches
+    
+def findMatchesKnn(image1, image2, filter=True):
+    
+    bf = cv2.BFMatcher()
+    matches = bf.knnMatch(image1.descs, image2.descs, k=2)
+    points1 = []
+    points2 = []
+    new_matches = []
+    for m,n in matches:
+        if m.distance < .75*n.distance:
+            new_matches.append(m)
+            points1.append(image1.kps[m.queryIdx].pt)
+            points2.append(image2.kps[m.trainIdx].pt)
+    
+    if filter:
+        F, mask = cv2.findFundamentalMat(np.array(points1), np.array(points2), method=cv2.FM_RANSAC)
 
+        new_points1, new_points2, newer_matches = [], [], []
+        for i in range(len(new_matches)):
+            if mask[i] == 1:
+                new_points1.append(image1.kps[new_matches[i].queryIdx].pt)
+                new_points2.append(image2.kps[new_matches[i].trainIdx].pt)
+                newer_matches.append(new_matches[i])
 
+        return new_points1, new_points2, newer_matches
+    else:
+        return points1, points2, new_matches
+
+    
 def sortMatchesByDistance(matches):
     '''
     Takes in the matches from a BF matcher (list of DMatch objects)
@@ -45,7 +82,7 @@ def sortMatchesByDistance(matches):
     return sorted(matches, key=lambda x: x.distance)
 
 
-def filterMatches(points1, points2, matches):
+def filterMatchesYDist(points1, points2, matches):
 
     # Determine mean and stdev of point y values
     diff_ys = []
@@ -67,7 +104,6 @@ def filterMatches(points1, points2, matches):
             new_points2.append(points2[i])
 
     return new_points1, new_points2, new_matches
-
 
 def drawMatches(image1, image2, matches, filename):
     matchImage = cv2.drawMatches(image1.img, image1.kps, image2.img, image2.kps, matches, image1.img, flags=2)
