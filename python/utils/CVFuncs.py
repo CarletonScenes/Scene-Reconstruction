@@ -59,6 +59,8 @@ def findMatchesKnn(image1, image2, filter=True, ratio=True):
             points1.append(image1.kps[m.queryIdx].pt)
             points2.append(image2.kps[m.trainIdx].pt)
         elif not ratio:
+            points1.append(image1.kps[m.queryIdx].pt)
+            points2.append(image2.kps[m.trainIdx].pt)
             new_matches.append(m)
     
     if filter:
