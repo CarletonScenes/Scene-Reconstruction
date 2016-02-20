@@ -57,6 +57,21 @@ class Image:
     def detect_features(self):
         sift = cv2.xfeatures2d.SIFT_create()
         (self.kps, self.descs) = sift.detectAndCompute(self.img, None)
+        
+    def draw_keypoints(self,outputFile, orientation=True, gray=False):
+        if gray:
+            image = cv2.cvtColor(self.img, cv2.COLOR_BGR2GRAY)
+        else:
+            image = cv2.imread(self.fname)
+            
+        if orientation:
+            orientation = 4
+        else:
+            orientation = 0
+            
+        outImage = cv2.drawKeypoints(image, self.kps, image, flags=orientation)
+        
+        cv2.imwrite(str(outputFile),outImage)
 
     def __repr__(self):
         if not self.kps and not self.descs:

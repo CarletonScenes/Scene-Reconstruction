@@ -3,6 +3,7 @@ import os
 import argparse
 import utils.triangulate as triangulate
 import points.triangulateManualPoints as triangulateManual
+from utils import Image
 
 
 def print_help():
@@ -44,7 +45,11 @@ def main():
         if not args.silent:
             print 'Detecting images: {}'.format(", ".join(args.i))
             print 'Outputting to: {}'.format(args.o)
-        # detect()
+        
+        for imageLocation in args.i:
+            image = Image(imageLocation)
+            image.detect_features()
+            output = image.draw_keypoints(args.o, orientation=False, gray=True)
 
     elif mode == 'match':
         if not args.silent:
