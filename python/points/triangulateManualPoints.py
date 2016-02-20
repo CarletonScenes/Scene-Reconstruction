@@ -59,8 +59,6 @@ def triangulateWithImagesAndPointFile(filename1, filename2, pointFile, projectio
     Get R and T (using artificial ones for now)
     '''
     points, r, t, newMask = CVFuncs.recoverPose(E, pts1, pts2, K)
-    r = np.linalg.inv(r)
-    t = t * -1
 
 
     # possibilities = CVFuncs.decomposeEssentialMat(E)
