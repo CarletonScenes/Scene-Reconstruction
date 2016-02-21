@@ -46,7 +46,7 @@ def main(args):
     parser.add_argument('--silent', action='store_true')
     parser.add_argument('--naive', action='store_true')
 
-    args = parser.parse_args(args)
+    args = parser.parse_args(args[1:])
 
     current_dir = os.path.dirname(os.path.realpath(__file__))
     if args.f:
@@ -56,7 +56,6 @@ def main(args):
     args.i = map(lambda x: os.path.join(current_dir, x), args.i)
 
     mode = args.mode
-    exit()
 
     if mode == 'detect':
         if not args.silent:
