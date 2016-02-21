@@ -3,6 +3,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
         <title>Scene Reconstruction Comps</title>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.16/d3.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r74/three.js"></script>
         <!-- http://stackoverflow.com/questions/20975524/implementing-a-fly-around-camera-with-three-js -->
         <style>
@@ -71,7 +72,6 @@
 
 
                 // Ground
-
                 var plane = new THREE.Mesh(
                     new THREE.PlaneBufferGeometry( 40, 40 ),
                     new THREE.MeshPhongMaterial( { color: 0x999999, specular: 0x101010 } )
@@ -82,7 +82,23 @@
 
                 plane.receiveShadow = true;
 
+                // from http://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
+                  function hexToRgb(hex) { //TODO rewrite with vector output
+                      var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+                      return result ? {
+                          r: parseInt(result[1], 16),
+                          g: parseInt(result[2], 16),
+                          b: parseInt(result[3], 16)
+                      } : null;
+                  }
 
+                  var colour = d3.scale.category20c();
+
+
+                var mat = new THREE.ParticleBasicMaterial({
+                        vertexColors: true,
+                        size: 10
+                    });
                 // PLY file
 
                 var loader = new THREE.PLYLoader();
@@ -91,15 +107,51 @@
 
                     geometry.computeFaceNormals();
 
+                    // var xExent = d3.extent(geometry.verticies, function (d) {return d.x; }),
+                    //     yExent = d3.extent(geometry.verticies, function (d) {return d.y; }),
+                    //     zExent = d3.extent(geometry.verticies, function (d) {return d.z; });
+
+                    // var xScale = d3.scale.linear()
+                    //               .domain(xExent)
+                    //               .range([-50,50]);
+                    // var yScale = d3.scale.linear()
+                    //               .domain(yExent)
+                    //               .range([-50,50]);                  
+                    // var zScale = d3.scale.linear()
+                    //               .domain(zExent)
+                    //               .range([-50,50]);
+
                     // Add in points
-                    var points = new THREE.Points(geometry);
+                    // var points = new THREE.Points(geometry);
+                    var pointScale = 0.1;
+                    var pointGeo = new THREE.Geometry();
+                    for (var i = 0; i < geometry.vertices.length; i ++) {
+                        // var x = xScale(geometry.verticies[i].x);
+                        // var y = yScale(geometry.verticies[i].y);
+                        // var z = zScale(geometry.verticies[i].z);
+                        var x = geometry.vertices[i].x * pointScale;
+                        var y = geometry.vertices[i].y * pointScale;
+                        var z = geometry.vertices[i].z * pointScale;
+
+                        pointGeo.vertices.push(new THREE.Vector3(x, y, z));
+                        console.log(pointGeo.vertices);
+                        //pointGeo.vertices[i].angle = Math.atan2(z, x);
+                        //pointGeo.vertices[i].radius = Math.sqrt(x * x + z * z);
+                        //pointGeo.vertices[i].speed = (z / 100) * (x / 100);
+                        pointGeo.colors.push(new THREE.Color().setRGB(
+                          hexToRgb(colour(i)).r / 255, hexToRgb(colour(i)).g / 255, hexToRgb(colour(i)).b / 255 
+                        ));
+
+                    }
+
+                    var points = new THREE.ParticleSystem(pointGeo, mat);
                     
                     var material = new THREE.MeshStandardMaterial( { color: 0x0055ff } );
                     var mesh = new THREE.Mesh( geometry, material );
 
                     mesh.position.y = - 0.25;
                     mesh.rotation.x = - Math.PI / 2;
-                    mesh.scale.multiplyScalar( 0.001 );
+                    mesh.scale.multiplyScalar( 1.001 );
 
                     mesh.castShadow = true;
                     mesh.receiveShadow = true;
