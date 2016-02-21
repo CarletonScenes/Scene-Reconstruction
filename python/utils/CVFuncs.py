@@ -8,6 +8,10 @@ from PIL import Image as PILImage
 
 
 def normalizeCoordinates(points, K):
+    '''
+    Takes list of nonhomogenous image coordinates, camera matrix K
+    Returns normalized camera coordinates
+    '''
     normPoints = []
     for point in points:
         homogenous = np.append(np.array(point), [1]).transpose()
@@ -19,8 +23,10 @@ def normalizeCoordinates(points, K):
 
 
 def findMatches(image1, image2, filter=False):
-
-    # Use openCV's brute force point matcher
+    '''
+    Takes two images
+    Returns list of matches between the keypoints in poth images
+    '''
     bf = cv2.BFMatcher(cv2.NORM_L1, crossCheck=True)
     matches = bf.match(image1.descs, image2.descs)
 
@@ -48,7 +54,10 @@ def findMatches(image1, image2, filter=False):
 
 
 def findMatchesKnn(image1, image2, filter=True, ratio=True):
-
+    '''
+    Takes images
+    Returns unsorted matches between keypoints in both images using the kNN match
+    '''
     bf = cv2.BFMatcher()
     matches = bf.knnMatch(image1.descs, image2.descs, k=2)
     points1 = []
@@ -88,8 +97,10 @@ def sortMatchesByDistance(matches):
 
 
 def filterMatchesYDist(points1, points2, matches):
-
-    # Determine mean and stdev of point y values
+    '''
+    Takes in points from image1, image2, and matches
+    Does a naive match filtering using the difference in y coordinates as a check
+    '''
     diff_ys = []
     for point1, point2 in zip(points1, points2):
         diff_ys.append(point2[1] - point1[1])
@@ -101,7 +112,6 @@ def filterMatchesYDist(points1, points2, matches):
     new_points1 = []
     new_points2 = []
 
-    # Filter matches
     for i, match in enumerate(matches):
         if abs(mean - (points2[i][1] - points1[i][1])) <= stdev / 2:
             new_matches.append(matches[i])
@@ -126,40 +136,31 @@ def findEssentialMat(points1, points2, K=KMatrix()):
 
 
 def getEssentialMat(points1, points2, K):
-
-    # Build the Y matrix using the first 8 matches (assuming they're the best)
+    '''
+    Takes points1, points2, unnormalized, and camera matrix K
+    Runs the 8 point algorithm
+    Returns Essential Matrix, E, between the images of the two points
+    '''
     yMat = np.empty([9, 9])
     kInv = np.linalg.inv(K)
     for i in range(9):
-        print "points1", points1[i]
         pts1 = np.append(points1[i], 1)
         pts2 = np.append(points2[i], 1)
         p1 = kInv.dot(pts1)
         p2 = kInv.dot(pts2)
-        # p1 = pts1
-        # p2 = pts2
         tempColumn = np.array([p2[0] * p1[0], p2[0] * p1[1], p2[0], p2[1] * p1[0], p2[1] * p1[1], p2[1],
                                p1[0], p1[1], 1])
         yMat[i] = tempColumn
 
-    # Solve the homogeneous linear system of equations
     b = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0])
-    print "yMat", yMat
-    print "b", b
     eVector = np.linalg.solve(yMat, b)
-    # eVector = np.linalg.lstsq(yMat, b)
-    print "eVector", eVector
     eEstMat = np.array([[eVector[0], eVector[1], eVector[2]],
                         [eVector[3], eVector[4], eVector[5]],
                         [eVector[6], eVector[7], eVector[8]]
                         ])
 
-    # Extract E from E estimate
     W, U, VT = cv2.SVDecomp(eEstMat)
     S = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 0]])
-    print "W", W
-    print "S", S
-    print "VT", VT
     E = W.dot(U.dot(VT))
 
     return E
@@ -197,10 +198,8 @@ def composeTranslations(t1, t2):
 
 
 def decomposeEssentialMat(E):
+
     W, U, VT = cv2.SVDecomp(E)
-    # print "W", W
-    # print "U", U
-    # print "VT", VT
     W = np.array([[0, -1, 0], [1, 0, 0], [0, 0, 1]])
 
     R1 = np.dot(np.dot(U, W), VT)
@@ -216,7 +215,6 @@ def applyRandTToPoints(r, t, points):
     newPoints = []
     for point in points:
         transformed = (r.dot(point) + t.transpose())[0]
-        # Convert from np array back to tuple
         newPoints.append((transformed[0], transformed[1], transformed[2]))
     return newPoints
 
@@ -230,13 +228,15 @@ def midpoint(pt1, pt2):
 
 
 def triangulateFromLinesIteratively(line1, line2):
-    # Iteratively finds the two points that are closest together,
-    # Then returns their midpoint
-
+    '''
+    Takes two lines, presumably skewed
+    Iteratively finds the closest point to both lines
+    Returns the closest point
+    '''
     minDist = 100000000
     minPoints = [(0, 0, 0), (0, 0, 0)]
 
-    searchRange = 10.0  # maximum t
+    searchRange = 10.0  
     iterations = 100
     for i in range(iterations):
         for j in range(iterations):
@@ -261,36 +261,10 @@ def normalize(arr):
 
 
 def triangulateFromLinesDiscrete(lineObj1, lineObj2):
-    # def triangulateFromLines(line1, line2):
-
-    # Input Description:
-    # P = [Px, Py, Pz], where P is a point on line 1,
-    # R = [Rx, Ry, Rz], where R is a point on line 2,
-    # D1 = [D1x, D1y, D1z], where D1 is a ray in dir. of line 1
-    # D2 = [D2x, D2y, D2z], where D2 is a ray in dir. of line 2
-    # line1 = [P, D1]
-    # line2 = [R, D2]
-    # In summary, line1 and line2 are the parametric equations of
-    # the respective lines
-
-    # Algorithm design:
-
-    # You want to find a common perpendicular line to both lines in 3d
-        # Write a parametric equation for each line: L1 = P1 + t (l1x, l1y, l1z); L2 = P2 + t (l2x, l2y, l2z)
-        # Find the cross product between L1 and L2, the resulting vector is the common perpendicular
-    # Now pick two random points on L1 and L2, calling them R1 and R2; find the difference between the two of them. Call this D
-    # Find the vector of D along the common perpendicular, call this D_paralle
-        # Find that as follows: Dot product D with the common perpendicular, and now multiply val of dot product by common perpendicular, call this the perp. dist.
-    # Now place this vector, which is perpendicular to L1, at R1. R1 + perp. dist.. Now to get the equation of
-    # the new line that needs to intersect L2: (R1 + per. dist.) + t (l1x, l1y, l1z)
-    # Find the intersection between (R1 + per. dist.) + t (l1x, l1y, l1z) and P2 + t (l2x, l2y, l2z)
 
     # Find the cross product of the two lines
-
     line1 = [lineObj1.origin, lineObj1.direction]
     line2 = [lineObj2.origin, lineObj2.direction]
-    # print "line1: ", line1
-    # print "line2: ", line2
 
     DIMENSIONS = 3
     v1 = [0, 0, 0]
@@ -304,7 +278,6 @@ def triangulateFromLinesDiscrete(lineObj1, lineObj2):
         v1[i] = (base1 + offset1) - base1
         v2[i] = (base2 + offset2) - base2
     crossproduct = np.cross(v1, v2)
-    # print "crossproduct: ", crossproduct.tolist()
     crossproduct = normalize(crossproduct)
 
     # Pick two random points, R1 and R2, one of line1 and line2, respectively. Find distance between them
@@ -318,86 +291,31 @@ def triangulateFromLinesDiscrete(lineObj1, lineObj2):
 
     # Dot the distance vector with the common perp.
     dotproduct = np.vdot(D, crossproduct)
-    # print "dotproduct: ", dotproduct
     perpD = crossproduct * dotproduct
     perpD = perpD.tolist()
-    # print "perpD", perpD
 
     # Construct the other line
     line3 = [[0, 0, 0], [0, 0, 0]]
     for i in range(DIMENSIONS):
         base3 = line2[0][i]
-        # offset3 = dotproduct[i]
         offset3 = perpD[i]
         line3[0][i] = base3 + offset3
     line3[1] = line2[1]
 
-    # Find the intersection between line 3 and line 2:
-    # Outline:
-    # Given the two lines:
-    # line 2 = [X2, Y2, Z2] + s<X'_2, Y'_2, Z'_2>
-    # line 3 = [X3, Y3, Z3] + t<X'_3, Y'_3, Z'_3>
-    # line 2 = [X2 + s*X'_2, Y2 + s*Y'_2, Z2 + s*Z'_2]
-    # line 3 = [X3 + t*X'_3, Y3 + t*Y'_3, Z3 + t*Z'_3]
-    # looking for when each coordinate is the same, which means 3 lin. eq.s:
-    # X2 + s*X'_2 = X3 + t*X'_3
-    # Y2 + s*Y'_2 = Y3 + t*Y'_3
-    # Z2 + s*Z'_2 = Z3 + t*Z'_3
-    # Reorganizing the above equations to get a matrix
-    # s * X'_2 - t * X'_3 = X3 - X2
-    # s * Y'_2 - t * Y'_3 = Y3 - Y2
-    # s * Z'_1 - t * Z'_3 = Z3 - Z2
-    # Convert into the following matrix
-    # [[X'_2, -X'_3],[Y'_2, - Y'_3], [Z'_2, Z'_3]][[s],[t]] = [[X3 - X2], [Y3 - Y2], [Z3 - Z2]]
-    # x contains the solution [[s],[t]]
-    # print "line2", line1
-    # print "line3", line3
     a = np.array([[line1[1][0], -1 * line3[1][0]], [line1[1][1], -1 * line3[1][1]], [line1[1][2], -1 * line3[1][2]]])
     b = np.array([[line3[0][0] - line1[0][0]], [line3[0][1] - line1[0][1]], [line3[0][2] - line1[0][2]]])
-    # print "a", a
-    # print "b" , b
     s, t = np.linalg.lstsq(a, b)[0]
-    # x = np.linalg.solve(a, b)
-    # print "s", s
-    # print "t", t
 
-    # find intersection point on line 1, using s
     inters2 = [0, 0, 0]
     s = s[0]
-    # print "s", s
     for i in range(DIMENSIONS):
         inters2[i] = line1[0][i] + s * line1[1][i]
-        # print "inters", inters2[i]
 
-    # find the closest approach by taking inters2 and adding -0.5 * perp. distance line (0.5 because we want the half way point between
-    # line 1 and line 2 FROM line 1).
     closest = [0, 0, 0]
     for i in range(DIMENSIONS):
         closest[i] = inters2[i] + -0.5 * perpD[i]
-        # print "clo", closest[i]
-    # print "closest", closest
+
     return closest
-
-    # Iteratively finds the two points that are closest together,
-    # Then returns their midpoint
-
-    # minDist = 100000000
-    # minPoints = [(0, 0, 0), (0, 0, 0)]
-
-    # searchRange = 10.0  # maximum t
-    # iterations = 31
-    # for i in range(iterations):
-    #     for j in range(iterations):
-    #         t1 = (searchRange / iterations) * i
-    #         t2 = (searchRange / iterations) * j
-    #         pt1 = line1.atT(t1)
-    #         pt2 = line2.atT(t2)
-    #         distance = eucDist(pt1, pt2)
-    #         if distance < minDist:
-    #             minDist = distance
-    #             minPoints = [pt1, pt2]
-
-    # return midpoint(minPoints[0], minPoints[1])
 
 
 def naiveTriangulate(pts1, pts2, k, r, t):
@@ -447,17 +365,13 @@ def cvTriangulate(pts1, pts2, k, r, t):
     pts2 = np.array(pts2).transpose()
 
     homogeneous_4d_coords = cv2.triangulatePoints(proj1, proj2, pts1, pts2)
-    # return triangulatePoints(proj1, proj2, pts1, pts2)
 
     threeD_coords = cv2.convertPointsFromHomogeneous(homogeneous_4d_coords.transpose())
 
     output_points = []
 
-    # print threeD_coords
     for point in threeD_coords:
         output_points.append((point[0][0], point[0][1], point[0][2]))
-        # output_points.append(point[0])
-    # for coord in homogeneous_4d_coords:
 
     return output_points
 # reimplement: https://github.com/Itseez/opencv/blob/ddf82d0b154873510802ef75c53e628cd7b2cb13/modules/calib3d/src/triangulate.cpp#L54
@@ -467,9 +381,6 @@ def triangulatePoints(proj1mat, proj2mat, kps1, kps2):
     assert len(kps1) == len(kps2)
 
     matrA = np.zeros((4, 4))
-    # matrU = np.zeros((4,4))
-    # matrW = np.zeros((4,1))
-    # matrV = np.zeros((4,4))
 
     outputPoints = np.zeros((len(kps1), 4))
 
