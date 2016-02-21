@@ -61,12 +61,6 @@ def triangulateWithImagesAndPointFile(filename1, filename2, pointFile, projectio
     points, r, t, newMask = CVFuncs.recoverPose(E, pts1, pts2, K)
 
 
-    # possibilities = CVFuncs.decomposeEssentialMat(E)
-    # output.printRandTPossibilities(possibilities)
-
-    # r = getArtificalR(-20)
-    # t = getArtificialTranslation(5)
-
     ''' 
     Draw image projections using R and T
     '''
@@ -102,14 +96,15 @@ def triangulateWithImagesAndPointFile(filename1, filename2, pointFile, projectio
     # p = subprocess.Popen(cmd)
 
 
-def triangulateManualAndOutput(filename1, filename2, pointsFile, output_file=sys.stdout, projections_file=None):
+def triangulateManualAndOutput(filename1, filename2, pointsFile, output_file=None, projections_file=None):
     projections_ply_file = PlyFile()
     points, r, t = triangulateWithImagesAndPointFile(filename1, filename2, pointsFile, projections_file=projections_ply_file)
 
     scene_ply_file = PlyFile()
     scene_ply_file.emitPoints(points)
 
-    scene_ply_file.write_to_file(output_file)
+    if (output_file):
+        scene_ply_file.write_to_file(output_file)
     if projections_file:
         projections_ply_file.write_to_file(projections_file)
 
