@@ -198,8 +198,10 @@ def triangulateFromLines(lineObj1, lineObj2):
 
     # Find the cross product of the two lines
 
-    line1 = [lineObj1.origin, lineObj1.other]
-    line2 = [lineObj2.origin, lineObj2.other]
+    line1 = [lineObj1.origin, lineObj1.direction]
+    line2 = [lineObj2.origin, lineObj2.direction]
+    # print "line1: ", line1
+    # print "line2: ", line2
 
     DIMENSIONS = 3
     v1 = [0, 0, 0]
@@ -213,6 +215,7 @@ def triangulateFromLines(lineObj1, lineObj2):
         v1[i] = (base1 + offset1) - base1
         v2[i] = (base2 + offset2) - base2
     crossproduct = np.cross(v1, v2)
+    # print "crossproduct: ", crossproduct.tolist()
     crossproduct = normalize(crossproduct)
 
     # Pick two random points, R1 and R2, one of line1 and line2, respectively. Find distance between them
@@ -225,8 +228,11 @@ def triangulateFromLines(lineObj1, lineObj2):
         D[i] = R1[i] - R2[i]
 
     # Dot the distance vector with the common perp.
-    dotproduct = np.inner(D, crossproduct)
+    dotproduct = np.vdot(D, crossproduct)
+    # print "dotproduct: ", dotproduct
     perpD = crossproduct * dotproduct
+    perpD = perpD.tolist()
+    # print "perpD", perpD
 
     # Construct the other line
     line3 = [[0, 0, 0], [0, 0, 0]]
@@ -253,28 +259,34 @@ def triangulateFromLines(lineObj1, lineObj2):
     # s * Y'_2 - t * Y'_3 = Y3 - Y2
     # s * Z'_1 - t * Z'_3 = Z3 - Z2
     # Convert into the following matrix
-    # [[X'_2, -X'_3],[Y'_2, - Y'_3], [Z'_2, Z'_3]][[s],[t]] = [[X3, -X2], [Y3, -Y2], [Z3, -Z2]]
+    # [[X'_2, -X'_3],[Y'_2, - Y'_3], [Z'_2, Z'_3]][[s],[t]] = [[X3 - X2], [Y3 - Y2], [Z3 - Z2]]
     # x contains the solution [[s],[t]]
-    a = np.array([[line2[1][0], -1 * line3[1][0]], [line2[1][1], -1 * line3[1][1]], [line2[1][2], -1 * line3[1][2]]])
-    b = np.array([[line3[0][0] - line2[0][0]], [line3[0][1] - line2[0][1]], [line3[0][2] - line2[0][2]]])
-    x = np.linalg.lstsq(a, b)
+    # print "line2", line1
+    # print "line3", line3
+    a = np.array([[line1[1][0], -1 * line3[1][0]], [line1[1][1], -1 * line3[1][1]], [line1[1][2], -1 * line3[1][2]]])
+    b = np.array([[line3[0][0] - line1[0][0]], [line3[0][1] - line1[0][1]], [line3[0][2] - line1[0][2]]])
+    # print "a", a
+    # print "b" , b
+    s, t = np.linalg.lstsq(a, b)[0]
     # x = np.linalg.solve(a, b)
-    print "x", x
+    # print "s", s
+    # print "t", t
 
-    # find intersection point on line 2, using s, which is x[0]
+    # find intersection point on line 1, using s
     inters2 = [0, 0, 0]
-    s = x[0][0]
+    s = s[0]
     print "s", s
     for i in range(DIMENSIONS):
-        inters2[i] = line2[0][i] + s[0] * line2[1][i]
-        print "inters", inters2[i]
+        inters2[i] = line1[0][i] + s * line1[1][i]
+        # print "inters", inters2[i]
 
-    # find the closest approach by taking inters2 and adding 0.5 * perp. distance line (0.5 because we want the half way point between
-    # line 1 and line 2)
+    # find the closest approach by taking inters2 and adding -0.5 * perp. distance line (0.5 because we want the half way point between
+    # line 1 and line 2 FROM line 1).
     closest = [0, 0, 0]
     for i in range(DIMENSIONS):
-        closest[i] = inters2[i] + 0.5 * perpD[i]
-        print "clo", closest[i]
+        closest[i] = inters2[i] + -0.5 * perpD[i]
+        # print "clo", closest[i]
+    # print "closest", closest
     return closest
 
     # Iteratively finds the two points that are closest together,
@@ -394,3 +406,14 @@ def triangulatePoints(proj1mat, proj2mat, kps1, kps2):
     for point in outputPoints:
         points.append((point[0][0], point[0][1], point[0][2]))
     return points
+
+def main():
+    print "here?"
+    line1 = Line([1,0,0], [0,0,0])
+    line2 = Line([1,1,-1], [1,0,-1])
+    # line1 = [[0,0,1], [0,1,0]]
+    # line2 = [[0,3,0], [0,0,1]]
+    triangulateFromLines(line1, line2)
+
+if __name__ == "__main__":
+    main()
