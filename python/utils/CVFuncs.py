@@ -252,6 +252,14 @@ def triangulateFromLinesIteratively(line1, line2):
     return midpoint(minPoints[0], minPoints[1])
 
 
+def normalize(arr):
+    magnitude = (arr[0] ** 2 + arr[1] ** 2 + arr[2] ** 2) ** (1 / 2)
+    arr[0] = arr[0] / magnitude
+    arr[1] = arr[1] / magnitude
+    arr[2] = arr[2] / magnitude
+    return arr
+
+
 def triangulateFromLinesDiscrete(lineObj1, lineObj2):
     # def triangulateFromLines(line1, line2):
 
