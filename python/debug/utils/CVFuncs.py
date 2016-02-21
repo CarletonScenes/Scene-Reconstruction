@@ -163,16 +163,17 @@ def eucDist(pt1, pt2):
 def midpoint(pt1, pt2):
     return ((pt1[0] + pt2[0]) / 2, (pt1[1] + pt2[1]) / 2, (pt1[2] + pt2[2]) / 2)
 
+
 def normalize(arr):
-    magnitude = (arr[0] ** 2 + arr[1] ** 2 + arr[2] ** 2) ** (1/2)
-    arr[0] = arr[0]/magnitude
-    arr[1] = arr[1]/magnitude
-    arr[2] = arr[2]/magnitude
+    magnitude = (arr[0] ** 2 + arr[1] ** 2 + arr[2] ** 2) ** (1 / 2)
+    arr[0] = arr[0] / magnitude
+    arr[1] = arr[1] / magnitude
+    arr[2] = arr[2] / magnitude
     return arr
 
-def triangulateFromLines(lineObj1, lineObj2):
-# def triangulateFromLines(line1, line2):
 
+def triangulateFromLines(lineObj1, lineObj2):
+    # def triangulateFromLines(line1, line2):
 
     # Input Description:
     # P = [Px, Py, Pz], where P is a point on line 1,
@@ -275,7 +276,7 @@ def triangulateFromLines(lineObj1, lineObj2):
     # find intersection point on line 1, using s
     inters2 = [0, 0, 0]
     s = s[0]
-    print "s", s
+    # print "s", s
     for i in range(DIMENSIONS):
         inters2[i] = line1[0][i] + s * line1[1][i]
         # print "inters", inters2[i]
@@ -407,10 +408,11 @@ def triangulatePoints(proj1mat, proj2mat, kps1, kps2):
         points.append((point[0][0], point[0][1], point[0][2]))
     return points
 
+
 def main():
-    print "here?"
-    line1 = Line([1,0,0], [0,0,0])
-    line2 = Line([1,1,-1], [1,0,-1])
+    # print "here?"
+    line1 = Line([1, 0, 0], [0, 0, 0])
+    line2 = Line([1, 1, -1], [1, 0, -1])
     # line1 = [[0,0,1], [0,1,0]]
     # line2 = [[0,3,0], [0,0,1]]
     triangulateFromLines(line1, line2)
