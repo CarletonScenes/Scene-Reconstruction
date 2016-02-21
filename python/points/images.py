@@ -21,8 +21,8 @@ graphics primitive world.
 # Modifed by Dave Musicant, at Carleton College, based on Brad's version 1.2
 
 import Tkinter
-import Image
-import ImageTk
+from PIL import Image
+from PIL import ImageTk
 
 
 # Borrow some ideas from Zelle

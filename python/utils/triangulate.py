@@ -41,7 +41,7 @@ def triangulateTwoImages(filename1, filename2, projections_file=None, naive=Fals
 
     # Match keypoints
     pts1, pts2, matches = CVFuncs.findMatchesKnn(img1, img2, filter=True)
-    CVFuncs.drawMatches(img1, img2, matches, "test.png")
+    # CVFuncs.drawMatches(img1, img2, matches, "test.png")
 
     ''' 
     Find K 
