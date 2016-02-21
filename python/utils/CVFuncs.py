@@ -170,7 +170,6 @@ def EFromF(F, K=KMatrix()):
 
 
 def recoverPose(E, points1, points2, K=KMatrix()):
-    decomposeEssentialMat(E)
     points, r, t, newMask = cv2.recoverPose(E, np.array(points1), np.array(points2), pp=K.principalPoint)
     r = np.linalg.inv(r)
     t = t * -1

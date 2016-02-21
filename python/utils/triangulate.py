@@ -110,7 +110,7 @@ def triangulateTwoImages(filename1, filename2, projections_file=None, naive=Fals
     # p = subprocess.Popen(cmd)
 
 
-def triangulateFromImages(images, scene_file=sys.stdout, projections_file=None, silent=False, naive=False):
+def triangulateFromImages(images, scene_file=None, projections_file=None, silent=False, naive=False):
     if not silent:
         print "Triangulating from images:"
         for image in images:
@@ -144,8 +144,8 @@ def triangulateFromImages(images, scene_file=sys.stdout, projections_file=None, 
         r = CVFuncs.composeRotations(r, new_r)
         t = CVFuncs.composeTranslations(t, new_t)
         scene_ply_file.emitPoints(points)
-
-    scene_ply_file.write_to_file(scene_file)
+    if scene_file:
+        scene_ply_file.write_to_file(scene_file)
     if projections_file:
         projections_ply_file.write_to_file(projections_file)
 

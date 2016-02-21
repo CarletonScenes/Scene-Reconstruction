@@ -41,7 +41,7 @@ def main(args):
     parser.add_argument('-i', default=[], action='append', nargs='?', type=str)
     parser.add_argument('-f', default=None, type=str)
     parser.add_argument('-o', default='output.jpg', type=str)
-    parser.add_argument('--scene_output', default=sys.stdout, type=argparse.FileType('w'))
+    parser.add_argument('--scene_output', default=None, type=argparse.FileType('w'))
     parser.add_argument('--projection_output', default=None, type=argparse.FileType('w'))
     parser.add_argument('--silent', action='store_true')
     parser.add_argument('--naive', action='store_true')
@@ -99,7 +99,8 @@ def main(args):
     elif mode == 'triangulate':
         if not args.silent:
             print 'Triangulating images: {}'.format(args.i)
-            print 'Outputting scene to: {}'.format(args.scene_output)
+            if args.scene_output:
+                print 'Outputting scene to: {}'.format(args.scene_output)
             if args.projection_output:
                 print 'Outputting projections to: {}'.format(args.projection_output)
         triangulate.triangulateFromImages(args.i,
