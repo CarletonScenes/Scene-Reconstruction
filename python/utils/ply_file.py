@@ -14,8 +14,10 @@ class PlyFile:
     def writeline(self, line):
         return self.output_str.write("{}\n".format(line))
 
-    # Writes a standard ply header with only verticies to a file-like obj
     def emitHeader(self):
+        '''
+        Writes a standard ply header with only vertices to a file-like obj
+        '''
         self.writeline("ply")
         self.writeline("format ascii 1.0")
         self.writeline("element vertex {}".format(len(self.points)))
@@ -24,26 +26,14 @@ class PlyFile:
         self.writeline("property float z")
         self.writeline("end_header")
 
-    # # Writes a color header with only verticies to a file-like obj
-    # def emitColorHeader(self):
-    #     self.writeline("ply")
-    #     self.writeline("format ascii 1.0")
-    #     self.writeline("element vertex {}".format(pts.shape[0]))
-    #     self.writeline("property float x")
-    #     self.writeline("property float y")
-    #     self.writeline("property float z")
-    #     self.writeline("property uchar red")
-    #     self.writeline("property uchar green")
-    #     self.writeline("property uchar blue")
-    #     self.writeline("end_header")
-
-    # Writes some regular 3d points to a given file-like object
     def emitPoints(self, points):
+        '''
+        Writes some regular 3D points to a given file-like object
+        '''
         self.points += points
 
-    def write_to_file(self, file):
+    def save(self, file):
         if self.color:
-            # self.emitColorHeader()
             pass
         else:
             self.emitHeader()

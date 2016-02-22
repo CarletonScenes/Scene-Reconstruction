@@ -3,13 +3,13 @@ import sys
 import cv2
 import math
 import numpy as np
-import utils.output as output
-import utils.draw as draw
-import utils.test as test
-import utils.CVFuncs as CVFuncs
-from utils.ply_file import PlyFile
-from utils import KMatrix, Image
-from utils.line import Line
+import draw as draw
+import test as test
+import CVFuncs as CVFuncs
+from ply_file import PlyFile
+from KMatrix import KMatrix
+from image import Image
+from line import Line
 
 
 def triangulateWithImagesAndPointFile(filename1, filename2, pointFile, projections_file=None):
@@ -74,26 +74,8 @@ def triangulateWithImagesAndPointFile(filename1, filename2, pointFile, projectio
     '''
     triangulated = CVFuncs.naiveTriangulate(pts1, pts2, K.matrix, r, t)
     triangulated = draw.transformPointsToViewingCoordinates(triangulated)
+
     return triangulated, r, t
-
-    # OLD TRIANGULATION CODE
-
-    # A1 = K.matrix.dot(np.append(np.identity(3), np.zeros((3,1)),1))
-    # A2 = K.matrix.dot(CVFuncs.composeRandT(r, t))
-
-    # pts1 = CVFuncs.normalizeCoordinates(pts1, K)
-    # pts2 = CVFuncs.normalizeCoordinates(pts2, K)
-
-    # draw.drawRandTTransformation(r, t, K, pts1, pts2, "real_transformed.ply")
-
-    # projectionMatrix1 = np.append(np.identity(3), np.zeros((3,1)),1)
-    # projectionMatrix2 = CVFuncs.composeRandT(r, t)
-
-    # triangulatedPoints = CVFuncs.triangulatePoints(A1, A2, pts1, pts2)
-
-    # output.writePointsToFile(triangulatedPoints, "triangulated_pts.ply")
-    # cmd = "open -a meshlab.app debug_out.ply".split(" ")
-    # p = subprocess.Popen(cmd)
 
 
 def triangulateManualAndOutput(filename1, filename2, pointsFile, output_file=None, projections_file=None):
@@ -104,9 +86,9 @@ def triangulateManualAndOutput(filename1, filename2, pointsFile, output_file=Non
     scene_ply_file.emitPoints(points)
 
     if (output_file):
-        scene_ply_file.write_to_file(output_file)
+        scene_ply_file.save(output_file)
     if projections_file:
-        projections_ply_file.write_to_file(projections_file)
+        projections_ply_file.save(projections_file)
 
 
 def readPointsFromFile(pointFile):

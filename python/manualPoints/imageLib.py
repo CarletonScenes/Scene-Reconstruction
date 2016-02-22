@@ -1,5 +1,5 @@
 """
-image.py This module provides a simple interface to create a window,
+imageLib.py This module provides a simple interface to create a window,
 load an image and experiment with image based algorithms.  Many of
 which require pixel-by-pixel manipulation.  This is a educational
 module, its not intended to replace the excellent Python Image

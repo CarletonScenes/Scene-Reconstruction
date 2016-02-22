@@ -1,5 +1,5 @@
 ''' Writes helpful coordinate system '''
-from debug import *
+from utils.ply_file import PlyFile
 
 def main():
 	x, y, z = [], [], []
@@ -11,8 +11,11 @@ def main():
 		x.append((p, 0, 0))
 		y.append((0, p, 0))
 		z.append((0, 0, p))
-	outpoints = x + y + z
-	writePointsToFile(outpoints, "coords.ply")
+	points = x + y + z
+
+	outfile = PlyFile()
+	outfile.emitPoints(points)
+	outfile.save(open('coords.ply', 'w'))
 
 if __name__ == '__main__':
 	main()

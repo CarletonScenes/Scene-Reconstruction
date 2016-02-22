@@ -3,7 +3,7 @@ import os
 import argparse
 import utils.triangulate as triangulate
 import utils.CVFuncs as CVFuncs
-import points.triangulateManualPoints as triangulateManual
+import utils.triangulateManualPoints as triangulateManual
 from utils import Image
 
 ACCEPTED_FILETYPES = ['jpg', 'png', 'jpeg']
@@ -44,13 +44,15 @@ def main(args):
     parser.add_argument('--scene_output', default=None, type=argparse.FileType('w'))
     parser.add_argument('--projection_output', default=None, type=argparse.FileType('w'))
     parser.add_argument('--silent', action='store_true')
-    parser.add_argument('--naive', action='store_true')
+    parser.add_argument('--cv', action='store_true')
 
     args = parser.parse_args(args[1:])
 
-    current_dir = os.path.dirname(os.path.realpath(__file__))
+    # current_dir = os.path.dirname(os.path.realpath(__file__))
+    current_dir = os.getcwd()
     if args.f:
         files = filter(lambda x: any([i in x.lower() for i in ACCEPTED_FILETYPES]), os.listdir(args.f))
+        files = map(lambda x: os.path.join(args.f, x), files)
         args.i += files
 
     args.i = map(lambda x: os.path.join(current_dir, x), args.i)
@@ -78,7 +80,6 @@ def main(args):
         if not args.silent:
             print 'Matching images: {}'.format(", ".join(args.i))
             print 'Outputting to: {}'.format(args.o)
-        # match()
 
         imList = []
         for imageLocation in args.i:
@@ -106,7 +107,7 @@ def main(args):
                                           scene_file=args.scene_output,
                                           projections_file=args.projection_output,
                                           silent=args.silent,
-                                          naive=args.naive)
+                                          cv=args.cv)
 
     elif mode == 'manual_pts':
         manual_location = args.manual_identifier
