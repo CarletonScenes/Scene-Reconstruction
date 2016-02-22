@@ -11,7 +11,7 @@ from utils import KMatrix, Image
 import subprocess
 
 
-def triangulateTwoImages(filename1, filename2, projections_file=None, naive=False):
+def triangulateTwoImages(filename1, filename2, projections_file=None, cv=False):
     ''' 
     Read images from absolute filepaths and detect features, then triangulate.
     '''
@@ -47,16 +47,16 @@ def triangulateTwoImages(filename1, filename2, projections_file=None, naive=Fals
     '''
     Triangulate and draw points
     '''
-    if naive:
-        triangulated = CVFuncs.naiveTriangulate(pts1, pts2, K.matrix, r, t)
-    else:
+    if cv:
         triangulated = CVFuncs.cvTriangulate(pts1, pts2, K.matrix, r, t)
+    else:
+        triangulated = CVFuncs.naiveTriangulate(pts1, pts2, K.matrix, r, t)
     triangulated = draw.transformPointsToViewingCoordinates(triangulated)
 
     return triangulated, r, t
 
 
-def triangulateFromImages(images, scene_file=None, projections_file=None, silent=False, naive=False):
+def triangulateFromImages(images, scene_file=None, projections_file=None, silent=False, cv=False):
     if not silent:
         print "Triangulating from images:"
         for image in images:
@@ -84,7 +84,7 @@ def triangulateFromImages(images, scene_file=None, projections_file=None, silent
 
         points, new_r, new_t = triangulateTwoImages(image1, image2,
                                                     projections_file=projections_ply_file,
-                                                    naive=naive)
+                                                    cv=cv)
         points = CVFuncs.applyRandTToPoints(r, t, points)
         r = CVFuncs.composeRotations(r, new_r)
         t = CVFuncs.composeTranslations(t, new_t)
@@ -93,4 +93,3 @@ def triangulateFromImages(images, scene_file=None, projections_file=None, silent
         scene_ply_file.save(scene_file)
     if projections_file:
         projections_ply_file.write_to_file(projections_file)
-

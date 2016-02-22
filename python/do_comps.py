@@ -44,7 +44,7 @@ def main(args):
     parser.add_argument('--scene_output', default=None, type=argparse.FileType('w'))
     parser.add_argument('--projection_output', default=None, type=argparse.FileType('w'))
     parser.add_argument('--silent', action='store_true')
-    parser.add_argument('--naive', action='store_true')
+    parser.add_argument('--cv', action='store_true')
 
     args = parser.parse_args(args[1:])
 
@@ -107,7 +107,7 @@ def main(args):
                                           scene_file=args.scene_output,
                                           projections_file=args.projection_output,
                                           silent=args.silent,
-                                          naive=args.naive)
+                                          cv=args.cv)
 
     elif mode == 'manual_pts':
         manual_location = args.manual_identifier
