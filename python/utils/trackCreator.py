@@ -104,7 +104,38 @@ class TrackCreator:
                             
         return points1, points2
 
-
+    
+    def triangulateImages(self, KNN=True, filter=True):
+        
+        self.matchImages(KNN=KNN, filter=filter)
+        
+        lastTriangulated = []
+        lastIdxCorrespondences = []
+        for i in range(len(self.imageList-1)):
+            points1, points2 = self.getPointCorrespondences(i, i+1)
+            indices1, indices2 = self.getIndexCorrespondences(i, i+1)
+            K = self.ImageList[i].K
+            E, mask = CVFuncs.findEssentialMat(points1, points2, K)
+            pts, r, t, newMask = CVFuncs.recoverPose(E, points1, points2, K)
+            
+            if i == 0:
+                lastTriangulated = CVFuncs.discreetTriangulate(points1, points2, K, r, t)
+                
+            else:
+                triangulated = CVFuncs.discreetTriangulate(points1, points2, K, r, t)
+                overlap = getOverlapIndices(lastIdxCorrespondences, indices1)
+                
+                oldPoints = []
+                newPoints = []
+                for pair in overlap:
+                    oldPoints.append(lastTriangulated[pair[0]])
+                    newPoints.append(triangulated[pair[1]])
+                    
+                #MINIMIZE REPROJECTION ERROR, oldPoints, newPoints, r, t
+                
+                
+            lastIdxCorrespondences = indices2
+            
             
 def main():
     track = TrackCreator([Image("../photos/pdp1.jpeg"),Image("../photos/pdp2.jpeg"),Image("../photos/pdp1.jpeg"),Image("../photos/pdp2.jpeg")])
