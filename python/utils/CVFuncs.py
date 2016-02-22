@@ -319,24 +319,22 @@ def triangulateFromLinesDiscrete(lineObj1, lineObj2):
 
 
 def naiveTriangulate(pts1, pts2, k, r, t):
-    # Transforms image planes by r and t, draws epipolar lines,
-    # and uses those lines to triangulate points
-
+    '''
+    Transforms image planes by r and t, draws epipolar lines,
+    and uses those lines to triangulate points
+    '''
     origin1 = (0, 0, 0)
     origin2 = (t[0][0], t[1][0], t[2][0])
 
-    # Image plane points (normalized and transformed)
     imgpoints1 = []
     imgpoints2 = []
 
-    # IMAGE ONE
     for point in pts1:
         homogenous = np.append(np.array(point), [1]).transpose()
         inv_k = np.linalg.inv(k)
         normalized = inv_k.dot(homogenous)
         imgpoints1.append(normalized)
 
-    # IMAGE TWO
     for point in pts2:
         homogenous = np.append(np.array(point), [1]).transpose()
         inv_k = np.linalg.inv(k)
@@ -347,7 +345,6 @@ def naiveTriangulate(pts1, pts2, k, r, t):
 
     outpoints = []
 
-    # Draw  lines and triangulate
     for pt1, pt2 in zip(imgpoints1, imgpoints2):
         line1 = Line(origin1, pt1)
         line2 = Line(origin2, pt2)
