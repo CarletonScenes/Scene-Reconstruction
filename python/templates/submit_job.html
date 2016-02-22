@@ -1,0 +1,18 @@
+<html>
+    <head></head>
+    <body>
+        <h1>Scene Reconstructor 9007</h1>
+
+        <h2>Detect Keypoints</h2>
+        <h2>Match Keypoints</h2>
+        <h2>Triangulate Images</h2>
+        <form action="/triangulate">
+            <input type="hidden" value="{{job_id}}" name="job_id">
+            <input type="radio" name="algorithm" value="naive" checked>Naive<br>
+            <input type="radio" name="algorithm" value="discrete">Discrete<br>
+            <input type="radio" name="algorithm" value="opencv">OpenCV SVD<br>
+
+        </form>
+
+    </body>
+</html>
