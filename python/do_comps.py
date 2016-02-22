@@ -78,7 +78,6 @@ def main(args):
         if not args.silent:
             print 'Matching images: {}'.format(", ".join(args.i))
             print 'Outputting to: {}'.format(args.o)
-        # match()
 
         imList = []
         for imageLocation in args.i:
