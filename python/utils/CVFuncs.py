@@ -332,9 +332,18 @@ def naiveTriangulate(pts1, pts2, k, r, t):
     return outpoints
 
 def discreteTriangulate(pts1, pts2, k, r, t):
-    pass
-    # Transforms image planes by r and t, draws epipolar lines,
-    # and uses those lines to triangulate points using discrete method
+    '''
+    Transforms image planes by r and t, draws epipolar lines,
+    and uses those lines to triangulate points using discrete method
+    '''
+    lines1, lines2 = linesFromImagePoints(pts1, pts2, k, r, t)
+
+    outpoints = []
+    for line1, line2 in zip(lines1, lines2):
+        outpoints.append(triangulateFromLinesDiscrete(line1, line2))
+
+    return outpoints
+
 
 def linesFromImagePoints(pts1, pts2, k, r, t):
     # Transforms image planes by r and t and returns epipolar lines of each feature

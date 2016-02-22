@@ -92,17 +92,5 @@ def triangulateFromImages(images, scene_file=None, projections_file=None, silent
     if scene_file:
         scene_ply_file.save(scene_file)
     if projections_file:
-<<<<<<< HEAD
-        projections_ply_file.save(projections_file)
-
-
-def main():
-    # Lil test
-    points, r, t = triangulateTwoImages("../photos/chapel1.jpg", "../photos/chapel2.jpg")
-    output.writePointsToFile(points, "../test.ply")
-
-if __name__ == '__main__':
-    main()
-=======
         projections_ply_file.write_to_file(projections_file)
->>>>>>> 18a65b2c851ccf421b98a68706529921ef23e7c4
+
