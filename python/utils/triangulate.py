@@ -3,7 +3,6 @@ import sys
 import cv2
 import math
 import numpy as np
-import utils.output as output
 import utils.draw as draw
 import utils.test as test
 from utils.ply_file import PlyFile
@@ -90,25 +89,6 @@ def triangulateTwoImages(filename1, filename2, projections_file=None, naive=Fals
 
     return triangulated, r, t
 
-    # OLD TRIANGULATION CODE
-
-    # A1 = K.matrix.dot(np.append(np.identity(3), np.zeros((3,1)),1))
-    # A2 = K.matrix.dot(CVFuncs.composeRandT(r, t))
-
-    # pts1 = CVFuncs.normalizeCoordinates(pts1, K)
-    # pts2 = CVFuncs.normalizeCoordinates(pts2, K)
-
-    # draw.drawRandTTransformation(r, t, K, pts1, pts2, "real_transformed.ply")
-
-    # projectionMatrix1 = np.append(np.identity(3), np.zeros((3,1)),1)
-    # projectionMatrix2 = CVFuncs.composeRandT(r, t)
-
-    # triangulatedPoints = CVFuncs.triangulatePoints(A1, A2, pts1, pts2)
-
-    # output.writePointsToFile(triangulatedPoints, "triangulated_pts.ply")
-    # cmd = "open -a meshlab.app debug_out.ply".split(" ")
-    # p = subprocess.Popen(cmd)
-
 
 def triangulateFromImages(images, scene_file=None, projections_file=None, silent=False, naive=False):
     if not silent:
@@ -145,9 +125,9 @@ def triangulateFromImages(images, scene_file=None, projections_file=None, silent
         t = CVFuncs.composeTranslations(t, new_t)
         scene_ply_file.emitPoints(points)
     if scene_file:
-        scene_ply_file.write_to_file(scene_file)
+        scene_ply_file.save(scene_file)
     if projections_file:
-        projections_ply_file.write_to_file(projections_file)
+        projections_ply_file.save(projections_file)
 
 
 def main():

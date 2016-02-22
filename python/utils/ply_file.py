@@ -41,7 +41,7 @@ class PlyFile:
     def emitPoints(self, points):
         self.points += points
 
-    def write_to_file(self, file):
+    def save(self, file):
         if self.color:
             # self.emitColorHeader()
             pass
