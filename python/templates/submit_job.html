@@ -1,0 +1,177 @@
+<html>
+    <head>
+        <style>
+            body {
+                box-sizing: border-box;
+                background-color: #999;
+                color: #444;
+                font-family: "Gotham";
+                /*text-transform: uppercase;*/
+                font-variant: small-caps;
+            }
+
+            h1:after {
+                content:' ';
+                display:block;
+                border:3px solid #979797;
+            }
+
+            h2:after {
+                content:' ';
+                display:block;
+                border:2px solid #979797;
+            }
+            .container {
+                background-color: #eee;
+                display: block;
+                margin-left: auto;
+                margin-right: auto;
+                width: 600px;
+                padding: 20px;
+                border-radius: 3px;
+            }
+
+            #detect_image, #match_image {
+                max-width: 600px;
+            }
+
+
+        </style>
+        <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/basic.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/dropzone-amd-module.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/dropzone.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/dropzone.js"></script> -->
+
+        <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Scene Reconstructor 9007</h1>
+
+            <h2>Detect Keypoints</h2>
+                <form action="" id="detect_form">
+                    <input type="hidden" value="{{job_id}}" name="job_id">
+                    <input type="file" name="files" id="detect_files" accept="image/*" multiple>
+                </form>
+                <img src="" alt="" id="detect_image">
+            <h2>Match Keypoints</h2>
+                <form action="" id="match_form">
+                    <input type="hidden" value="{{job_id}}" name="job_id">
+                    <input type="file" name="files" id="match_files" accept="image/*" multiple>
+                </form>
+                <img src="" alt="" id="match_image">
+            <h2>Triangulate Images</h2>
+            <form action="" id="triangulate_form">
+                <input type="hidden" value="{{job_id}}" name="job_id">
+                <input type="radio" name="algorithm" value="naive" checked>Naive<br>
+                <input type="radio" name="algorithm" value="discrete">Discrete<br>
+                <!-- <input type="radio" name="algorithm" value="opencv">OpenCV SVD<br> -->
+                <input type="file" name="files" id="triangulate_files" accept="image/*" multiple>
+            </form>
+        </div>  
+
+        <script>
+
+            function progress(prog1, prog2, prog3) {
+                console.log(prog1, prog2, prog3);
+            }
+            $("#detect_files").change(function(){
+                var formData = new FormData($('#detect_form')[0]);
+                    $.ajax({
+                        url: '/detect',  //Server script to process data
+                        type: 'POST',
+                        xhr: function() {  // Custom XMLHttpRequest
+                            var uploadXHR = $.ajaxSettings.xhr();
+                            if(uploadXHR.upload){ // Check if upload property exists
+                                uploadXHR.upload.addEventListener('progress',progress, false); // For handling the progress of the upload
+                            }
+                            return uploadXHR;
+                        },
+                        //Ajax events
+                        // beforeSend: beforeSendHandler,
+                        success: function(data, status, xhr){
+                            console.log(status, data);
+                            data_json = JSON.parse(data);
+                            $("#detect_image").attr("src", data_json['output_paths'][0]);
+                        },
+                        error: function(err1, err2){
+                            console.log(err1, err2)
+                        },
+                        // Form data
+                        data: formData,
+                        //Options to tell jQuery not to process data or worry about content-type.
+                        cache: false,
+                        contentType: false,
+                        processData: false
+                    });
+                    console.log("done");
+            });
+
+            $("#match_files").change(function(){
+                var formData = new FormData($('#match_form')[0]);
+                    $.ajax({
+                        url: '/match',  //Server script to process data
+                        type: 'POST',
+                        xhr: function() {  // Custom XMLHttpRequest
+                            var uploadXHR = $.ajaxSettings.xhr();
+                            if(uploadXHR.upload){ // Check if upload property exists
+                                uploadXHR.upload.addEventListener('progress',progress, false); // For handling the progress of the upload
+                            }
+                            return uploadXHR;
+                        },
+                        //Ajax events
+                        // beforeSend: beforeSendHandler,
+                        success: function(data, status, xhr){
+                            console.log(status, data);
+                            data_json = JSON.parse(data);
+                            $("#match_image").attr("src", data_json['output_paths'][0]);
+                        },
+                        error: function(err1, err2){
+                            console.log(err1, err2)
+                        },
+                        // Form data
+                        data: formData,
+                        //Options to tell jQuery not to process data or worry about content-type.
+                        cache: false,
+                        contentType: false,
+                        processData: false
+                    });
+                    console.log("done");
+            });
+
+            $("#triangulate_files").change(function(){
+                var formData = new FormData($('#triangulate_form')[0]);
+                    $.ajax({
+                        url: '/triangulate',  //Server script to process data
+                        type: 'POST',
+                        xhr: function() {  // Custom XMLHttpRequest
+                            var uploadXHR = $.ajaxSettings.xhr();
+                            if(uploadXHR.upload){ // Check if upload property exists
+                                uploadXHR.upload.addEventListener('progress',progress, false); // For handling the progress of the upload
+                            }
+                            return uploadXHR;
+                        },
+                        //Ajax events
+                        // beforeSend: beforeSendHandler,
+                        success: function(data, status, xhr){
+                            console.log(status, data);
+                            data_json = JSON.parse(data);
+                            // $("#triangulate_image").attr("src", data_json['output_paths'][0]);
+                        },
+                        error: function(err1, err2){
+                            console.log(err1, err2)
+                        },
+                        // Form data
+                        data: formData,
+                        //Options to tell jQuery not to process data or worry about content-type.
+                        cache: false,
+                        contentType: false,
+                        processData: false
+                    });
+                    console.log("done");
+            });
+
+
+        </script>      
+    </body>
+</html>

@@ -92,4 +92,4 @@ def triangulateFromImages(images, scene_file=None, projections_file=None, silent
     if scene_file:
         scene_ply_file.save(scene_file)
     if projections_file:
-        projections_ply_file.write_to_file(projections_file)
+        projections_ply_file.save(projections_file)
