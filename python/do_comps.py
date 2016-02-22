@@ -48,9 +48,11 @@ def main(args):
 
     args = parser.parse_args(args[1:])
 
-    current_dir = os.path.dirname(os.path.realpath(__file__))
+    # current_dir = os.path.dirname(os.path.realpath(__file__))
+    current_dir = os.getcwd()
     if args.f:
         files = filter(lambda x: any([i in x.lower() for i in ACCEPTED_FILETYPES]), os.listdir(args.f))
+        files = map(lambda x: os.path.join(args.f, x), files)
         args.i += files
 
     args.i = map(lambda x: os.path.join(current_dir, x), args.i)
