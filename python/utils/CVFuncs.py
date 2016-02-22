@@ -235,7 +235,7 @@ def triangulateFromLinesIteratively(line1, line2):
     minDist = 100000000
     minPoints = [(0, 0, 0), (0, 0, 0)]
 
-    searchRange = 10.0  
+    searchRange = 10.0
     iterations = 100
     for i in range(iterations):
         for j in range(iterations):
@@ -317,6 +317,7 @@ def triangulateFromLinesDiscrete(lineObj1, lineObj2):
 
     return closest
 
+
 def naiveTriangulate(pts1, pts2, k, r, t):
     '''
     Transforms image planes by r and t, draws epipolar lines,
@@ -330,6 +331,7 @@ def naiveTriangulate(pts1, pts2, k, r, t):
         outpoints.append(triangulateFromLinesIteratively(line1, line2))
 
     return outpoints
+
 
 def discreteTriangulate(pts1, pts2, k, r, t):
     '''
@@ -379,3 +381,26 @@ def linesFromImagePoints(pts1, pts2, k, r, t):
     return lines1, lines2
 
 
+def cvTriangulate(pts1, pts2, k, r, t):
+    proj1 = np.array([[1, 0, 0, 0],
+                      [0, 1, 0, 0],
+                      [0, 0, 1, 0]])
+    proj2 = np.append(r, t, 1)
+    pts1 = np.array(pts1).transpose()
+    pts2 = np.array(pts2).transpose()
+
+    homogeneous_4d_coords = cv2.triangulatePoints(proj1, proj2, pts1, pts2)
+    # return triangulatePoints(proj1, proj2, pts1, pts2)
+
+    threeD_coords = cv2.convertPointsFromHomogeneous(homogeneous_4d_coords.transpose())
+
+    output_points = []
+
+    # print threeD_coords
+    for point in threeD_coords:
+        output_points.append((point[0][0], point[0][1], point[0][2]))
+        # output_points.append(point[0])
+    # for coord in homogeneous_4d_coords:
+
+    return output_points
+# reimplement: https://github.com/Itseez/opencv/blob/ddf82d0b154873510802ef75c53e628cd7b2cb13/modules/calib3d/src/triangulate.cpp#L54
