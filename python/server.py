@@ -1,6 +1,7 @@
 import uuid
 import json
 import os
+import utils.triangulate as triangulate
 import utils.CVFuncs as CVFuncs
 from flask import Flask, render_template, request
 from utils import Image
@@ -82,6 +83,27 @@ def match_images():
     print output_paths
 
     return json.dumps({"output_paths": output_paths})
+
+
+@app.route("/triangulate", methods=["POST"])
+def triangulate():
+    filepaths = save_files(request.files)
+    scene_ply_location = os.path.join(OUTPUT_IMAGE_PATH, str(uuid.uuid4()) + "_scene.ply")
+    proj_ply_location = os.path.join(OUTPUT_IMAGE_PATH, str(uuid.uuid4()) + "_proj.ply")
+
+    scene_ply_file = open(scene_ply_location, 'w')
+    proj_ply_file = open(proj_ply_location, 'w')
+
+    triangulate.triangulateFromImages(file_paths,
+                                      scene_file=scene_ply_file,
+                                      projections_file=proj_ply_file,
+                                      silent=True,
+                                      cv=True)
+
+    return json.dumps({
+        'scene': scene_ply_location[scene_ply_location.find("/static"):],
+        'proj': proj_ply_location[proj_ply_location.find("/static"):]
+    })
 
 
 @app.route("/stream.ply")

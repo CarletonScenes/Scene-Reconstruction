@@ -61,12 +61,12 @@
                 </form>
                 <img src="" alt="" id="match_image">
             <h2>Triangulate Images</h2>
-            <form action="/triangulate">
+            <form action="" id="triangulate_form">
                 <input type="hidden" value="{{job_id}}" name="job_id">
                 <input type="radio" name="algorithm" value="naive" checked>Naive<br>
                 <input type="radio" name="algorithm" value="discrete">Discrete<br>
                 <!-- <input type="radio" name="algorithm" value="opencv">OpenCV SVD<br> -->
-                <input type="file" name="files" accept="image/*" multiple>
+                <input type="file" name="files" id="triangulate_files" accept="image/*" multiple>
             </form>
         </div>  
 
@@ -125,6 +125,38 @@
                             console.log(status, data);
                             data_json = JSON.parse(data);
                             $("#match_image").attr("src", data_json['output_paths'][0]);
+                        },
+                        error: function(err1, err2){
+                            console.log(err1, err2)
+                        },
+                        // Form data
+                        data: formData,
+                        //Options to tell jQuery not to process data or worry about content-type.
+                        cache: false,
+                        contentType: false,
+                        processData: false
+                    });
+                    console.log("done");
+            });
+
+            $("#triangulate_files").change(function(){
+                var formData = new FormData($('#triangulate_form')[0]);
+                    $.ajax({
+                        url: '/triangulate',  //Server script to process data
+                        type: 'POST',
+                        xhr: function() {  // Custom XMLHttpRequest
+                            var uploadXHR = $.ajaxSettings.xhr();
+                            if(uploadXHR.upload){ // Check if upload property exists
+                                uploadXHR.upload.addEventListener('progress',progress, false); // For handling the progress of the upload
+                            }
+                            return uploadXHR;
+                        },
+                        //Ajax events
+                        // beforeSend: beforeSendHandler,
+                        success: function(data, status, xhr){
+                            console.log(status, data);
+                            data_json = JSON.parse(data);
+                            // $("#triangulate_image").attr("src", data_json['output_paths'][0]);
                         },
                         error: function(err1, err2){
                             console.log(err1, err2)
