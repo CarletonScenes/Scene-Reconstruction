@@ -16,12 +16,10 @@ def printRandTPossibilities(possibilities):
 
 def writePointsToFile(points, filename, planar=False):
     points = points[:]
-    # Add 3rd coord if necessary
     if planar:
         for i, point in enumerate(points):
             points[i] = [point[0], point[1], 1]
 
-    # Write
     with open(filename, 'w') as f:
         emitHeader(f)
         emitPoints(points, f)
