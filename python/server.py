@@ -7,6 +7,8 @@ from flask import Flask, render_template, request
 from utils import Image
 from werkzeug import secure_filename
 
+print triangulate.triangulateFromImages
+
 app = Flask(__name__, static_url_path='/static')
 try:
     os.mkdir("/tmp/sceneflask")
@@ -86,7 +88,7 @@ def match_images():
 
 
 @app.route("/triangulate", methods=["POST"])
-def triangulate():
+def triangulate_handler():
     filepaths = save_files(request.files)
     scene_ply_location = os.path.join(OUTPUT_IMAGE_PATH, str(uuid.uuid4()) + "_scene.ply")
     proj_ply_location = os.path.join(OUTPUT_IMAGE_PATH, str(uuid.uuid4()) + "_proj.ply")
@@ -94,7 +96,10 @@ def triangulate():
     scene_ply_file = open(scene_ply_location, 'w')
     proj_ply_file = open(proj_ply_location, 'w')
 
-    triangulate.triangulateFromImages(file_paths,
+    print triangulate
+    print triangulate.triangulateFromImages
+
+    triangulate.triangulateFromImages(filepaths,
                                       scene_file=scene_ply_file,
                                       projections_file=proj_ply_file,
                                       silent=True,
