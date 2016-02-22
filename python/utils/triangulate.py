@@ -10,23 +10,6 @@ import utils.CVFuncs as CVFuncs
 from utils import KMatrix, Image
 import subprocess
 
-# -14 degrees between chapel1.jpg and chapel2.jpg
-
-
-def getArtificalR(deg):
-    rad = math.radians(deg)
-    return np.array([[math.cos(rad), 0, math.sin(rad)],
-                     [0, 1, 0],
-                     [-1 * math.sin(rad), 0, math.cos(rad)]])
-
-
-def getArtificialTranslation(x=0, y=0, z=0):
-    # units are unclear
-    return np.array([
-        [x],
-        [y],
-        [z]])
-
 
 def triangulateTwoImages(filename1, filename2, projections_file=None, naive=False):
     ''' 
@@ -38,9 +21,7 @@ def triangulateTwoImages(filename1, filename2, projections_file=None, naive=Fals
     img2 = Image(filename2)
     img2.detect_features()
 
-    # Match keypoints
     pts1, pts2, matches = CVFuncs.findMatchesKnn(img1, img2, filter=True)
-    # CVFuncs.drawMatches(img1, img2, matches, "test.png")
 
     ''' 
     Find K 
@@ -50,27 +31,12 @@ def triangulateTwoImages(filename1, filename2, projections_file=None, naive=Fals
     ''' 
     Get essential or fundamental matrix
     '''
-
-    # F, mask = CVFuncs.findFundamentalMat(pts1, pts2)
-    # test.testFundamentalMat(F, pts1, pts2)
-
     E, mask = CVFuncs.findEssentialMat(pts1, pts2, K)
-    # E = CVFuncs.EFromF(F, K)
-    # test.testEssentialMat(E, K, pts1, pts2)
 
     '''
     Get R and T (using artificial ones for now)
     '''
     points, r, t, newMask = CVFuncs.recoverPose(E, pts1, pts2, K)
-    # print "R:", r
-    # print "T:", t
-    # r = np.linalg.inv(r)
-    # t = t * -1
-    # possibilities = CVFuncs.decomposeEssentialMat(E)
-    # output.printRandTPossibilities(possibilities)
-
-    # r = getArtificalR(-20)
-    # t = getArtificialTranslation(5)
 
     ''' 
     Draw image projections using R and T
@@ -97,7 +63,6 @@ def triangulateFromImages(images, scene_file=None, projections_file=None, silent
             print image
         print "-------------"
 
-    # Init R and T, which will be used to compose multiple point clouds
     r = np.array([
         [1, 0, 0],
         [0, 1, 0],
@@ -127,6 +92,7 @@ def triangulateFromImages(images, scene_file=None, projections_file=None, silent
     if scene_file:
         scene_ply_file.save(scene_file)
     if projections_file:
+<<<<<<< HEAD
         projections_ply_file.save(projections_file)
 
 
@@ -137,3 +103,6 @@ def main():
 
 if __name__ == '__main__':
     main()
+=======
+        projections_ply_file.write_to_file(projections_file)
+>>>>>>> 18a65b2c851ccf421b98a68706529921ef23e7c4
