@@ -32,7 +32,7 @@ class PlyFile:
         '''
         self.points += points
 
-    def write_to_file(self, file):
+    def save(self, file):
         if self.color:
             pass
         else:

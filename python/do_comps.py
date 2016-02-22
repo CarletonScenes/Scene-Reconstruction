@@ -3,7 +3,7 @@ import os
 import argparse
 import utils.triangulate as triangulate
 import utils.CVFuncs as CVFuncs
-import points.triangulateManualPoints as triangulateManual
+import utils.triangulateManualPoints as triangulateManual
 from utils import Image
 
 ACCEPTED_FILETYPES = ['jpg', 'png', 'jpeg']

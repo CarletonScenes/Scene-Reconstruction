@@ -3,13 +3,13 @@ import sys
 import cv2
 import math
 import numpy as np
-import utils.output as output
-import utils.draw as draw
-import utils.test as test
-import utils.CVFuncs as CVFuncs
-from utils.ply_file import PlyFile
-from utils import KMatrix, Image
-from utils.line import Line
+import draw as draw
+import test as test
+import CVFuncs as CVFuncs
+from ply_file import PlyFile
+from KMatrix import KMatrix
+from image import Image
+from line import Line
 
 
 def triangulateWithImagesAndPointFile(filename1, filename2, pointFile, projections_file=None):
@@ -74,7 +74,7 @@ def triangulateWithImagesAndPointFile(filename1, filename2, pointFile, projectio
     '''
     triangulated = CVFuncs.naiveTriangulate(pts1, pts2, K.matrix, r, t)
     triangulated = draw.transformPointsToViewingCoordinates(triangulated)
-    print "hi"
+
     return triangulated, r, t
 
 

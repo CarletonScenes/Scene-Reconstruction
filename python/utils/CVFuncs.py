@@ -1,6 +1,5 @@
 import cv2
 import math
-import output
 import numpy as np
 from KMatrix import *
 from line import *
@@ -308,6 +307,7 @@ def triangulateFromLinesDiscrete(lineObj1, lineObj2):
 
     inters2 = [0, 0, 0]
     s = s[0]
+
     for i in range(DIMENSIONS):
         inters2[i] = line1[0][i] + s * line1[1][i]
 
@@ -317,109 +317,56 @@ def triangulateFromLinesDiscrete(lineObj1, lineObj2):
 
     return closest
 
-
 def naiveTriangulate(pts1, pts2, k, r, t):
     '''
     Transforms image planes by r and t, draws epipolar lines,
     and uses those lines to triangulate points
     '''
+
+    lines1, lines2 = linesFromImagePoints(pts1, pts2, k, r, t)
+
+    outpoints = []
+    for line1, line2 in zip(lines1, lines2):
+        outpoints.append(triangulateFromLinesIteratively(line1, line2))
+
+    return outpoints
+
+def discreteTriangulate(pts1, pts2, k, r, t):
+    pass
+    # Transforms image planes by r and t, draws epipolar lines,
+    # and uses those lines to triangulate points using discrete method
+
+def linesFromImagePoints(pts1, pts2, k, r, t):
+    # Transforms image planes by r and t and returns epipolar lines of each feature
+
     origin1 = (0, 0, 0)
     origin2 = (t[0][0], t[1][0], t[2][0])
 
     imgpoints1 = []
     imgpoints2 = []
 
+    inverseK = np.linalg.inv(k)
+
+    # IMAGE ONE
     for point in pts1:
         homogenous = np.append(np.array(point), [1]).transpose()
-        inv_k = np.linalg.inv(k)
-        normalized = inv_k.dot(homogenous)
+        normalized = inverseK.dot(homogenous)
         imgpoints1.append(normalized)
 
     for point in pts2:
         homogenous = np.append(np.array(point), [1]).transpose()
-        inv_k = np.linalg.inv(k)
-        normalized = inv_k.dot(homogenous)
+        normalized = inverseK.dot(homogenous)
         imgpoints2.append(normalized)
 
     imgpoints2 = applyRandTToPoints(r, t, imgpoints2)
 
-    outpoints = []
+    lines1 = []
+    lines2 = []
 
     for pt1, pt2 in zip(imgpoints1, imgpoints2):
-        line1 = Line(origin1, pt1)
-        line2 = Line(origin2, pt2)
-        outpoints.append(triangulateFromLinesIteratively(line1, line2))
+        lines1.append(Line(origin1, pt1))
+        lines2.append(Line(origin2, pt2))
 
-    return outpoints
-
-
-def cvTriangulate(pts1, pts2, k, r, t):
-    proj1 = np.array([[1, 0, 0, 0],
-                      [0, 1, 0, 0],
-                      [0, 0, 1, 0]])
-    proj2 = np.append(r, t, 1)
-    pts1 = np.array(pts1).transpose()
-    pts2 = np.array(pts2).transpose()
-
-    homogeneous_4d_coords = cv2.triangulatePoints(proj1, proj2, pts1, pts2)
-
-    threeD_coords = cv2.convertPointsFromHomogeneous(homogeneous_4d_coords.transpose())
-
-    output_points = []
-
-    for point in threeD_coords:
-        output_points.append((point[0][0], point[0][1], point[0][2]))
-
-    return output_points
-# reimplement: https://github.com/Itseez/opencv/blob/ddf82d0b154873510802ef75c53e628cd7b2cb13/modules/calib3d/src/triangulate.cpp#L54
+    return lines1, lines2
 
 
-def triangulatePoints(proj1mat, proj2mat, kps1, kps2):
-    assert len(kps1) == len(kps2)
-
-    matrA = np.zeros((4, 4))
-
-    outputPoints = np.zeros((len(kps1), 4))
-
-    kps = [kps1, kps2]
-    projMatrs = [proj1mat, proj2mat]
-
-    for i in range(len(kps1)):
-
-        # Row 1 (x1 * P1 3T - P1 1T)
-        matrA[0][0] = kps1[i][0] * proj1mat[2][0] - proj1mat[0][0]
-        matrA[0][1] = kps1[i][0] * proj1mat[2][1] - proj1mat[0][1]
-        matrA[0][2] = kps1[i][0] * proj1mat[2][2] - proj1mat[0][2]
-        matrA[0][3] = kps1[i][0] * proj1mat[2][3] - proj1mat[0][3]
-
-        # Row 2 (y1 * P1 3T - P1 2T)
-        matrA[1][0] = kps1[i][1] * proj1mat[2][0] - proj1mat[1][0]
-        matrA[1][1] = kps1[i][1] * proj1mat[2][1] - proj1mat[1][1]
-        matrA[1][2] = kps1[i][1] * proj1mat[2][2] - proj1mat[1][2]
-        matrA[1][3] = kps1[i][1] * proj1mat[2][3] - proj1mat[1][3]
-
-        # Row 3 (x2 * P2 3T - P1 1T)
-        matrA[2][0] = kps2[i][0] * proj2mat[2][0] - proj2mat[0][0]
-        matrA[2][1] = kps2[i][0] * proj2mat[2][1] - proj2mat[0][1]
-        matrA[2][2] = kps2[i][0] * proj2mat[2][2] - proj2mat[0][2]
-        matrA[2][3] = kps2[i][0] * proj2mat[2][3] - proj2mat[0][3]
-
-        # Row 3 (y2 * P2 3T - P1 2T)
-        matrA[3][0] = kps2[i][1] * proj2mat[2][0] - proj2mat[1][0]
-        matrA[3][1] = kps2[i][1] * proj2mat[2][1] - proj2mat[1][1]
-        matrA[3][2] = kps2[i][1] * proj2mat[2][2] - proj2mat[1][2]
-        matrA[3][3] = kps2[i][1] * proj2mat[2][3] - proj2mat[1][3]
-
-        U, s, matrV = np.linalg.svd(matrA, full_matrices=True)
-
-        outputPoints[i][0] = matrV[3][0]  # X
-        outputPoints[i][1] = matrV[3][1]  # Y
-        outputPoints[i][2] = matrV[3][2]  # Z
-        outputPoints[i][3] = matrV[3][3]  # W
-
-    outputPoints = cv2.convertPointsFromHomogeneous(outputPoints)
-
-    points = []
-    for point in outputPoints:
-        points.append((point[0][0], point[0][1], point[0][2]))
-    return points
