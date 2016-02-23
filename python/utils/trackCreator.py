@@ -14,12 +14,14 @@ class TrackCreator:
     def __init__(self, imageList):     
         self.imageList = imageList
         self.kpMatrix = []
+        self.triangulatedPoints = []
         for image in self.imageList:
             image.detect_features()
-            self.kpMatrix.append([])        
+            self.kpMatrix.append([]) 
+            self.triangulatedPoints.append([])
             
     def matchPairs(self, KNN=True, filter=True):
-        #this function will create a matrix kpMatrix like the following:
+        #this function will create a matrix self.kpMatrix like the following:
         #[a, b, none, c, none]
         #[d, e, f, g, none]
         #[h, none, j, k, l]
@@ -106,36 +108,53 @@ class TrackCreator:
 
     
     def triangulateImages(self, KNN=True, filter=True):
+        # this function will fill the self.triangulatedPoints matrix. Some row i of this matrix would be:
+        # [(1,1,1), (2,2,2), (3,3,3)] 
+        # if images i and i+1 have 3 keypoint matches that triangulate to (1,1,1), (2,2,2), (3,3,3)
         
         self.matchImages(KNN=KNN, filter=filter)
         
-        lastTriangulated = []
         lastIdxCorrespondences = []
+        
+        # find corresponding lists of matched image coordinates in images i and i+1
+        # also find what indices those coordinates have in their image's keypoint list
+        # recover the pose between those two cameras
         for i in range(len(self.imageList-1)):
             points1, points2 = self.getPointCorrespondences(i, i+1)
             indices1, indices2 = self.getIndexCorrespondences(i, i+1)
             K = self.ImageList[i].K
             E, mask = CVFuncs.findEssentialMat(points1, points2, K)
-            pts, r, t, newMask = CVFuncs.recoverPose(E, points1, points2, K)
+            pts, firstR, firstT, newMask = CVFuncs.recoverPose(E, points1, points2, K)
             
+            # if it's the first image pair, then there's no reprojection error to minimize. Keep these triangulated points
             if i == 0:
-                lastTriangulated = CVFuncs.discreetTriangulate(points1, points2, K, r, t)
+                r, t = firstR, firstT
+                self.triangulatedPoints[i].extend(CVFuncs.discreetTriangulate(points1, points2, K, r, t))
                 
+            # find triangulated points from cameras i and i+1 using the r and t from recoverPose
+            # find a list of (a,b) tuples, overlap, where:
+            #   a is the index in self.triangulatedPoints[i-1] of a triangulated point between image i-1 and i
+            #   b is the index in firstTriangulation of a triangulated point between image i and i+1
+            #   and both were triangulated using the same keypoint in image i
+            # make corresponding lists of triangulated points where oldPoints[j] and newPoints[j] both come from the same feature in image i
+            # find the r and t that minimize reprojection error, and save all the new triangulations in self.triangulatedPoints[i]
             else:
-                triangulated = CVFuncs.discreetTriangulate(points1, points2, K, r, t)
+                firstTriangulation = CVFuncs.discreetTriangulate(points1, points2, K, firstR, firstT)
                 overlap = getOverlapIndices(lastIdxCorrespondences, indices1)
                 
                 oldPoints = []
                 newPoints = []
                 for pair in overlap:
-                    oldPoints.append(lastTriangulated[pair[0]])
-                    newPoints.append(triangulated[pair[1]])
+                    oldPoints.append(self.triangulatedPoints[i-1][pair[0]])
+                    newPoints.append(firstTriangulation[pair[1]])
                     
-                #MINIMIZE REPROJECTION ERROR, oldPoints, newPoints, r, t
+                r, t = minimizeError(oldPoints, newPoints, firstR, firstT)
                 
+                self.triangulatedPoints[i].extend(CVFuncs.discreetTriangulate(points1, points2, K, r, t))
                 
             lastIdxCorrespondences = indices2
             
+        
             
 def main():
     track = TrackCreator([Image("../photos/pdp1.jpeg"),Image("../photos/pdp2.jpeg"),Image("../photos/pdp1.jpeg"),Image("../photos/pdp2.jpeg")])
