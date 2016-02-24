@@ -346,6 +346,20 @@ def discreteTriangulate(pts1, pts2, k, r, t):
 
     return outpoints
 
+def discreteTriangulateWithTwoRT(pts1, pts2, k, r1, t1, r2, t2):
+    '''
+    Transforms image planes by r and t, draws epipolar lines,
+    and uses those lines to triangulate points using discrete method
+    First image plane transformed by r1 t1, second by r2, t2
+    '''
+    lines1, lines2 = linesFromImagePointsWithTwoRT(pts1, pts2, k, r1, t1, r2, t2)
+
+    outpoints = []
+    for line1, line2 in zip(lines1, lines2):
+        outpoints.append(triangulateFromLinesDiscrete(line1, line2))
+
+    return outpoints
+
 
 def linesFromImagePoints(pts1, pts2, k, r, t):
     # Transforms image planes by r and t and returns epipolar lines of each feature
@@ -380,6 +394,41 @@ def linesFromImagePoints(pts1, pts2, k, r, t):
 
     return lines1, lines2
 
+def linesFromImagePointsWithTwoRT(pts1, pts2, k, r1, t1, r2, t2):
+    # Transforms image planes by r and t and returns epipolar lines of each feature
+    # first image plane transformed by r1 t1, the second by r2 t2
+
+    origin1 = (t1[0][0], t1[1][0], t1[2][0])
+    origin2 = (t2[0][0], t2[1][0], t2[2][0])
+
+    imgpoints1 = []
+    imgpoints2 = []
+
+    inverseK = np.linalg.inv(k)
+
+    # IMAGE ONE
+    for point in pts1:
+        homogenous = np.append(np.array(point), [1]).transpose()
+        normalized = inverseK.dot(homogenous)
+        imgpoints1.append(normalized)
+
+    for point in pts2:
+        homogenous = np.append(np.array(point), [1]).transpose()
+        normalized = inverseK.dot(homogenous)
+        imgpoints2.append(normalized)
+
+    imgpoints1 = applyRandTToPoints(r1, t1, imgpoints1)
+    imgpoints2 = applyRandTToPoints(r2, t2, imgpoints2)
+
+    lines1 = []
+    lines2 = []
+
+    for pt1, pt2 in zip(imgpoints1, imgpoints2):
+        lines1.append(Line(origin1, pt1))
+        lines2.append(Line(origin2, pt2))
+
+    return lines1, lines2
+
 
 def cvTriangulate(pts1, pts2, k, r, t):
     proj1 = np.array([[1, 0, 0, 0],
@@ -404,3 +453,61 @@ def cvTriangulate(pts1, pts2, k, r, t):
 
     return output_points
 # reimplement: https://github.com/Itseez/opencv/blob/ddf82d0b154873510802ef75c53e628cd7b2cb13/modules/calib3d/src/triangulate.cpp#L54
+
+def findScalarGuess(low, high, oldPoints, points1, points2, K, lastR, lastT, r, t, zone=False):
+    # find the best scalar multiple of t such that when you compose composedR and lastT with t
+    # you have minimal error between the oldTriangulatedPoints and the triangulation of:
+    #   points1(with lastR and lastT applied to put it in first cameras coordinate system)
+    #   points2(with lastR and lastT applied, and also r and t*scalar applied)
+    # return the list of well-triangulated points, along with the total T applied to points2
+    # for a given range of scalars returns either a high and low guess for the best scalar
+    # or returns a single scalar and its associated triangulated points
+    scalars = []
+    diff = high-low
+    for i in range(6):
+        scalars.append(low+diff*i/5.0)
+    
+    composedR = composeRotations(lastR, r)
+    bestScalar = 0
+    bestError = -1
+    bestTriangulations = []
+    print "---"
+    for i in range(len(scalars)):
+        # find the scalar that produces lowest error
+        composedT = composeTranslations(lastT, (t[0]*scalars[i], t[1]*scalars[i], t[2]*scalars[i]))
+        newTriangulatedPoints = discreteTriangulateWithTwoRT(points1, points2, K, lastR, lastT, composedR, composedT)
+        totalError = findTriangulationError(oldPoints, newTriangulatedPoints)
+        print "scalar: ", scalars[i], " error: ", totalError
+        if bestError == -1 or (bestError >= 0 and bestError > totalError):
+            bestScalar = i
+            bestError = totalError
+            bestTriangulations = newTriangulatedPoints
+    
+    if zone:
+        lower = scalars[max(0,bestScalar-1)]
+        higher = scalars[min(len(scalars)-1,bestScalar+1)]
+        return lower, higher
+    else:
+        return bestTriangulations, composeTranslations(lastT, (t[0]*scalars[bestScalar], t[1]*scalars[bestScalar], t[2]*scalars[bestScalar]))
+
+def minimizeError(oldTriangulatedPoints, points1, points2, K, lastR, r, lastT, t):
+    #scalars to check = evenly distributed range between 1/6 and 6 
+    
+    low, high = findScalarGuess(1/6, 6, oldTriangulatedPoints, points1, points2, K, lastR, lastT, r, t, zone=True)
+    low, high = findScalarGuess(low, high, oldTriangulatedPoints, points1, points2, K, lastR, lastT, r, t, zone=True)
+    low, high = findScalarGuess(low, high, oldTriangulatedPoints, points1, points2, K, lastR, lastT, r, t, zone=True)
+    low, high = findScalarGuess(low, high, oldTriangulatedPoints, points1, points2, K, lastR, lastT, r, t, zone=True)
+    low, high = findScalarGuess(low, high, oldTriangulatedPoints, points1, points2, K, lastR, lastT, r, t, zone=True)
+    return findScalarGuess(low, high, oldTriangulatedPoints, points1, points2, K, lastR, lastT, r, t, zone=False)
+    
+
+def findTriangulationError(points1, points2):
+    #find the total sum of error between corresponding point lists
+
+    totalError = 0
+    for i in range(len(points1)):
+        totalError += eucDist(points1[i], points2[i])
+
+    return totalError
+
+    
