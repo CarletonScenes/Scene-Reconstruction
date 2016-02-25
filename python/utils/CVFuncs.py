@@ -399,7 +399,10 @@ def linesFromImagePointsWithTwoRT(pts1, pts2, k, r1, t1, r2, t2):
     # first image plane transformed by r1 t1, the second by r2 t2
 
     origin1 = (t1[0][0], t1[1][0], t1[2][0])
-    origin2 = (t2[0][0], t2[1][0], t2[2][0])
+    
+    origin2 = (t1[0][0]+t2[0][0], t1[1][0]+t2[1][0], t1[2][0]+t2[2][0])
+    
+#    origin2 = (t2[0][0], t2[1][0], t2[2][0])
 
     imgpoints1 = []
     imgpoints2 = []
@@ -418,8 +421,10 @@ def linesFromImagePointsWithTwoRT(pts1, pts2, k, r1, t1, r2, t2):
         imgpoints2.append(normalized)
 
     imgpoints1 = applyRandTToPoints(r1, t1, imgpoints1)
+    
     imgpoints2 = applyRandTToPoints(r2, t2, imgpoints2)
-
+    imgpoints2 = applyRandTToPoints(r1, t1, imgpoints2)
+    
     lines1 = []
     lines2 = []
 
@@ -467,15 +472,14 @@ def findScalarGuess(low, high, oldPoints, points1, points2, K, lastR, lastT, r, 
     for i in range(6):
         scalars.append(low+diff*i/5.0)
     
-    composedR = composeRotations(lastR, r)
     bestScalar = 0
     bestError = -1
     bestTriangulations = []
     print "---"
     for i in range(len(scalars)):
         # find the scalar that produces lowest error
-        composedT = composeTranslations(lastT, (t[0]*scalars[i], t[1]*scalars[i], t[2]*scalars[i]))
-        newTriangulatedPoints = discreteTriangulateWithTwoRT(points1, points2, K, lastR, lastT, composedR, composedT)
+        newT = np.array([t[0]*scalars[i], t[1]*scalars[i], t[2]*scalars[i]])
+        newTriangulatedPoints = discreteTriangulateWithTwoRT(points1, points2, K, lastR, lastT, r, newT)
         totalError = findTriangulationError(oldPoints, newTriangulatedPoints)
         print "scalar: ", scalars[i], " error: ", totalError
         if bestError == -1 or (bestError >= 0 and bestError > totalError):
@@ -488,14 +492,12 @@ def findScalarGuess(low, high, oldPoints, points1, points2, K, lastR, lastT, r, 
         higher = scalars[min(len(scalars)-1,bestScalar+1)]
         return lower, higher
     else:
-        return bestTriangulations, composeTranslations(lastT, (t[0]*scalars[bestScalar], t[1]*scalars[bestScalar], t[2]*scalars[bestScalar]))
+        return np.array([t[0]*scalars[bestScalar], t[1]*scalars[bestScalar], t[2]*scalars[bestScalar]])
 
 def minimizeError(oldTriangulatedPoints, points1, points2, K, lastR, r, lastT, t):
     #scalars to check = evenly distributed range between 1/6 and 6 
     
-    low, high = findScalarGuess(1/6, 6, oldTriangulatedPoints, points1, points2, K, lastR, lastT, r, t, zone=True)
-    low, high = findScalarGuess(low, high, oldTriangulatedPoints, points1, points2, K, lastR, lastT, r, t, zone=True)
-    low, high = findScalarGuess(low, high, oldTriangulatedPoints, points1, points2, K, lastR, lastT, r, t, zone=True)
+    low, high = findScalarGuess(0, 10.0, oldTriangulatedPoints, points1, points2, K, lastR, lastT, r, t, zone=True)
     low, high = findScalarGuess(low, high, oldTriangulatedPoints, points1, points2, K, lastR, lastT, r, t, zone=True)
     low, high = findScalarGuess(low, high, oldTriangulatedPoints, points1, points2, K, lastR, lastT, r, t, zone=True)
     return findScalarGuess(low, high, oldTriangulatedPoints, points1, points2, K, lastR, lastT, r, t, zone=False)

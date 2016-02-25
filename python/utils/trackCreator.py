@@ -19,7 +19,7 @@ class TrackCreator:
         self.imageList = imageList
         self.kpMatrix = []
         self.triangulatedPoints = []
-        self.composedRTList = []
+        self.RTList = []
         for image in self.imageList:
             image.detect_features()
             self.kpMatrix.append([]) 
@@ -52,7 +52,8 @@ class TrackCreator:
                     points1, points2, matches = CVFuncs.findMatches(self.imageList[i], self.imageList[i+1],filter=False)
                     
             #TESTING        
-#            matches = [cv2.DMatch(0,1,0),cv2.DMatch(1,2,0),cv2.DMatch(2,3,0)]        
+#            matches = [cv2.DMatch(0,1,0),cv2.DMatch(1,2,0),cv2.DMatch(2,3,0)] 
+            CVFuncs.drawMatches(self.imageList[i],self.imageList[i+1],matches, "matched"+str(i)+"-"+str(i+1)+".jpg")
                     
             # for each match...
             for match in matches:
@@ -118,7 +119,6 @@ class TrackCreator:
         # if images i and i+1 have 3 keypoint matches that triangulate to (1,1,1), (2,2,2), (3,3,3)
         
         self.matchPairs(KNN=KNN, filter=filter)
-        print "pairs matched"
         
         lastIdxCorrespondences = []
         
@@ -129,23 +129,22 @@ class TrackCreator:
             points1, points2 = self.getPointCorrespondences(i, i+1)
             indices1, indices2 = self.getIndexCorrespondences(i, i+1)
             K = self.imageList[i].K
-            print len(points1), len(points2)
             E, mask = CVFuncs.findEssentialMat(points1, points2, K)
             pts, r, t, newMask = CVFuncs.recoverPose(E, points1, points2, K)
             
             # if it's the first image pair, then there's no reprojection error to minimize. Keep these triangulated points
             if i == 0:
                 self.triangulatedPoints[i].extend(CVFuncs.discreteTriangulate(points1, points2, K.matrix, r, t))
-                self.composedRTList.append([r,t])
-                print "first pair triangulated"
+                self.RTList.append([r,t])
             # find a list of (a,b) tuples, overlap, where:
             #   a is the index in self.triangulatedPoints[i-1] of a triangulated point between image i-1 and i
             # make corresponding lists of triangulated points where oldPoints[j] and newPoints[j] both come from the same feature in image i
             # find the r and t that minimize reprojection error, and save all the new triangulations in self.triangulatedPoints[i]
             else:
-                lastR = self.composedRTList[i-1][0]
-                lastT = self.composedRTList[i-1][1]
+                lastR = self.RTList[i-1][0]
+                lastT = self.RTList[i-1][1]
                 overlap = getOverlapIndices(lastIdxCorrespondences, indices1)
+                print "len overlap:", len(overlap), "out of", len(points1), len(points2)
                 
                 oldTriangulatedPoints = []
                 newImagePoints1, newImagePoints2 = [], []
@@ -154,28 +153,28 @@ class TrackCreator:
                     newImagePoints1.append(points1[pair[1]])
                     newImagePoints2.append(points2[pair[1]])
                     
-                composedR = CVFuncs.composeRotations(lastR, r)
-                goodTriangulatedPoints, composedT = CVFuncs.minimizeError(oldTriangulatedPoints, newImagePoints1, newImagePoints2, K.matrix, lastR, r, lastT, t)
+                t = CVFuncs.minimizeError(oldTriangulatedPoints, newImagePoints1, newImagePoints2, K.matrix, lastR, r, lastT, t)
+                goodTriangulatedPoints = CVFuncs.discreteTriangulateWithTwoRT(points1, points2, K.matrix, lastR, lastT, r, t)
                 
                 self.triangulatedPoints[i].extend(goodTriangulatedPoints)
-                self.composedRTList.append([composedR,composedT])
+                self.RTList.append([r, t])
                 print "pair", i, i+1, "triangulated"
                 
             lastIdxCorrespondences = indices2
             
 ##        TESTING
-#        for i in range(len(self.imageList)-1):
-#            scene_ply_file = PlyFile()
-#            scene_ply_file.emitPoints(self.triangulatedPoints[i])
-#            scene_ply_file.save(file(addPostToPath(sceneFile, str(i)),"w"))
+        for i in range(len(self.imageList)-1):
+            scene_ply_file = PlyFile()
+            scene_ply_file.emitPoints(self.triangulatedPoints[i])
+            scene_ply_file.save(file(addPostToPath(sceneFile, str(i)),"w"))
 
 
         #CORRECT
-        allPoints = []
-        
-        for i in range(len(self.imageList)):
-            allPoints.extend(self.triangulatedPoints[i])
-        return allPoints
+#        allPoints = []
+#        
+#        for i in range(len(self.imageList)):
+#            allPoints.extend(self.triangulatedPoints[i])
+#        return allPoints
 #        
 #        scene_ply_file = PlyFile()
 #        scene_ply_file.emitPoints(allPoints)
@@ -189,11 +188,11 @@ def addPostToPath(path, post):
     return dirname + base
                      
 def main():
-    track = TrackCreator([Image("../photos/pdp/pdp1.jpeg"),Image("../photos/pdp/pdp2.jpeg"),Image("../photos/pdp/pdp1.jpeg")])#,Image("../photos/pdp2.jpeg")])
+    track = TrackCreator([Image("../photos/sign/sign3.jpg"),Image("../photos/sign/sign2.jpg"), Image("../photos/sign/sign1.jpg")])#,Image("../photos/pdp2.jpeg")])
 #    track.matchPairs()
 #    print track.kpMatrix
 #    points1, points2 = track.getPointCorrespondences(1,2)
 #    print zip(points1, points2)
-    track.triangulateImages("pdpscene.ply", KNN=True, filter=True)
+    track.triangulateImages("signscene.ply", KNN=True, filter=True)
     
 main()
