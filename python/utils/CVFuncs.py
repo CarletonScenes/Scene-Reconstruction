@@ -211,6 +211,7 @@ def decomposeEssentialMat(E):
 
 
 def applyRandTToPoints(r, t, points):
+    
     newPoints = []
     for point in points:
         transformed = (r.dot(point) + t.transpose())[0]
@@ -400,9 +401,10 @@ def linesFromImagePointsWithTwoRT(pts1, pts2, k, r1, t1, r2, t2):
 
     origin1 = (t1[0][0], t1[1][0], t1[2][0])
     
-    origin2 = (t1[0][0]+t2[0][0], t1[1][0]+t2[1][0], t1[2][0]+t2[2][0])
+    composedR = r1.dot(r2)
+    composedT = t1 + r1.dot(t2)
     
-#    origin2 = (t2[0][0], t2[1][0], t2[2][0])
+    origin2 = (composedT[0][0], composedT[1][0], composedT[2][0])
 
     imgpoints1 = []
     imgpoints2 = []
@@ -422,8 +424,7 @@ def linesFromImagePointsWithTwoRT(pts1, pts2, k, r1, t1, r2, t2):
 
     imgpoints1 = applyRandTToPoints(r1, t1, imgpoints1)
     
-    imgpoints2 = applyRandTToPoints(r2, t2, imgpoints2)
-    imgpoints2 = applyRandTToPoints(r1, t1, imgpoints2)
+    imgpoints2 = applyRandTToPoints(composedR, composedT, imgpoints2)
     
     lines1 = []
     lines2 = []
@@ -494,7 +495,7 @@ def findScalarGuess(low, high, oldPoints, points1, points2, K, lastR, lastT, r, 
     else:
         return np.array([t[0]*scalars[bestScalar], t[1]*scalars[bestScalar], t[2]*scalars[bestScalar]])
 
-def minimizeError(oldTriangulatedPoints, points1, points2, K, lastR, r, lastT, t):
+def minimizeError(oldTriangulatedPoints, points1, points2, K, lastR, lastT, r, t):
     #scalars to check = evenly distributed range between 1/6 and 6 
     
     low, high = findScalarGuess(0, 10.0, oldTriangulatedPoints, points1, points2, K, lastR, lastT, r, t, zone=True)
