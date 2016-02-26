@@ -397,7 +397,7 @@ def linesFromImagePoints(pts1, pts2, k, r, t):
 
 def linesFromImagePointsWithTwoRT(pts1, pts2, k, r1, t1, r2, t2):
     # Transforms image planes by r and t and returns epipolar lines of each feature
-    # first image plane transformed by r1 t1, the second by r2 t2
+    # first image plane transformed by r1 t1, the second by r1 t1 and r2 t2
 
     origin1 = (t1[0][0], t1[1][0], t1[2][0])
     
@@ -482,7 +482,7 @@ def findScalarGuess(low, high, oldPoints, points1, points2, K, lastR, lastT, r, 
         newT = np.array([t[0]*scalars[i], t[1]*scalars[i], t[2]*scalars[i]])
         newTriangulatedPoints = discreteTriangulateWithTwoRT(points1, points2, K, lastR, lastT, r, newT)
         totalError = findTriangulationError(oldPoints, newTriangulatedPoints)
-        print "scalar: ", scalars[i], " error: ", totalError
+#        print "scalar: ", scalars[i], " error: ", totalError
         if bestError == -1 or (bestError >= 0 and bestError > totalError):
             bestScalar = i
             bestError = totalError

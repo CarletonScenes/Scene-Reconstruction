@@ -149,7 +149,7 @@ class TrackCreator:
                 lastR = self.RTList[i-1][0]
                 lastT = self.RTList[i-1][1]
                 overlap = getOverlapIndices(lastIdxCorrespondences, indices1)
-                print "len overlap:", len(overlap), "out of", len(points1), len(points2)
+                print "len overlap:", len(overlap), "out of", len(points1)
                 
                 oldTriangulatedPoints = []
                 newImagePoints1, newImagePoints2 = [], []
