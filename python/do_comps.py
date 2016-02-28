@@ -85,6 +85,7 @@ def main(args):
         for imageLocation in args.i:
             image1 = Image(imageLocation)
             image1.detect_features()
+            print "image has", len(image1.kps), "features"
             imList.append(image1)
 
         for x in range(0, len(imList)):

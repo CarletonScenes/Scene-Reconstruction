@@ -50,8 +50,8 @@ def triangulateTwoImages(filename1, filename2, projections_file=None, cv=False):
     if cv:
         triangulated = CVFuncs.cvTriangulate(pts1, pts2, K.matrix, r, t)
     else:
-        triangulated = CVFuncs.naiveTriangulate(pts1, pts2, K.matrix, r, t)
-    triangulated = draw.transformPointsToViewingCoordinates(triangulated)
+        triangulated = CVFuncs.discreteTriangulate(pts1, pts2, K.matrix, r, t)
+#    triangulated = draw.transformPointsToViewingCoordinates(triangulated)
 
     return triangulated, r, t
 
