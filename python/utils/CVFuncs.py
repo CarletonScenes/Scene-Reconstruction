@@ -461,13 +461,11 @@ def cvTriangulate(pts1, pts2, k, r, t):
 # reimplement: https://github.com/Itseez/opencv/blob/ddf82d0b154873510802ef75c53e628cd7b2cb13/modules/calib3d/src/triangulate.cpp#L54
 
 def findScalarGuess(low, high, oldPoints, points1, points2, K, lastR, lastT, r, t, zone=False):
-    # find the best scalar multiple of t such that when you compose composedR and lastT with t
+    # find the best scalar multiple of t such that 
     # you have minimal error between the oldTriangulatedPoints and the triangulation of:
-    #   points1(with lastR and lastT applied to put it in first cameras coordinate system)
+    #   points1(with lastR and lastT)
     #   points2(with lastR and lastT applied, and also r and t*scalar applied)
-    # return the list of well-triangulated points, along with the total T applied to points2
-    # for a given range of scalars returns either a high and low guess for the best scalar
-    # or returns a single scalar and its associated triangulated points
+    # return either a range of scalars, or the scaled T
     scalars = []
     diff = high-low
     for i in range(6):
@@ -476,18 +474,17 @@ def findScalarGuess(low, high, oldPoints, points1, points2, K, lastR, lastT, r, 
     bestScalar = 0
     bestError = -1
     bestTriangulations = []
-    print "---"
     for i in range(len(scalars)):
         # find the scalar that produces lowest error
         newT = np.array([t[0]*scalars[i], t[1]*scalars[i], t[2]*scalars[i]])
         newTriangulatedPoints = discreteTriangulateWithTwoRT(points1, points2, K, lastR, lastT, r, newT)
         totalError = findTriangulationError(oldPoints, newTriangulatedPoints)
-#        print "scalar: ", scalars[i], " error: ", totalError
         if bestError == -1 or (bestError >= 0 and bestError > totalError):
             bestScalar = i
             bestError = totalError
             bestTriangulations = newTriangulatedPoints
     
+    print "scalar", scalars[bestScalar], " error:", bestError
     if zone:
         lower = scalars[max(0,bestScalar-1)]
         higher = scalars[min(len(scalars)-1,bestScalar+1)]
@@ -496,20 +493,26 @@ def findScalarGuess(low, high, oldPoints, points1, points2, K, lastR, lastT, r, 
         return np.array([t[0]*scalars[bestScalar], t[1]*scalars[bestScalar], t[2]*scalars[bestScalar]])
 
 def minimizeError(oldTriangulatedPoints, points1, points2, K, lastR, lastT, r, t):
-    #scalars to check = evenly distributed range between 1/6 and 6 
+    #scalars to check = .01 to 10 
+    # find the best scalar multiple of t such that 
+    # you have minimal error between the oldTriangulatedPoints and the triangulation of:
+    #   points1(with lastR and lastT)
+    #   points2(with lastR and lastT applied, and also r and t*scalar applied)
+    # return the scaled T
     
-    low, high = findScalarGuess(0, 10.0, oldTriangulatedPoints, points1, points2, K, lastR, lastT, r, t, zone=True)
+    low, high = findScalarGuess(.01, 10.0, oldTriangulatedPoints, points1, points2, K, lastR, lastT, r, t, zone=True)
+    low, high = findScalarGuess(low, high, oldTriangulatedPoints, points1, points2, K, lastR, lastT, r, t, zone=True)
     low, high = findScalarGuess(low, high, oldTriangulatedPoints, points1, points2, K, lastR, lastT, r, t, zone=True)
     low, high = findScalarGuess(low, high, oldTriangulatedPoints, points1, points2, K, lastR, lastT, r, t, zone=True)
     return findScalarGuess(low, high, oldTriangulatedPoints, points1, points2, K, lastR, lastT, r, t, zone=False)
     
 
 def findTriangulationError(points1, points2):
-    #find the total sum of error between corresponding point lists
+    #find the total sum of squared error between corresponding point lists
 
     totalError = 0
     for i in range(len(points1)):
-        totalError += eucDist(points1[i], points2[i])
+        totalError += eucDist(points1[i], points2[i])**2
 
     return totalError
 

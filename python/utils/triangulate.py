@@ -50,11 +50,46 @@ def triangulateTwoImages(filename1, filename2, projections_file=None, cv=False):
     if cv:
         triangulated = CVFuncs.cvTriangulate(pts1, pts2, K.matrix, r, t)
     else:
-        triangulated = CVFuncs.naiveTriangulate(pts1, pts2, K.matrix, r, t)
-    triangulated = draw.transformPointsToViewingCoordinates(triangulated)
+        triangulated = CVFuncs.discreteTriangulate(pts1, pts2, K.matrix, r, t)
+#    triangulated = draw.transformPointsToViewingCoordinates(triangulated)
 
     return triangulated, r, t
 
 
-        
-        
+def triangulateFromImages(images, scene_file=None, projections_file=None, silent=False, cv=False):
+    if not silent:
+        print "Triangulating from images:"
+        for image in images:
+            print image
+        print "-------------"
+
+    r = np.array([
+        [1, 0, 0],
+        [0, 1, 0],
+        [0, 0, 1]])
+    t = np.array([
+        [0],
+        [0],
+        [0]])
+
+    scene_ply_file = PlyFile()
+    projections_ply_file = PlyFile()
+
+    for i in range(len(images) - 1):
+        image1 = images[i]
+        image2 = images[i + 1]
+
+        if not silent:
+            print "Triangulating " + image1 + " and " + image2 + "..."
+
+        points, new_r, new_t = triangulateTwoImages(image1, image2,
+                                                    projections_file=projections_ply_file,
+                                                    cv=cv)
+        points = CVFuncs.applyRandTToPoints(r, t, points)
+        r = CVFuncs.composeRotations(r, new_r)
+        t = CVFuncs.composeTranslations(t, new_t)
+        scene_ply_file.emitPoints(points)
+    if scene_file:
+        scene_ply_file.save(scene_file)
+    if projections_file:
+        projections_ply_file.save(projections_file)

@@ -5,16 +5,9 @@ import utils.triangulate as triangulate
 import utils.CVFuncs as CVFuncs
 import utils.triangulateManualPoints as triangulateManual
 from utils import Image
+from utils.trackCreator import *
 
 ACCEPTED_FILETYPES = ['jpg', 'png', 'jpeg']
-
-
-def addPostToPath(path, post):
-    base = os.path.basename(path)
-    dirname = os.path.dirname(path)
-    base = base.split(".")[0] + "-" + str(post) + "." + base.split(".")[1]
-
-    return dirname + base
 
 
 def print_help():
@@ -41,8 +34,8 @@ def main(args):
     parser.add_argument('-i', default=[], action='append', nargs='?', type=str)
     parser.add_argument('-f', default=None, type=str)
     parser.add_argument('-o', default='output.jpg', type=str)
-    parser.add_argument('--scene_output', default=None, type=argparse.FileType('w'))
-    parser.add_argument('--projection_output', default=None, type=argparse.FileType('w'))
+    parser.add_argument('--scene_output', default=None, type=str)#type=argparse.FileType('w'))
+    parser.add_argument('--projection_output', default=None, type=str) #type=argparse.FileType('w'))
     parser.add_argument('--silent', action='store_true')
     parser.add_argument('--cv', action='store_true')
 
@@ -85,6 +78,7 @@ def main(args):
         for imageLocation in args.i:
             image1 = Image(imageLocation)
             image1.detect_features()
+            print len(image1.kps)
             imList.append(image1)
 
         for x in range(0, len(imList)):
@@ -103,11 +97,14 @@ def main(args):
                 print 'Outputting scene to: {}'.format(args.scene_output)
             if args.projection_output:
                 print 'Outputting projections to: {}'.format(args.projection_output)
-        triangulate.triangulateFromImages(args.i,
-                                          scene_file=args.scene_output,
-                                          projections_file=args.projection_output,
-                                          silent=args.silent,
-                                          cv=args.cv)
+        track = TrackCreator(args.i)
+        track.triangulateImages(scene_file=args.scene_output, projections_file=args.projection_output, silent=args.silent)
+                                                             
+#        triangulate.triangulateFromImages(args.i,
+#                                          scene_file=args.scene_output,
+#                                          projections_file=args.projection_output,
+#                                          silent=args.silent,
+#                                          cv=args.cv)
 
     elif mode == 'manual_pts':
         manual_location = args.manual_identifier
