@@ -8,7 +8,7 @@ from PIL import Image as PILImage
 
 def normalizeCoordinates(points, K):
     '''
-    Takes list of nonhomogenous image coordinates, camera matrix K
+    Takes list of non-homogenous image coordinates, camera matrix K
     Returns normalized camera coordinates
     '''
     normPoints = []
@@ -24,7 +24,7 @@ def normalizeCoordinates(points, K):
 def findMatches(image1, image2, filter=False):
     '''
     Takes two images
-    Returns list of matches between the keypoints in poth images
+    Returns list of matches between the keypoints in both images
     '''
     bf = cv2.BFMatcher(cv2.NORM_L1, crossCheck=True)
     matches = bf.match(image1.descs, image2.descs)
@@ -90,7 +90,7 @@ def findMatchesKnn(image1, image2, filter=True, ratio=True):
 def sortMatchesByDistance(matches):
     '''
     Takes in the matches from a BF matcher (list of DMatch objects)
-    Returns matches sorted by distance between the bitvectors.
+    Returns matches sorted by distance between the bit-vectors.
     '''
     return sorted(matches, key=lambda x: x.distance)
 
@@ -147,22 +147,29 @@ def getEssentialMat(points1, points2, K):
         pts2 = np.append(points2[i], 1)
         p1 = kInv.dot(pts1)
         p2 = kInv.dot(pts2)
-        tempColumn = np.array([p2[0] * p1[0], p2[0] * p1[1], p2[0], p2[1] * p1[0], p2[1] * p1[1], p2[1],
-                               p1[0], p1[1], 1])
-        yMat[i] = tempColumn
+        tempRow = np.array([
+            p2[0] * p1[0],
+            p2[0] * p1[1],
+            p2[0],
+            p2[1] * p1[0],
+            p2[1] * p1[1],
+            p2[1],
+            p1[0],
+            p1[1],
+            1])
+        yMat[i] = tempRow  # Actually setting a row!!
 
     b = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0])
-    eVector = np.linalg.solve(yMat, b)
+    eVector = np.linalg.solve(yMat, b)  # Find kernel
     eEstMat = np.array([[eVector[0], eVector[1], eVector[2]],
                         [eVector[3], eVector[4], eVector[5]],
                         [eVector[6], eVector[7], eVector[8]]
                         ])
 
-    W, U, VT = cv2.SVDecomp(eEstMat)
-    S = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 0]])
-    E = W.dot(U.dot(VT))
+    # W, U, VT = cv2.SVDecomp(eEstMat)
+    # E = W.dot(U.dot(VT)) # decompose and recompose wat?!
 
-    return E
+    return eEstMat
 
 
 def EFromF(F, K=KMatrix()):
@@ -197,7 +204,6 @@ def composeTranslations(t1, t2):
 
 
 def decomposeEssentialMat(E):
-
     W, U, VT = cv2.SVDecomp(E)
     W = np.array([[0, -1, 0], [1, 0, 0], [0, 0, 1]])
 

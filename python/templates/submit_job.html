@@ -31,8 +31,10 @@
                 border-radius: 3px;
             }
 
-            #detect_image, #match_image {
+            #detect_image, #match_image, #triangulate_iframe {
                 max-width: 600px;
+                max-height: 600px;
+                display:block;
             }
 
 
@@ -67,6 +69,7 @@
                 <input type="radio" name="algorithm" value="discrete">Discrete<br>
                 <!-- <input type="radio" name="algorithm" value="opencv">OpenCV SVD<br> -->
                 <input type="file" name="files" id="triangulate_files" accept="image/*" multiple>
+                <!-- <iframe src="" frameborder="0" id="triangulate_iframe" height="0"></iframe> -->
             </form>
         </div>  
 
@@ -156,7 +159,10 @@
                         success: function(data, status, xhr){
                             console.log(status, data);
                             data_json = JSON.parse(data);
-                            // $("#triangulate_image").attr("src", data_json['output_paths'][0]);
+                            $("#triangulate_iframe").attr("src", "/render?scene=" + data_json['scene'] + "&proj=" + data_json['proj']);
+                            $("#triangulate_iframe").attr("width", "600");
+                            $("#triangulate_iframe").attr("height", "600");
+
                         },
                         error: function(err1, err2){
                             console.log(err1, err2)

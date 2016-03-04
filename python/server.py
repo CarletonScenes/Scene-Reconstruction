@@ -103,12 +103,20 @@ def triangulate_handler():
                                       scene_file=scene_ply_file,
                                       projections_file=proj_ply_file,
                                       silent=True,
-                                      cv=True)
+                                      cv=False)
 
     return json.dumps({
         'scene': scene_ply_location[scene_ply_location.find("/static"):],
         'proj': proj_ply_location[proj_ply_location.find("/static"):]
     })
+
+
+@app.route("/render")
+def render():
+    proj = request.args.get("proj", "")
+    scene = request.args.get("scene", "")
+
+    return render_template("home.html", scene=scene, proj=proj)
 
 
 @app.route("/stream.ply")

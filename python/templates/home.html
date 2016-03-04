@@ -40,6 +40,7 @@
         </div>
 
         <script src="static/js/three.js"></script>
+        <script src="static/js/orbit.js"></script>
 
         <script src="static/js/PLYLoader.js"></script>
 
@@ -50,9 +51,28 @@
 
             if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
+            function buildAxes( length ) {
+                    var axes = new THREE.Object3D();
+
+                    axes.add( buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( length, 0, 0 ), 0xFF0000, false ) ); // +X
+                    axes.add( buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( -length, 0, 0 ), 0xFF0000, true) ); // -X
+                    axes.add( buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, length, 0 ), 0x00FF00, false ) ); // +Y
+                    axes.add( buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, -length, 0 ), 0x00FF00, true ) ); // -Y
+                    axes.add( buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, 0, length ), 0x0000FF, false ) ); // +Z
+                    axes.add( buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, 0, -length ), 0x0000FF, true ) ); // -Z
+
+                    return axes;
+
+            }
+
             var container, stats;
 
-            var camera, cameraTarget, scene, renderer;
+            var distance = 10;
+            var xdistance = -10;
+            var ydistance = -2;
+            var zdistance = 1;
+
+            var camera, cameraTarget, scene, renderer, mesh;
 
             init();
             animate();
@@ -63,24 +83,27 @@
                 document.body.appendChild( container );
 
                 camera = new THREE.PerspectiveCamera( 1, window.innerWidth / window.innerHeight, 1, 15 );
-                camera.position.set( 3, 0.15, 3 );
+                camera.position.set( xdistance, ydistance, zdistance );
 
                 cameraTarget = new THREE.Vector3( 0, -0.25, 0 );
 
+                var orbit = new THREE.OrbitControls( camera, container );
+                    orbit.enableZoom = true;
+
                 scene = new THREE.Scene();
-                scene.fog = new THREE.Fog( 0x72645b, 2, 15 );
+                // scene.fog = new THREE.Fog( 0x72645b, 2, 15 );
 
 
                 // Ground
-                var plane = new THREE.Mesh(
-                    new THREE.PlaneBufferGeometry( 40, 40 ),
-                    new THREE.MeshPhongMaterial( { color: 0x999999, specular: 0x101010 } )
-                );
-                plane.rotation.x = -Math.PI/2;
-                plane.position.y = -0.5;
-                scene.add( plane );
+                // var plane = new THREE.Mesh(
+                //     new THREE.PlaneGeometry( 40, 40 ),
+                //     new THREE.MeshPhongMaterial( { color: 0xffffff, specular: 0x111111 } )
+                // );
+                // plane.rotation.x = -Math.PI/2;
+                // plane.position.y = -0.5;
+                // scene.add( plane );
 
-                plane.receiveShadow = true;
+                // plane.receiveShadow = true;
 
                 // from http://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
                   function hexToRgb(hex) { //TODO rewrite with vector output
@@ -97,15 +120,17 @@
 
                 var mat = new THREE.ParticleBasicMaterial({
                         vertexColors: true,
-                        size: 10
+                        size: 1,
+                        color: 0xffffff,
+                        opacity: 100
                     });
                 // PLY file
 
                 var loader = new THREE.PLYLoader();
-                loader.load( '/stream.ply', function ( geometry ) {
+                loader.load( '{{scene}}', function ( geometry ) {
                     console.log(geometry);
 
-                    geometry.computeFaceNormals();
+                    // geometry.computeFaceNormals();
 
                     // var xExent = d3.extent(geometry.verticies, function (d) {return d.x; }),
                     //     yExent = d3.extent(geometry.verticies, function (d) {return d.y; }),
@@ -123,7 +148,7 @@
 
                     // Add in points
                     // var points = new THREE.Points(geometry);
-                    var pointScale = 0.1;
+                    var pointScale = 0.01;
                     var pointGeo = new THREE.Geometry();
                     for (var i = 0; i < geometry.vertices.length; i ++) {
                         // var x = xScale(geometry.verticies[i].x);
@@ -134,20 +159,21 @@
                         var z = geometry.vertices[i].z * pointScale;
 
                         pointGeo.vertices.push(new THREE.Vector3(x, y, z));
-                        console.log(pointGeo.vertices);
+                        // console.log(pointGeo.vertices);
                         //pointGeo.vertices[i].angle = Math.atan2(z, x);
                         //pointGeo.vertices[i].radius = Math.sqrt(x * x + z * z);
                         //pointGeo.vertices[i].speed = (z / 100) * (x / 100);
-                        pointGeo.colors.push(new THREE.Color().setRGB(
-                          hexToRgb(colour(i)).r / 255, hexToRgb(colour(i)).g / 255, hexToRgb(colour(i)).b / 255 
-                        ));
+                        pointGeo.colors.push(new THREE.Color(0xffffff));
+                        // pointGeo.colors.push(new THREE.Color().setRGB(
+                        //   hexToRgb(colour(i)).r / 255, hexToRgb(colour(i)).g / 255, hexToRgb(colour(i)).b / 255 
+                        // ));
 
                     }
 
                     var points = new THREE.ParticleSystem(pointGeo, mat);
                     
                     var material = new THREE.MeshStandardMaterial( { color: 0x0055ff } );
-                    var mesh = new THREE.Mesh( geometry, material );
+                    mesh = new THREE.Mesh( geometry, material );
 
                     mesh.position.y = - 0.25;
                     mesh.rotation.x = - Math.PI / 2;
@@ -171,7 +197,7 @@
                 // renderer
 
                 renderer = new THREE.WebGLRenderer( { antialias: true } );
-                renderer.setClearColor( scene.fog.color );
+                // renderer.setClearColor( scene.fog.color );
                 renderer.setPixelRatio( window.devicePixelRatio );
                 renderer.setSize( window.innerWidth, window.innerHeight );
 
@@ -243,12 +269,23 @@
 
                 var timer = Date.now() * 0.0005;
 
-                camera.position.x = Math.sin( timer ) * 3;
-                camera.position.z = Math.cos( timer ) * 3;
+                // camera.position.x = Math.sin( timer ) * xdistance;
+                // camera.position.z = Math.cos( timer ) * zdistance;
 
-                camera.lookAt( cameraTarget );
+                // camera.lookAt( cameraTarget );
+                requestAnimationFrame( render );
+
+                var time = Date.now() * 0.001;
+
+                if( true ) {
+                    mesh.rotation.x += 0.005;
+                    mesh.rotation.y += 0.005;
+                }
 
                 renderer.render( scene, camera );
+
+
+                // renderer.render( scene, camera );
 
             }
 
