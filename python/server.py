@@ -1,13 +1,10 @@
 import uuid
 import json
 import os
-import utils.triangulate as triangulate
 import utils.CVFuncs as CVFuncs
 from flask import Flask, render_template, request
 from utils import Image
 from werkzeug import secure_filename
-
-print triangulate.triangulateFromImages
 
 app = Flask(__name__, static_url_path='/static')
 try:
