@@ -1,20 +1,12 @@
 import sys
 import os
 import argparse
-import utils.triangulate as triangulate
 import utils.CVFuncs as CVFuncs
 import utils.triangulateManualPoints as triangulateManual
 from utils import Image
+from utils.trackCreator import *
 
 ACCEPTED_FILETYPES = ['jpg', 'png', 'jpeg']
-
-
-def addPostToPath(path, post):
-    base = os.path.basename(path)
-    dirname = os.path.dirname(path)
-    base = base.split(".")[0] + "-" + str(post) + "." + base.split(".")[1]
-
-    return dirname + base
 
 
 def print_help():
@@ -29,7 +21,6 @@ def print_help():
                                 --scene_output scene.ply [--projection_output projection.ply]
     """
 
-
 def main(args):
     if len(args) < 2:
         print_help()
@@ -41,8 +32,8 @@ def main(args):
     parser.add_argument('-i', default=[], action='append', nargs='?', type=str)
     parser.add_argument('-f', default=None, type=str)
     parser.add_argument('-o', default='output.jpg', type=str)
-    parser.add_argument('--scene_output', default=None, type=argparse.FileType('w'))
-    parser.add_argument('--projection_output', default=None, type=argparse.FileType('w'))
+    parser.add_argument('--scene_output', default=None, type=str)#type=argparse.FileType('w'))
+    parser.add_argument('--projection_output', default=None, type=str) #type=argparse.FileType('w'))
     parser.add_argument('--silent', action='store_true')
     parser.add_argument('--cv', action='store_true')
 
@@ -69,7 +60,7 @@ def main(args):
             for x in range(len(args.i)):
                 image = Image(args.i[x])
                 image.detect_features()
-                output = image.draw_keypoints(addPostToPath(args.o, x), orientation=True, gray=True)
+                output = image.draw_keypoints(CVFuncs.addPostToPath(args.o, x), orientation=True, gray=True)
 
         else:
             image = Image(args.i[0])
@@ -85,7 +76,6 @@ def main(args):
         for imageLocation in args.i:
             image1 = Image(imageLocation)
             image1.detect_features()
-            print "image has", len(image1.kps), "features"
             imList.append(image1)
 
         for x in range(0, len(imList)):
@@ -93,7 +83,7 @@ def main(args):
                 points1, points2, matches = CVFuncs.findMatchesKnn(imList[x], imList[y], filter=True, ratio=True)
                 # if there is more than one output image
                 if len(imList) > 2:
-                    CVFuncs.drawMatches(imList[x], imList[y], matches, addPostToPath(args.o, str(x) + "-" + str(y)))
+                    CVFuncs.drawMatches(imList[x], imList[y], matches, CVFuncs.addPostToPath(args.o, str(x) + "-" + str(y)))
                 else:
                     CVFuncs.drawMatches(imList[x], imList[y], matches, args.o)
 
@@ -104,12 +94,9 @@ def main(args):
                 print 'Outputting scene to: {}'.format(args.scene_output)
             if args.projection_output:
                 print 'Outputting projections to: {}'.format(args.projection_output)
-        triangulate.triangulateFromImages(args.i,
-                                          scene_file=args.scene_output,
-                                          projections_file=args.projection_output,
-                                          silent=args.silent,
-                                          cv=args.cv)
-
+        track = TrackCreator(args.i)
+        track.triangulateImages(scene_file=args.scene_output, projections_file=args.projection_output, silent=args.silent)
+                                                             
     elif mode == 'manual_pts':
         manual_location = args.manual_identifier
 
