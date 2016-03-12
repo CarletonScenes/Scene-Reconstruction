@@ -91,7 +91,7 @@ def getProjections(pts1, pts2, k, r, t):
         imgpoint = normalized
         planepoint = (imgpoint[0] * 20, imgpoint[1] * 20, imgpoint[2] * 20)
         cameraOnePoints.append(imgpoint)
-        cameraOnePoints.append(planepoint)
+#        cameraOnePoints.append(planepoint)
 
     # IMAGE TWO
     for point in pts2:
@@ -101,11 +101,11 @@ def getProjections(pts1, pts2, k, r, t):
         imgpoint = normalized
         planepoint = (imgpoint[0] * 20, imgpoint[1] * 20, imgpoint[2] * 20)
         cameraTwoPoints.append(imgpoint)
-        cameraTwoPoints.append(planepoint)
+#        cameraTwoPoints.append(planepoint)
 
     cameraTwoPoints = applyRandTToPoints(r, t, cameraTwoPoints)
     writePoints += cameraOnePoints + cameraTwoPoints
-    writePoints = transformPointsToViewingCoordinates(writePoints)
+#    writePoints = transformPointsToViewingCoordinates(writePoints)
     
     return writePoints
     
@@ -132,7 +132,7 @@ def getProjectionsWithTwoRT(pts1, pts2, k, r1, t1, r2, t2):
         imgpoint = normalized
         planepoint = (imgpoint[0] * 20, imgpoint[1] * 20, imgpoint[2] * 20)
         cameraOnePoints.append(imgpoint)
-        cameraOnePoints.append(planepoint)
+#        cameraOnePoints.append(planepoint)
 
     # IMAGE TWO
     for point in pts2:
@@ -142,12 +142,12 @@ def getProjectionsWithTwoRT(pts1, pts2, k, r1, t1, r2, t2):
         imgpoint = normalized
         planepoint = (imgpoint[0] * 20, imgpoint[1] * 20, imgpoint[2] * 20)
         cameraTwoPoints.append(imgpoint)
-        cameraTwoPoints.append(planepoint)
+#        cameraTwoPoints.append(planepoint)
 
     cameraOnePoints = applyRandTToPoints(r1, t1, cameraOnePoints)
     cameraTwoPoints = applyRandTToPoints(composedR, composedT, cameraTwoPoints)
     writePoints += cameraOnePoints + cameraTwoPoints
-    writePoints = transformPointsToViewingCoordinates(writePoints)
+#    writePoints = transformPointsToViewingCoordinates(writePoints)
     
     return writePoints
 

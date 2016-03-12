@@ -4,7 +4,14 @@ import numpy as np
 from KMatrix import *
 from line import *
 from PIL import Image as PILImage
+import os
 
+def addPostToPath(path, post):
+    base = os.path.basename(path)
+    dirname = os.path.dirname(path)
+    base = base.split(".")[0] + "-" + str(post) + "." + base.split(".")[1]
+
+    return dirname + base
 
 def normalizeCoordinates(points, K):
     '''
@@ -121,16 +128,25 @@ def filterMatchesYDist(points1, points2, matches):
 
 
 def drawMatches(image1, image2, matches, filename):
+    '''
+    Takes two images and matches and saves an image of those matches
+    '''
     matchImage = cv2.drawMatches(image1.img, image1.kps, image2.img, image2.kps, matches, image1.img, flags=2)
     img = PILImage.fromarray(matchImage, 'RGB')
     img.save(filename)
 
 
 def findFundamentalMat(points1, points2):
+    '''
+    Takes points1, points2, returns fundamental matrix (opencv implementation)
+    '''
     return cv2.findFundamentalMat(np.array(points1), np.array(points2))
 
 
 def findEssentialMat(points1, points2, K=KMatrix()):
+    '''
+    Takes points1, points2, K, returns essential matrix (opencv implementation)
+    '''
     return cv2.findEssentialMat(np.array(points1), np.array(points2), focal=K.focalLength, pp=K.principalPoint)
 
 
@@ -166,10 +182,17 @@ def getEssentialMat(points1, points2, K):
 
 
 def EFromF(F, K=KMatrix()):
+    '''
+    Takes fundamental matrix and K, returns E
+    '''
     return np.dot(np.dot(K.matrix.transpose(), F), K.matrix)
 
 
 def recoverPose(E, points1, points2, K=KMatrix()):
+    '''
+    takes E, points1, points2, K, returns r, t, newMask 
+    r, t transform from camera 2 coordinates to camera 1 coordinates
+    '''
     points, r, t, newMask = cv2.recoverPose(E, np.array(points1), np.array(points2), pp=K.principalPoint)
     r = np.linalg.inv(r)
     t = t * -1
@@ -229,7 +252,7 @@ def midpoint(pt1, pt2):
 
 def triangulateFromLinesIteratively(line1, line2):
     '''
-    Takes two lines, presumably skewed
+    Takes two lines, presumably skew
     Iteratively finds the closest point to both lines
     Returns the closest point
     '''
@@ -253,6 +276,9 @@ def triangulateFromLinesIteratively(line1, line2):
 
 
 def normalize(arr):
+    '''
+    returns a normalized version of an input array of length 3
+    '''
     magnitude = (arr[0] ** 2 + arr[1] ** 2 + arr[2] ** 2) ** (1 / 2)
     arr[0] = arr[0] / magnitude
     arr[1] = arr[1] / magnitude
@@ -261,6 +287,9 @@ def normalize(arr):
 
 
 def triangulateFromLinesDiscrete(lineObj1, lineObj2):
+    '''
+    takes two lines, returns the closest approach
+    '''
 
     # Find the cross product of the two lines
     line1 = [lineObj1.origin, lineObj1.direction]
@@ -316,6 +345,8 @@ def triangulateFromLinesDiscrete(lineObj1, lineObj2):
     for i in range(DIMENSIONS):
         closest[i] = inters2[i] + -0.5 * perpD[i]
 
+#    if s<0 or t<0:
+#        return [0,0,0]
     return closest
 
 
@@ -363,8 +394,11 @@ def discreteTriangulateWithTwoRT(pts1, pts2, k, r1, t1, r2, t2):
 
 
 def linesFromImagePoints(pts1, pts2, k, r, t):
-    # Transforms image planes by r and t and returns epipolar lines of each feature
-
+    '''
+    Takes pts1, pts2, k, r, t
+    Returns rays from camera centers through points in coordinate system of pts1
+    '''
+    
     origin1 = (0, 0, 0)
     origin2 = (t[0][0], t[1][0], t[2][0])
 
@@ -396,8 +430,12 @@ def linesFromImagePoints(pts1, pts2, k, r, t):
     return lines1, lines2
 
 def linesFromImagePointsWithTwoRT(pts1, pts2, k, r1, t1, r2, t2):
-    # Transforms image planes by r and t and returns epipolar lines of each feature
-    # first image plane transformed by r1 t1, the second by r1 t1 and r2 t2
+    '''
+    Takes pts1, pts2, k, r1, t1, r2, t2
+    Returns rays from camera centers through points
+    Rays through pts1 are transformed by r1, t1
+    Rays through pts2 are transformed by r2, t2, r1, t1
+    '''
 
     origin1 = (t1[0][0], t1[1][0], t1[2][0])
     
@@ -410,6 +448,7 @@ def linesFromImagePointsWithTwoRT(pts1, pts2, k, r1, t1, r2, t2):
     imgpoints2 = []
 
     inverseK = np.linalg.inv(k)
+    
 
     # IMAGE ONE
     for point in pts1:
@@ -437,6 +476,10 @@ def linesFromImagePointsWithTwoRT(pts1, pts2, k, r1, t1, r2, t2):
 
 
 def cvTriangulate(pts1, pts2, k, r, t):
+    '''
+    Takes pts1, pts2, k, r, t
+    Returns triangulated points using openCV implementation
+    '''
     proj1 = np.array([[1, 0, 0, 0],
                       [0, 1, 0, 0],
                       [0, 0, 1, 0]])
@@ -461,11 +504,14 @@ def cvTriangulate(pts1, pts2, k, r, t):
 # reimplement: https://github.com/Itseez/opencv/blob/ddf82d0b154873510802ef75c53e628cd7b2cb13/modules/calib3d/src/triangulate.cpp#L54
 
 def findScalarGuess(low, high, oldPoints, points1, points2, K, lastR, lastT, r, t, zone=False):
-    # find the best scalar multiple of t such that 
-    # you have minimal error between the oldTriangulatedPoints and the triangulation of:
-    #   points1(with lastR and lastT)
-    #   points2(with lastR and lastT applied, and also r and t*scalar applied)
-    # return either a range of scalars, or the scaled T
+    '''
+    Takes a lowest and highest guess, triangulated points, two sets of image points, K, lastR, lastT, r, t, zone
+    finds the best scalar multiple of t such that 
+    you have minimal error between the oldTriangulatedPoints and the triangulation of:
+       points1(with lastR and lastT applied)
+       points2(with lastR and lastT applied, and also r and t*scalar applied)
+    returns either a range of scalars, or the scaled T
+    '''
     scalars = []
     diff = high-low
     for i in range(6):
@@ -493,14 +539,16 @@ def findScalarGuess(low, high, oldPoints, points1, points2, K, lastR, lastT, r, 
         return np.array([t[0]*scalars[bestScalar], t[1]*scalars[bestScalar], t[2]*scalars[bestScalar]])
 
 def minimizeError(oldTriangulatedPoints, points1, points2, K, lastR, lastT, r, t):
-    #scalars to check = .01 to 10 
-    # find the best scalar multiple of t such that 
-    # you have minimal error between the oldTriangulatedPoints and the triangulation of:
-    #   points1(with lastR and lastT)
-    #   points2(with lastR and lastT applied, and also r and t*scalar applied)
-    # return the scaled T
+    '''
+    Takes triangulated points, two sets of image points, K, lastR, lastT, r, t
+    returns the best scalar multiple of t between .001 and 100 such that 
+    you have minimal error between the oldTriangulatedPoints and the triangulation of:
+       points1(with lastR and lastT applied)
+       points2(with lastR and lastT applied, and also r and t*scalar applied)
+    '''
     
-    low, high = findScalarGuess(.01, 10.0, oldTriangulatedPoints, points1, points2, K, lastR, lastT, r, t, zone=True)
+    low, high = findScalarGuess(.001, 100.0, oldTriangulatedPoints, points1, points2, K, lastR, lastT, r, t, zone=True)
+    low, high = findScalarGuess(low, high, oldTriangulatedPoints, points1, points2, K, lastR, lastT, r, t, zone=True)
     low, high = findScalarGuess(low, high, oldTriangulatedPoints, points1, points2, K, lastR, lastT, r, t, zone=True)
     low, high = findScalarGuess(low, high, oldTriangulatedPoints, points1, points2, K, lastR, lastT, r, t, zone=True)
     low, high = findScalarGuess(low, high, oldTriangulatedPoints, points1, points2, K, lastR, lastT, r, t, zone=True)
@@ -508,8 +556,10 @@ def minimizeError(oldTriangulatedPoints, points1, points2, K, lastR, lastT, r, t
     
 
 def findTriangulationError(points1, points2):
-    #find the total sum of squared error between corresponding point lists
-
+    '''
+    return the total sum of squared error between corresponding point lists
+    '''
+    
     totalError = 0
     for i in range(len(points1)):
         totalError += eucDist(points1[i], points2[i])**2

@@ -96,14 +96,8 @@ def triangulate_handler():
     scene_ply_file = open(scene_ply_location, 'w')
     proj_ply_file = open(proj_ply_location, 'w')
 
-    print triangulate
-    print triangulate.triangulateFromImages
-
-    triangulate.triangulateFromImages(filepaths,
-                                      scene_file=scene_ply_file,
-                                      projections_file=proj_ply_file,
-                                      silent=True,
-                                      cv=True)
+    track = TrackCreator(filepaths)
+    track.triangulateImages(scene_file=args.scene_output, projections_file=args.projection_output, silent=args.silent)
 
     return json.dumps({
         'scene': scene_ply_location[scene_ply_location.find("/static"):],

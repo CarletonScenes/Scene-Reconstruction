@@ -6,6 +6,9 @@ import os
 import draw
         
 def getOverlapIndices(list1, list2):
+    '''
+    takes two lists, returns tuples (i,j) that indicate the same item in list1[i] and list2[j]
+    '''
     outList = []
     for i in range(len(list1)):
         for j in range(len(list2)):
@@ -13,13 +16,6 @@ def getOverlapIndices(list1, list2):
                 outList.append((i,j))
                 
     return outList
-
-def addPostToPath(path, post):
-    base = os.path.basename(path)
-    dirname = os.path.dirname(path)
-    base = base.split(".")[0] + "-" + str(post) + "." + base.split(".")[1]
-
-    return dirname + base
 
 class TrackCreator:
     
@@ -36,19 +32,21 @@ class TrackCreator:
             self.triangulatedPoints.append([])
             self.projectedPoints.append([])
             
+    
     def matchPairs(self, KNN=True, filter=True):
-        #this function will create a matrix self.kpMatrix like the following:
-        #[a, b, none, c, none]
-        #[d, e, f, g, none]
-        #[h, none, j, k, l]
-        #[none, none, m, o, p]
-        #if these matches exist: 
-        #   image1:a - image2:d
-        #   image2:d - image3:h
-        #   image1:b - image2:e
-        #   ...
-        #where a,b,c... are pixel coordinates
-        
+        '''
+        this function will create a matrix self.kpMatrix like the following:
+        [a, b, none, c, none]
+        [d, e, f, g, none]
+        [h, none, j, k, l]
+        [none, none, m, o, p]
+        if these matches exist: 
+           image1:a - image2:d
+           image2:d - image3:h
+           image1:b - image2:e
+           ...
+        where a,b,c... are pixel coordinates
+        '''
         
         for i in range(len(self.imageList)-1):
             if KNN:
@@ -61,10 +59,6 @@ class TrackCreator:
                     points1, points2, matches = CVFuncs.findMatches(self.imageList[i], self.imageList[i+1],filter=True)
                 else:
                     points1, points2, matches = CVFuncs.findMatches(self.imageList[i], self.imageList[i+1],filter=False)
-                    
-            #TESTING        
-#            matches = [cv2.DMatch(0,1,0),cv2.DMatch(1,2,0),cv2.DMatch(2,3,0)] 
-            CVFuncs.drawMatches(self.imageList[i],self.imageList[i+1],matches, "matched"+str(i)+"-"+str(i+1)+".jpg")
                     
             # for each match...
             for match in matches:
@@ -91,8 +85,10 @@ class TrackCreator:
                             self.kpMatrix[i+1].append(match.trainIdx) #self.imageList[i+1].kps[match.trainIdx])
             
     def getIndexCorrespondences(self, imageIdx1, imageIdx2):
-        # this function returns two lists  points1 and points2
-        # indices1 and indices2 are correspondeces between image1 and image2 where entries are indicies in kp lists
+        '''
+        returns two lists  points1 and points2
+        indices1 and indices2 are correspondeces between image1 and image2 where entries are indicies in kp lists
+        '''
         
         indices1, indices2 = [], []
         
@@ -107,8 +103,10 @@ class TrackCreator:
         return indices1, indices2
     
     def getPointCorrespondences(self, imageIdx1, imageIdx2):
-        # this function returns two lists  points1 and points2
-        # points1 and points2 are correspondeces between image1 and image2 where entries are pixel coordinates
+        '''
+        returns two lists  points1 and points2
+        points1 and points2 are correspondeces between image1 and image2 where entries are pixel coordinates
+        '''
         
         points1, points2 = [], []
         
@@ -125,9 +123,9 @@ class TrackCreator:
 
     
     def triangulateImages(self, scene_file=None, projections_file=None, silent=False):
-        # this function will fill the self.triangulatedPoints matrix. Some row i of this matrix would be:
-        # [(1,1,1), (2,2,2), (3,3,3)] 
-        # if images i and i+1 have 3 keypoint matches that triangulate to (1,1,1), (2,2,2), (3,3,3)
+        '''
+        Triangulates all image matches and outputs triangulates and projections
+        '''
         
         self.matchPairs(KNN=True, filter=True)
         
@@ -169,55 +167,23 @@ class TrackCreator:
                     newImagePoints2.append(points2[pair[1]])
                     
                 minimumErrorT = CVFuncs.minimizeError(oldTriangulatedPoints, newImagePoints1, newImagePoints2, K.matrix, lastR, lastT, r, t)
-#                scaledTriangulatedPoints = CVFuncs.discreteTriangulate(points1, points2, K.matrix, r, minimumErrorT)
-#                goodTriangulatedPoints = CVFuncs.applyRandTToPoints(lastR, lastT, scaledTriangulatedPoints)
-#                
-
                 newTriangulations = CVFuncs.discreteTriangulateWithTwoRT(points1, points2, K.matrix, lastR, lastT, r, minimumErrorT)
                 
                 self.RTList.append([r, minimumErrorT])
                 self.triangulatedPoints[i].extend(newTriangulations)
                 if projections_file:
                     self.projectedPoints[i].extend(draw.getProjectionsWithTwoRT(points1, points2, K.matrix, lastR, lastT, r, minimumErrorT))
-                
-#                #TESTING CODE
-#                scene_ply_file = PlyFile()
-#                scene_ply_file.emitPoints(draw.transformPointsToViewingCoordinates(self.triangulatedPoints[0]))
-#                scene_ply_file.save(file(addPostToPath(scene_file, str("AB")),"w"))
-#                
-#                scene_ply_file = PlyFile()
-#                scene_ply_file.emitPoints(draw.transformPointsToViewingCoordinates(composedTriangulations))
-#                scene_ply_file.save(file(addPostToPath(scene_file, str("composed")),"w"))
-                
-            
-                
+                            
             lastIdxCorrespondences = indices2
-            
-        allPoints = []
-        for i in range(len(self.imageList)):
-            allPoints.extend(self.triangulatedPoints[i])
             
         if scene_file:
             for i in range(len(self.imageList)-1):
                 scenePly = PlyFile()
                 scenePly.emitPoints(self.triangulatedPoints[i])
-                scenePly.save(file(addPostToPath(scene_file, str(i)+"-"+str(i+1)), "w"))
+                scenePly.save(file(CVFuncs.addPostToPath(scene_file, str(i)+"-"+str(i+1)), "w"))
         if projections_file:
             for i in range(len(self.imageList)-1):
                 projPly = PlyFile()
                 projPly.emitPoints(self.projectedPoints[i])
-                projPly.save(file(addPostToPath(projections_file, str(i)+"-"+str(i+1)), "w"))
-#        
-#        scene_ply_file = PlyFile()
-#        scene_ply_file.emitPoints(allPoints)
-#        scene_ply_file.save(sceneFile)
+                projPly.save(file(CVFuncs.addPostToPath(projections_file, str(i)+"-"+str(i+1)), "w"))
                      
-#def main():
-#    track = TrackCreator("../photos/food/0.jpg", "../photos/food/1.jpg","../photos/food/2.jpg")
-##    track.matchPairs()
-##    print track.kpMatrix
-##    points1, points2 = track.getPointCorrespondences(1,2)
-##    print zip(points1, points2)
-#    track.triangulateImages(scene_file = "foodscene.ply", projections_file = "foodproj.ply")
-#    
-#main()
